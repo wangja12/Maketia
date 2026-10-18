@@ -41,6 +41,9 @@ Seuls les outils réellement implémentés et testés sont exposés.
 | `validate_page` | lecture | Contrôles déterministes : `errors` (bloquants), `warnings`, `review` (revue humaine) |
 | `get_publication_status` | lecture | Pages en ligne (version, adresse), historique, domaines et statut DNS |
 | `preview_page` | lecture | Lien de l'aperçu privé d'une version (connexion de l'utilisateur requise) |
+| `list_products` | lecture | Produits (id à utiliser dans une section `checkout`) |
+| `list_orders` | lecture | Commandes récentes et statut (« paid » = confirmé par le prestataire) |
+| `get_payment_status` | lecture | Statut et historique du paiement d'une commande |
 | `get_integrations_status` | lecture | État réel des intégrations (rien n'est présenté comme actif sans l'être) |
 | `create_funnel`, `update_funnel` | écriture | Créer ou renommer un tunnel |
 | `create_page` | conception | Créer une page (modèle par type, ou contenu complet) |
@@ -60,8 +63,8 @@ Les outils **de conception** exigent `skill_version` égal à la version courant
 fait dans l'application, par une personne, après la revue humaine. L'agent prépare, valide et
 transmet le lien d'aperçu.
 
-Non exposés pour l'instant (non construits) : expériences A/B, statistiques, contacts,
-commandes, paiements, quotas. Aucun outil ne supprime une ressource.
+Aucun outil MCP ne configure un prestataire, ne modifie un produit ou une commande.
+Non exposés pour l'instant (non construits) : expériences A/B, statistiques, contacts, quotas. Aucun outil ne supprime une ressource.
 
 Ressource : `wang://skills/design-engineering` (même texte que l'outil).
 

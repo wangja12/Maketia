@@ -52,12 +52,14 @@ export function Editor({
   title,
   backHref,
   server,
+  products,
 }: {
   initialContent: PageContent;
   initialVersion: number;
   title: string;
   backHref: string;
   server: EditorServer;
+  products: EditorContextValue["products"];
 }) {
   const [state, dispatch] = useReducer(editorReducer, initialContent, initEditor);
   const [saved, setSaved] = useState({ content: initialContent, version: initialVersion });
@@ -198,9 +200,10 @@ export function Editor({
     [],
   );
   const context: EditorContextValue = useMemo(
-    () => ({ dispatch, setField, selected: state.selected, errors, sectionIds: state.content.sections.map((s) => s.id) }),
-    [setField, state.selected, errors, state.content.sections],
+    () => ({ dispatch, setField, selected: state.selected, errors, sectionIds: state.content.sections.map((s) => s.id), products }),
+    [setField, state.selected, errors, state.content.sections, products],
   );
+  const productMap = useMemo(() => Object.fromEntries(products.map((p) => [p.id, p])), [products]);
   const selectedSection = state.content.sections.find((s) => s.id === state.selected) ?? null;
   const width = DEVICES.find((d) => d.id === device)!.width;
   const pageErrors = [...errors.entries()].filter(([k]) => k.startsWith("page:"));
@@ -270,7 +273,7 @@ export function Editor({
           <main className="order-1 min-w-0 lg:order-2" aria-label="Page en cours d’édition">
             <div className="h-[calc(100dvh-12rem)] min-h-96 overflow-auto rounded-card border border-border bg-surface-sunken">
               <div style={{ width }} className="mx-auto max-w-full bg-white" data-editor-canvas={previewMode ? undefined : ""}>
-                <PageRenderer content={state.content} edit={previewMode ? undefined : EDIT_HOOKS} className="min-h-full" />
+                <PageRenderer content={state.content} edit={previewMode ? undefined : EDIT_HOOKS} products={productMap} className="min-h-full" />
               </div>
             </div>
           </main>

@@ -57,6 +57,12 @@ export const BLOCKS: Block[] = [
     create: (id) => ({ id, type: "cta", headline: "Prêt à commencer ?", cta: { label: "Je commence", href: "#" } }),
   },
   {
+    type: "checkout",
+    label: "Commande et paiement",
+    description: "Formulaire de commande d’un produit, payé chez votre prestataire.",
+    create: (id) => ({ id, type: "checkout", title: "Commander", productId: "", buttonLabel: "Payer maintenant" }),
+  },
+  {
     type: "image",
     label: "Image",
     description: "Une image par adresse https:// avec son texte alternatif.",

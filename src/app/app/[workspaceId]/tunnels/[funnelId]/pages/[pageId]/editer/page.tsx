@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { Editor } from "@/editor/editor";
 import { NotFoundError } from "@/server/errors";
 import { getPage } from "@/server/pages";
+import { listProducts } from "@/server/payments/service";
 import { can } from "@/server/workspaces";
 import { loadFunnel } from "../../../funnel";
 import { loadVersionAction, pageHeadAction, saveContentAction } from "./actions";
@@ -21,6 +22,7 @@ export default async function EditorPage({ params }: PageProps<"/app/[workspaceI
     throw e;
   });
   if (data.page.funnelId !== funnel.id) notFound();
+  const products = (await listProducts(getDb(), user.id, workspace.id)).map(({ id, name, price, currency, active }) => ({ id, name, price, currency, active }));
 
   return (
     <Editor
@@ -28,6 +30,7 @@ export default async function EditorPage({ params }: PageProps<"/app/[workspaceI
       initialVersion={data.page.currentVersion}
       title={`${data.page.name} · variante ${data.page.variantLabel}`}
       backHref={pageHref}
+      products={products}
       server={{
         save: saveContentAction.bind(null, pageId),
         head: pageHeadAction.bind(null, pageId),

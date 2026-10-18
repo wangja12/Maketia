@@ -33,6 +33,8 @@ src/
     publishing.ts      Publication (instantané d'une version), historique, sous-domaines, résolution publique
     domains.ts         Domaines personnalisés : vérification DNS réelle (TXT + CNAME/A)
     site-config.ts     APP_URL, PUBLIC_ROOT_DOMAIN, PUBLIC_DOMAIN_TARGET
+    payments/          Paiements : client CinetPay, interface PaymentGateway, commandes, webhooks (voir PAIEMENTS.md)
+    secrets.ts         Chiffrement AES-256-GCM des identifiants des prestataires
   db/                  Schéma Drizzle et connexion PostgreSQL
   components/ui/       Système de design (boutons, champs, dialogue, badges)
   components/page-renderer.tsx  Rendu des pages, partagé par l'aperçu et l'éditeur (container queries)
@@ -69,12 +71,16 @@ tests/e2e/             Playwright (bureau + mobile) sur le build de production
 | `mcp_tokens` | id, workspace_id, user_id, name, token_hash (SHA-256), access (`read`/`write`), last_used_at, revoked_at | |
 | `publications` | funnel_id, page_id, version, path, published_by, created_at, unpublished_at | jamais supprimée (historique) ; une seule ligne en ligne par (tunnel, adresse) via index partiel |
 | `domains` | workspace_id, funnel_id, hostname, verification_token, status (`pending`/`verified`/`misconfigured`), last_error, last_checked_at | un seul espace peut détenir un nom vérifié (index partiel) |
+| `payment_providers` | workspace_id, provider, environment, country, credentials (chiffrés), status, last_error | un compte par (espace, prestataire, pays) |
+| `products` | workspace_id, name, price (entier), currency, active | |
+| `orders` | workspace_id, funnel/page/variante, product, amount, currency, status (`started`/`pending`/`paid`/`failed`/`expired`), merchant_transaction_id, provider_transaction_id, notify_token_hash, client | `paid` uniquement après l'API du prestataire |
+| `payment_events` | order_id, kind, provider_status, detail | journal immuable |
 | `mcp_audit_log` | token_id, workspace_id, user_id, tool, resource_id, ok, error, created_at | sert aussi au calcul de la limite de débit |
 
 Rôles : `viewer` lit ; `editor` lit et modifie ; `owner`/`admin` peuvent aussi supprimer.
 
 Tables prévues pour les phases suivantes (non créées) : `experiments`,
-`events`, `contacts`, `orders`, `payments`, `payment_providers`, `domains`, `plans`,
+`events`, `contacts`, `plans`,
 `subscriptions`, `usage`.
 
 ## Système de design
@@ -117,8 +123,8 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 1. **Fondations** — livrée.
 2. **Serveur MCP et pages structurées** — livrée.
 3. **Éditeur visuel** — livrée.
-4. **Publication** (cette livraison) — voir l'état ci-dessous.
-5. Paiements : premier prestataire africain éligible, commandes, webhooks vérifiés.
+4. **Publication** — livrée.
+5. **Paiements** (cette livraison) — voir l'état ci-dessous et [PAIEMENTS.md](PAIEMENTS.md).
 6. Analytics et tests A/B (2 à 4 variantes).
 7. CRM, abonnements, quotas, administration, suivi de l'usage MCP.
 8. Qualité et lancement.
@@ -126,6 +132,15 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 5 — Paiements (CinetPay)**
+
+- Comptes marchands par pays, identifiants chiffrés, vérification réelle de connexion (authentification).
+- Produits (prix entier, devise du compte) ; section « Commande et paiement » dans l'éditeur ; publication bloquée si le paiement ne peut pas aboutir.
+- Commande publique sans JavaScript, validation serveur, limite par IP ; montant pris du produit.
+- Webhook authentifié par notify token haché, statut toujours relu via l'API ; idempotent ; « payée » jamais rétrogradée ; page de retour qui revérifie.
+- Tableau de bord des commandes avec historique ; MCP en lecture : `list_products`, `list_orders`, `get_payment_status`.
+- Vérifié par : 7 tests du client (scénarios du SDK officiel), 8 tests d'intégration, 2 e2e (achat confirmé et refusé) contre un simulateur local du protocole. **Pas encore testé contre CinetPay réel** (réseau fermé, pas de compte).
 
 **Phase 4 — Publication**
 
@@ -176,7 +191,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 4 est fermée. Prochaine : phase 5, paiements (premier prestataire africain éligible).
+- Rien : la phase 5 est fermée côté code. Prochaine : phase 6, analytics et tests A/B.
 
 ### Bloquées ou à décider
 
@@ -188,4 +203,6 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - **Mise en ligne réelle** : domaine du produit, DNS générique `*.domaine`, hébergeur. À configurer : `APP_URL`, `PUBLIC_ROOT_DOMAIN`, `PUBLIC_DOMAIN_TARGET`.
 - **HTTPS des domaines personnalisés** : délivré par l'hébergeur (ex. API Domains de Vercel). Non intégré tant que l'hébergeur n'est pas choisi ; l'interface ne le présente jamais comme actif.
 - **Vérification DNS automatique périodique** : aujourd'hui à la demande (bouton) ; une tâche planifiée est à prévoir avec l'hébergement.
-- Comptes CinetPay / PayDunya : nécessaires pour la phase 5.
+- **Test réel CinetPay** : compte bac à sable + déploiement HTTPS ; procédure dans PAIEMENTS.md.
+- **PayDunya** : non intégré (documentation inaccessible ici) ; l'interface d'adaptateur est prête.
+- **Remboursements** : non exposés par l'API CinetPay utilisée.

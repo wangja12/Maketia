@@ -11,6 +11,8 @@ export type EditorContextValue = {
   /** Validation messages keyed by "sectionId:path.to.field". */
   errors: Map<string, string>;
   sectionIds: string[];
+  /** Products of the workspace, for order forms. */
+  products: { id: string; name: string; price: number; currency: string; active: boolean }[];
 };
 
 export const EditorContext = createContext<EditorContextValue | null>(null);

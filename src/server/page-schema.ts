@@ -108,6 +108,17 @@ const faq = z.object({
   items: z.array(z.object({ question: text(200), answer: text(1000) })).min(1).max(12),
 });
 
+/** Order form for a product; the price always comes from the product, never from the page. */
+const checkout = z.object({
+  id: sectionId,
+  layout,
+  type: z.literal("checkout"),
+  title: optionalText(120),
+  productId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, "Choisissez un produit"),
+  buttonLabel: text(40),
+  note: optionalText(300),
+});
+
 const ctaSection = z.object({
   id: sectionId,
   layout,
@@ -143,6 +154,7 @@ export const sectionSchema = z.discriminatedUnion("type", [
   ctaSection,
   textSection,
   imageSection,
+  checkout,
 ]);
 
 export const themeSchema = z.object({

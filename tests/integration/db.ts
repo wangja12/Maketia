@@ -10,7 +10,7 @@ export const { db, client } = createDb(url);
 
 beforeEach(async () => {
   await db.execute(
-    sql`TRUNCATE users, sessions, workspaces, workspace_members, funnels, pages, page_versions, mcp_tokens, mcp_audit_log, publications, domains CASCADE`,
+    sql`TRUNCATE users, sessions, workspaces, workspace_members, funnels, pages, page_versions, mcp_tokens, mcp_audit_log, publications, domains, payment_providers, products, orders, payment_events CASCADE`,
   );
 });
 

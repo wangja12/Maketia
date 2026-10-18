@@ -78,8 +78,8 @@ describe("block library", () => {
     for (const b of BLOCKS) {
       const page = { ...templateFor("other"), sections: [b.create(b.type)] };
       const ok = pageContentSchema.safeParse(page).success;
-      // The image block starts with an empty https:// URL on purpose: it must be filled in.
-      expect(ok, b.type).toBe(b.type !== "image");
+      // Image and order-form blocks start incomplete on purpose (URL, product) and must be filled in.
+      expect(ok, b.type).toBe(b.type !== "image" && b.type !== "checkout");
     }
   });
 });

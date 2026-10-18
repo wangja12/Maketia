@@ -12,7 +12,8 @@ export type FieldDef =
   | { kind: "image"; key: string; label: string; optional?: boolean }
   | { kind: "strings"; key: string; label: string; itemLabel: string; max: number; min: number }
   | { kind: "items"; key: string; label: string; itemLabel: string; max: number; fields: SubField[]; blank: Record<string, string> }
-  | { kind: "confirm"; key: string; label: string };
+  | { kind: "confirm"; key: string; label: string }
+  | { kind: "product"; key: string; label: string };
 
 const title: FieldDef = { kind: "text", key: "title", label: "Titre de la section", optional: true };
 
@@ -68,6 +69,12 @@ export const SECTION_FIELDS: Record<SectionType, FieldDef[]> = {
     { kind: "cta", key: "cta", label: "Bouton" },
   ],
   text: [title, { kind: "textarea", key: "body", label: "Texte" }],
+  checkout: [
+    title,
+    { kind: "product", key: "productId", label: "Produit vendu" },
+    { kind: "text", key: "buttonLabel", label: "Libellé du bouton" },
+    { kind: "textarea", key: "note", label: "Note sous le prix", optional: true },
+  ],
   image: [
     { kind: "image", key: "image", label: "Image" },
     { kind: "text", key: "caption", label: "Légende", optional: true },

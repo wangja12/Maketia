@@ -8,6 +8,7 @@ export function NavLinks({ workspaceId }: { workspaceId: string }) {
   const base = `/app/${workspaceId}`;
   const links = [
     { href: base, label: "Tunnels", active: pathname === base || pathname.startsWith(`${base}/tunnels`) },
+    { href: `${base}/paiements`, label: "Paiements", active: pathname.startsWith(`${base}/paiements`) },
     { href: `${base}/agents`, label: "Agents IA", active: pathname.startsWith(`${base}/agents`) },
   ];
   return (

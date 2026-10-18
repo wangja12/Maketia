@@ -50,7 +50,7 @@ describe("MCP server", () => {
     expect(names).toEqual(
       [
         "add_page_section", "create_funnel", "create_page", "create_page_variant", "duplicate_page",
-        "get_design_engineering_skill", "get_funnel", "get_integrations_status", "get_page", "get_page_schema", "get_publication_status", "preview_page",
+        "get_design_engineering_skill", "get_funnel", "get_integrations_status", "get_page", "get_page_schema", "get_publication_status", "preview_page", "list_products", "list_orders", "get_payment_status",
         "list_funnels", "list_page_variants", "list_page_versions", "list_pages", "list_workspaces",
         "remove_page_section", "reorder_page_sections", "restore_page_version", "update_funnel",
         "update_page_content", "update_page_section", "update_page_theme", "validate_page",

@@ -32,6 +32,7 @@ import { requireMembership } from "../workspaces";
 import { listDomains } from "../domains";
 import { listPublications } from "../publishing";
 import { siteConfig, subdomainUrl } from "../site-config";
+import { getOrderForUser, listOrders, listProducts, listProviders } from "../payments/service";
 
 /*
  * MCP server for external AI agents. The SaaS runs no model: the agent reasons on its side
@@ -452,6 +453,57 @@ export function buildMcpServer({ db, ctx, loadSkill }: ServerDeps) {
     return { resourceId: page_id, data: { url: `${origin}/preview/${page_id}?v=${v}`, version: v, requiresLogin: true } };
   });
 
+  tool("list_products", "read", {
+    title: "Lister les produits",
+    description: "Produits de l'espace (nom, prix, devise, actif). Utilisez leur id dans une section de type checkout ; le prix encaissé est toujours celui du produit.",
+    input: {},
+  }, async () => ({
+    data: (await listProducts(db, ctx.userId, ctx.workspaceId)).map(({ id, name, price, currency, active }) => ({ id, name, price, currency, active })),
+  }));
+
+  tool("list_orders", "read", {
+    title: "Lister les commandes",
+    description: "Commandes récentes de l'espace avec leur statut. « paid » signifie confirmé par l'API du prestataire. Les coordonnées des clients sont des données personnelles : ne les utilisez que pour la demande de l'utilisateur.",
+    input: { limit: z.number().int().min(1).max(100).optional() },
+  }, async ({ limit }) => ({
+    data: (await listOrders(db, ctx.userId, ctx.workspaceId, limit ?? 30)).map(({ order, funnelName, pageName }) => ({
+      id: order.id,
+      reference: order.merchantTransactionId,
+      status: order.status,
+      providerStatus: order.providerStatus,
+      product: order.productName,
+      amount: order.amount,
+      currency: order.currency,
+      customer: { firstName: order.customerFirstName, lastName: order.customerLastName, email: order.customerEmail },
+      funnel: funnelName,
+      page: pageName,
+      variant: order.variantLabel,
+      createdAt: order.createdAt,
+      paidAt: order.paidAt,
+    })),
+  }));
+
+  tool("get_payment_status", "read", {
+    title: "Statut de paiement d'une commande",
+    description: "Statut enregistré et historique du paiement d'une commande (ne relance pas le prestataire).",
+    input: { order_id: uuid },
+  }, async ({ order_id }) => {
+    const { order, events } = await getOrderForUser(db, ctx.userId, order_id);
+    inScope(order.workspaceId);
+    return {
+      resourceId: order.id,
+      data: {
+        status: order.status,
+        confirmedByProvider: order.status === "paid",
+        providerStatus: order.providerStatus,
+        amount: order.amount,
+        currency: order.currency,
+        paidAt: order.paidAt,
+        events: events.map(({ kind, providerStatus, createdAt }) => ({ kind, providerStatus, createdAt })),
+      },
+    };
+  });
+
   tool("get_integrations_status", "read", {
     title: "État des intégrations",
     description: "État réel des intégrations. Rien n'est présenté comme actif sans vérification.",
@@ -466,7 +518,14 @@ export function buildMcpServer({ db, ctx, loadSkill }: ServerDeps) {
           ? `Publication par une personne, depuis l'application, sur <sous-domaine>.${siteConfig().rootDomain}. Aucun outil MCP ne publie.`
           : "Publication par une personne, depuis l'application ; sous-domaines non configurés (PUBLIC_ROOT_DOMAIN), pages servies sous /s/<sous-domaine>. Aucun outil MCP ne publie.",
       },
-      payments: { status: "not_configured", detail: "Aucun prestataire de paiement configuré (phase 5)." },
+      payments: await (async () => {
+        const providers = await listProviders(db, ctx.userId, ctx.workspaceId);
+        return {
+          status: providers.some((p) => p.status === "verified") ? "verified_account" : providers.length ? "unverified" : "not_configured",
+          accounts: providers.map(({ provider, country, environment, status, lastError }) => ({ provider, country, environment, status, lastError })),
+          detail: "CinetPay, intégré d'après le SDK officiel ; pas encore testé avec un vrai compte marchand. Aucun outil MCP ne modifie les paiements.",
+        };
+      })(),
       analytics: { status: "not_configured", detail: "Mesure d'audience prévue en phase 6." },
       domains: {
         status: siteConfig().domainTarget ? "dns_verification" : "target_not_configured",

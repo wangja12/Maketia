@@ -263,10 +263,116 @@ export const domains = pgTable(
   ],
 );
 
+export const paymentProviderKind = pgEnum("payment_provider_kind", ["cinetpay"]);
+export const providerEnvironment = pgEnum("provider_environment", ["sandbox", "production"]);
+export const connectionStatus = pgEnum("connection_status", ["unverified", "verified", "failed"]);
+
+/** A merchant account of a payment provider. Credentials are encrypted at rest (AES-256-GCM). */
+export const paymentProviders = pgTable(
+  "payment_providers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    provider: paymentProviderKind("provider").notNull(),
+    environment: providerEnvironment("environment").notNull(),
+    // One CinetPay account serves one country (and its currency).
+    country: text("country").notNull(),
+    credentials: text("credentials").notNull(),
+    status: connectionStatus("status").notNull().default("unverified"),
+    lastError: text("last_error"),
+    lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("payment_providers_workspace_idx").on(t.workspaceId, t.provider, t.country)],
+);
+
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    // Whole units of the currency (XOF, XAF, GNF and CDF are charged without decimals).
+    price: integer("price").notNull(),
+    currency: text("currency").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: createdAt(),
+  },
+  (t) => [index("products_workspace_idx").on(t.workspaceId)],
+);
+
+export const orderStatus = pgEnum("order_status", ["started", "pending", "paid", "failed", "expired"]);
+
+/**
+ * An end customer's order. "paid" is set only from the provider's own status API,
+ * never from a browser redirect or the content of a webhook.
+ */
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    funnelId: uuid("funnel_id").references(() => funnels.id, { onDelete: "set null" }),
+    pageId: uuid("page_id").references(() => pages.id, { onDelete: "set null" }),
+    variantLabel: text("variant_label"),
+    productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+    productName: text("product_name").notNull(),
+    amount: integer("amount").notNull(),
+    currency: text("currency").notNull(),
+    status: orderStatus("status").notNull().default("started"),
+    providerId: uuid("provider_id").references(() => paymentProviders.id, { onDelete: "set null" }),
+    // Our reference sent to the provider (≤ 30 characters).
+    merchantTransactionId: text("merchant_transaction_id").notNull().unique(),
+    providerTransactionId: text("provider_transaction_id"),
+    // SHA-256 of the notify_token returned at initialization; webhooks must present the token.
+    notifyTokenHash: text("notify_token_hash"),
+    paymentUrl: text("payment_url"),
+    providerStatus: text("provider_status"),
+    customerFirstName: text("customer_first_name").notNull(),
+    customerLastName: text("customer_last_name").notNull(),
+    customerEmail: text("customer_email").notNull(),
+    customerPhone: text("customer_phone"),
+    // For abuse limits only: SHA-256 of the client IP, never the IP itself.
+    ipHash: text("ip_hash"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("orders_workspace_idx").on(t.workspaceId, t.createdAt),
+    index("orders_ip_idx").on(t.ipHash, t.createdAt),
+  ],
+);
+
+/** Append-only trail of everything that happened to an order's payment. */
+export const paymentEvents = pgTable(
+  "payment_events",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    providerStatus: text("provider_status"),
+    detail: text("detail"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("payment_events_order_idx").on(t.orderId, t.createdAt)],
+);
+
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type Funnel = typeof funnels.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type PageKind = (typeof pageKind.enumValues)[number];
 export type McpToken = typeof mcpTokens.$inferSelect;
 export type Publication = typeof publications.$inferSelect;
+export type PaymentProvider = typeof paymentProviders.$inferSelect;
+export type Product = typeof products.$inferSelect;
+export type Order = typeof orders.$inferSelect;
 export type Domain = typeof domains.$inferSelect;

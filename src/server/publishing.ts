@@ -7,6 +7,7 @@ import { requireFunnel, slugify } from "./funnels";
 import type { PageContent } from "./page-schema";
 import { validatePageContent } from "./page-validation";
 import { getPage } from "./pages";
+import { checkoutProblems } from "./payments/checks";
 
 /*
  * Publication: a page version becomes public at a path of the funnel's site.
@@ -72,13 +73,17 @@ export async function publishPage(
   input: { path: unknown; version?: number; reviewConfirmed: unknown },
 ) {
   const { page, version } = await getPage(db, { userId }, pageId, input.version);
-  await requireFunnel(db, userId, page.funnelId, "edit");
+  const funnel = await requireFunnel(db, userId, page.funnelId, "edit");
 
   const path = pathSchema.safeParse(input.path ?? "");
   if (!path.success) throw new ValidationError(path.error.issues[0].message, { path: path.error.issues[0].message });
   const report = validatePageContent(page.kind, version.content);
   if (report.errors.length > 0) {
     throw new ValidationError(`Publication bloquée par les contrôles : ${report.errors.map((e) => e.message).join(" ")}`);
+  }
+  const paymentProblems = await checkoutProblems(db, funnel.workspaceId, version.content);
+  if (paymentProblems.length > 0) {
+    throw new ValidationError(`Publication bloquée : ${paymentProblems.join(" ")}`);
   }
   if (input.reviewConfirmed !== true) {
     throw new ValidationError("Confirmez la revue humaine avant de publier.", { review: "Cochez chaque point de la revue" });
@@ -157,7 +162,9 @@ export type PublicSite = { subdomain: string } | { hostname: string };
  * What a visitor sees at a site path, or null. Public: no user, so it only ever returns
  * live publications of a funnel reachable through its subdomain or a verified domain.
  */
-export async function resolvePublishedPage(db: Db, site: PublicSite, path: string): Promise<{ content: PageContent; title: string } | null> {
+export type ResolvedPage = { content: PageContent; title: string; funnelId: string; workspaceId: string; pageId: string; variantLabel: string };
+
+export async function resolvePublishedPage(db: Db, site: PublicSite, path: string): Promise<ResolvedPage | null> {
   if (!pathSchema.safeParse(path).success) return null;
   let funnelId: string | undefined;
   if ("subdomain" in site) {
@@ -173,14 +180,22 @@ export async function resolvePublishedPage(db: Db, site: PublicSite, path: strin
   }
   if (!funnelId) return null;
   const [row] = await db
-    .select({ content: pageVersions.content, name: pages.name })
+    .select({ content: pageVersions.content, name: pages.name, pageId: pages.id, variantLabel: pages.variantLabel, workspaceId: funnels.workspaceId })
     .from(publications)
+    .innerJoin(funnels, eq(funnels.id, publications.funnelId))
     .innerJoin(pageVersions, and(eq(pageVersions.pageId, publications.pageId), eq(pageVersions.version, publications.version)))
     .innerJoin(pages, eq(pages.id, publications.pageId))
     .where(and(eq(publications.funnelId, funnelId), eq(publications.path, path), isNull(publications.unpublishedAt)));
   if (!row) return null;
   const hero = row.content.sections.find((s) => s.type === "hero");
-  return { content: row.content, title: hero && "headline" in hero ? hero.headline : row.name };
+  return {
+    content: row.content,
+    title: hero && "headline" in hero ? hero.headline : row.name,
+    funnelId,
+    workspaceId: row.workspaceId,
+    pageId: row.pageId,
+    variantLabel: row.variantLabel,
+  };
 }
 
 /** Live publication of a page, if any (for the page screen and MCP). */

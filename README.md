@@ -5,6 +5,7 @@ africains. Aucune IA n'est intégrée : l'utilisateur connecte son propre client
 
 - Architecture, schéma, plan et état : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Serveur MCP (connexion, outils, sécurité) : [docs/MCP.md](docs/MCP.md)
+- Paiements (CinetPay, sécurité, procédure de test réel) : [docs/PAIEMENTS.md](docs/PAIEMENTS.md)
 - Skill obligatoire des agents : [skills/wang-design-engineering](skills/wang-design-engineering/SKILL.md)
 
 ## Prérequis

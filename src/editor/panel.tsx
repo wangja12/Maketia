@@ -111,6 +111,8 @@ function FieldEditor({ section, def }: { section: Section; def: FieldDef }) {
       return <NumberInput section={section} path={[def.key]} label={def.label} />;
     case "currency":
       return <TextInput section={section} path={[def.key]} label={def.label} placeholder="XOF" />;
+    case "product":
+      return <ProductSelect section={section} path={[def.key]} label={def.label} />;
     case "confirm":
       return (
         <label className="flex items-start gap-2 rounded-control bg-surface-sunken p-2 text-xs">
@@ -187,6 +189,27 @@ function FieldEditor({ section, def }: { section: Section; def: FieldDef }) {
       );
     }
   }
+}
+
+function ProductSelect({ section, path, label }: { section: Section; path: Path; label: string }) {
+  const id = useId();
+  const f = useField(section, path);
+  const { products } = useEditor();
+  return (
+    <Field label={label} error={f.error} id={id}>
+      <select id={id} value={(f.value as string) || ""} onChange={(e) => f.set(e.target.value)}
+        aria-invalid={f.error ? true : undefined} className={`${control} h-9 sm:h-8`}>
+        <option value="">Choisir un produit…</option>
+        {products.map((p) => (
+          <option key={p.id} value={p.id} disabled={!p.active}>
+            {p.name} · {p.price} {p.currency}{p.active ? "" : " (désactivé)"}
+          </option>
+        ))}
+      </select>
+      {products.length === 0 && <p className="text-xs text-muted">Aucun produit : créez-en un dans Paiements.</p>}
+      <p className="text-xs text-muted">Le prix affiché et encaissé est toujours celui du produit.</p>
+    </Field>
+  );
 }
 
 function NumberInput({ section, path, label }: { section: Section; path: Path; label: string }) {

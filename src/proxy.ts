@@ -16,7 +16,8 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const rest = pathname === "/" ? "" : pathname;
 
-  if (host !== appHost) {
+  // Checkout and provider webhooks are API routes on every host; never rewrite them into a site.
+  if (host !== appHost && !pathname.startsWith("/api/")) {
     if (root && host.endsWith(`.${root}`)) {
       const label = host.slice(0, -(root.length + 1));
       if (/^[a-z0-9-]+$/.test(label)) return NextResponse.rewrite(new URL(`/s/${label}${rest}${search}`, request.url));

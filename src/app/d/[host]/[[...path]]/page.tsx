@@ -5,7 +5,7 @@ export async function generateMetadata({ params }: PageProps<"/d/[host]/[[...pat
   return publishedMetadata({ hostname: decodeURIComponent(host) }, path);
 }
 
-export default async function CustomDomainSite({ params }: PageProps<"/d/[host]/[[...path]]">) {
+export default async function CustomDomainSite({ params, searchParams }: PageProps<"/d/[host]/[[...path]]">) {
   const { host, path } = await params;
-  return <PublishedPage site={{ hostname: decodeURIComponent(host) }} path={path} />;
+  return <PublishedPage site={{ hostname: decodeURIComponent(host) }} path={path} search={await searchParams} />;
 }
