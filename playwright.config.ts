@@ -1,0 +1,29 @@
+import "dotenv/config";
+import { defineConfig, devices } from "@playwright/test";
+
+const port = 3100;
+
+export default defineConfig({
+  testDir: "tests/e2e",
+  fullyParallel: false,
+  retries: 0,
+  reporter: "list",
+  use: {
+    baseURL: `http://localhost:${port}`,
+    trace: "retain-on-failure",
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+      : {},
+  },
+  projects: [
+    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", use: { ...devices["Pixel 7"] } },
+  ],
+  // Runs the production build against the test database.
+  webServer: {
+    command: `pnpm start -p ${port}`,
+    url: `http://localhost:${port}`,
+    reuseExistingServer: false,
+    env: { DATABASE_URL: process.env.TEST_DATABASE_URL ?? "" },
+  },
+});

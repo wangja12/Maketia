@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Every color, radius, shadow and motion value in the app comes from here.
+ * Components use them through the Tailwind theme below (bg-surface, text-muted, …).
+ */
+:root {
+  /* Color: warm neutrals, one accent. Status colors always ship with a text label. */
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-sunken: #f0eee9;
+  --fg: #1c1b19;
+  --muted: #6b6862;
+  --border: #e3e0d9;
+  --border-strong: #cfcbc2;
+  --accent: #1f5f4a;
+  --accent-hover: #184c3b;
+  --accent-fg: #ffffff;
+  --danger: #b42318;
+  --danger-hover: #912018;
+  --danger-soft: #fdecea;
+  --success: #1f7a45;
+  --success-soft: #e7f4ec;
+  --focus: #2563eb;
+
+  /* Shadows: one for raised surfaces, one for overlays. */
+  --shadow-raised: 0 1px 2px rgb(28 27 25 / 0.06);
+  --shadow-overlay: 0 12px 32px -8px rgb(28 27 25 / 0.24), 0 0 0 1px rgb(28 27 25 / 0.06);
+
+  /* Motion (Emil Kowalski's curves; never ease-in on UI). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-press: 140ms;
+  --duration-tooltip: 160ms;
+  --duration-dropdown: 200ms;
+  --duration-modal: 260ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141412;
+    --surface: #1c1c1a;
+    --surface-sunken: #11110f;
+    --fg: #ecebe7;
+    --muted: #a3a09a;
+    --border: #2e2d2a;
+    --border-strong: #42403c;
+    --accent: #5fb592;
+    --accent-hover: #74c4a3;
+    --accent-fg: #0c1a14;
+    --danger: #f0786c;
+    --danger-hover: #f49488;
+    --danger-soft: #3a1a17;
+    --success: #6cc493;
+    --success-soft: #16291e;
+    --focus: #7aa7ff;
+    --shadow-raised: 0 0 0 1px rgb(255 255 255 / 0.04);
+    --shadow-overlay: 0 16px 40px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Type scale (1.2 ratio around a 15px body). */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.25rem;
+
+  /* Radii: controls 8px, cards 12px, overlays 14px. */
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-overlay: 14px;
+
+  --shadow-raised: var(--shadow-raised);
+  --shadow-overlay: var(--shadow-overlay);
+
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+}
+
+html {
+  color-scheme: light dark;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/*
+ * Press feedback for every pressable control (buttons, link-buttons).
+ * Purpose: feedback. Transform only, so it never triggers layout.
+ */
+.pressable {
+  transition:
+    transform var(--duration-press) var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.pressable:active:not(:disabled, [aria-disabled="true"]) {
+  transform: scale(0.97);
+}
+
+/*
+ * Modal on the native <dialog>: focus trap, Escape and inert background come from the browser.
+ * Purpose: preventing a jarring change. Centered origin (modals are not anchored to a trigger).
+ */
+.modal {
+  transform-origin: center;
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity var(--duration-modal) var(--ease-out),
+    transform var(--duration-modal) var(--ease-out),
+    overlay var(--duration-modal) allow-discrete,
+    display var(--duration-modal) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.modal:not([open]) {
+  opacity: 0;
+  transform: scale(0.96);
+  /* Exit faster than entry: the system is responding, the user is not deciding. */
+  transition-duration: 160ms;
+}
+.modal::backdrop {
+  background: rgb(20 20 18 / 0.4);
+  opacity: 1;
+  transition:
+    opacity var(--duration-modal) var(--ease-out),
+    overlay var(--duration-modal) allow-discrete,
+    display var(--duration-modal) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+.modal:not([open])::backdrop {
+  opacity: 0;
+  transition-duration: 160ms;
+}
+
+/* Spinner: constant motion, so linear. Kept fast: a fast spinner makes waiting feel shorter. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  animation: spin 600ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Fewer and gentler: keep the fades that explain state, drop movement. */
+  .pressable:active:not(:disabled, [aria-disabled="true"]) {
+    transform: none;
+  }
+  .modal,
+  .modal:not([open]) {
+    transform: none;
+  }
+  .modal {
+    @starting-style {
+      transform: none;
+    }
+  }
+  .spinner {
+    animation-duration: 1.5s;
+  }
+}

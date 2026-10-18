@@ -1,0 +1,22 @@
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
+
+export function createDb(url: string) {
+  const client = postgres(url, { max: 10 });
+  return { db: drizzle(client, { schema }), client };
+}
+
+export type Db = ReturnType<typeof createDb>["db"];
+
+// One pool per server process; survives hot reloads in development.
+const globalForDb = globalThis as unknown as { appDb?: Db };
+
+export function getDb(): Db {
+  if (!globalForDb.appDb) {
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error("DATABASE_URL is not set");
+    globalForDb.appDb = createDb(url).db;
+  }
+  return globalForDb.appDb;
+}

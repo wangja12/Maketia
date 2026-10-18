@@ -1,0 +1,31 @@
+import Link from "next/link";
+import { signOutAction } from "@/app/(auth)/actions";
+import { buttonClass } from "@/components/ui/button";
+import { loadWorkspace } from "./workspace";
+
+export default async function WorkspaceLayout({ children, params }: LayoutProps<"/app/[workspaceId]">) {
+  const { workspaceId } = await params;
+  const { user, workspace } = await loadWorkspace(workspaceId);
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-sm">
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
+          <Link href={`/app/${workspace.id}`} className="text-sm font-semibold tracking-tight">
+            Tunnels IA
+          </Link>
+          <span className="text-border-strong" aria-hidden="true">/</span>
+          <span className="truncate text-sm text-muted">{workspace.name}</span>
+          <div className="ml-auto flex min-w-0 items-center gap-2">
+            <span className="hidden truncate text-sm text-muted sm:inline">{user.name}</span>
+            <form action={signOutAction}>
+              <button type="submit" className={buttonClass("ghost")}>
+                Se déconnecter
+              </button>
+            </form>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
+    </div>
+  );
+}
