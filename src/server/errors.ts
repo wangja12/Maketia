@@ -25,12 +25,24 @@ export class ValidationError extends Error {
   }
 }
 
+/** Someone saved a newer version since the caller read the page. Nothing was overwritten. */
+export class ConflictError extends Error {
+  constructor(
+    readonly currentVersion: number,
+    message = `La page a été modifiée entre-temps (version actuelle : ${currentVersion}). Rechargez-la avant de modifier.`,
+  ) {
+    super(message);
+    this.name = "ConflictError";
+  }
+}
+
 export function isDomainError(
   e: unknown,
-): e is NotFoundError | ForbiddenError | ValidationError {
+): e is NotFoundError | ForbiddenError | ValidationError | ConflictError {
   return (
     e instanceof NotFoundError ||
     e instanceof ForbiddenError ||
-    e instanceof ValidationError
+    e instanceof ValidationError ||
+    e instanceof ConflictError
   );
 }

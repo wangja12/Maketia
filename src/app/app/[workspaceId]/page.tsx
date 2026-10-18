@@ -44,6 +44,7 @@ export default async function WorkspacePage({ params }: PageProps<"/app/[workspa
           {funnels.map((f) => (
             <FunnelRow
               key={f.id}
+              workspaceId={workspace.id}
               funnel={{ id: f.id, name: f.name, slug: f.slug, status: f.status }}
               updatedLabel={dateFormat.format(f.updatedAt)}
               canEdit={canEdit}

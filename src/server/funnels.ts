@@ -2,6 +2,7 @@ import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
 import { funnels } from "@/db/schema";
+import { briefSchema } from "./brief";
 import { NotFoundError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 import { isUuid, requireMembership, type Permission } from "./workspaces";
@@ -75,7 +76,7 @@ export async function createFunnel(
 }
 
 /** Loads a funnel only if the user may perform `permission` on its workspace. */
-async function requireFunnel(db: Db, userId: string, funnelId: string, permission: Permission) {
+export async function requireFunnel(db: Db, userId: string, funnelId: string, permission: Permission) {
   if (!isUuid(funnelId)) throw new NotFoundError();
   const [funnel] = await db.select().from(funnels).where(eq(funnels.id, funnelId));
   if (!funnel) throw new NotFoundError();
@@ -107,4 +108,18 @@ export async function deleteFunnel(db: Db, userId: string, funnelId: string) {
   const funnel = await requireFunnel(db, userId, funnelId, "delete");
   await db.delete(funnels).where(eq(funnels.id, funnel.id));
   return funnel;
+}
+
+export async function updateFunnelBrief(db: Db, userId: string, funnelId: string, input: unknown) {
+  const funnel = await requireFunnel(db, userId, funnelId, "edit");
+  const parsed = briefSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
+  }
+  const [updated] = await db
+    .update(funnels)
+    .set({ brief: parsed.data, updatedAt: sql`now()` })
+    .where(eq(funnels.id, funnel.id))
+    .returning();
+  return updated;
 }

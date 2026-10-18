@@ -8,6 +8,13 @@
       "when": 1792317173301,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792318751979,
+      "tag": "0001_pages_mcp",
+      "breakpoints": true
     }
   ]
 }

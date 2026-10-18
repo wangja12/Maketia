@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import type { Funnel } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,13 @@ import { deleteFunnelAction, renameFunnelAction } from "./actions";
 type RowFunnel = Pick<Funnel, "id" | "name" | "slug" | "status">;
 
 export function FunnelRow({
+  workspaceId,
   funnel,
   updatedLabel,
   canEdit,
   canDelete,
 }: {
+  workspaceId: string;
   funnel: RowFunnel;
   updatedLabel: string;
   canEdit: boolean;
@@ -36,9 +39,13 @@ export function FunnelRow({
     <li className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate font-medium" title={funnel.name}>
+          <Link
+            href={`/app/${workspaceId}/tunnels/${funnel.id}`}
+            className="truncate font-medium underline-offset-4 [@media(hover:hover)_and_(pointer:fine)]:hover:underline"
+            title={funnel.name}
+          >
             {funnel.name}
-          </span>
+          </Link>
           <StatusBadge status={funnel.status} />
         </div>
         <span className="truncate font-mono text-xs text-muted">

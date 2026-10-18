@@ -1,10 +1,11 @@
 # Tunnels IA
 
-SaaS de création, publication et optimisation de tunnels de vente avec l'IA, pensé pour les
-marchés africains. Phase 1 (fondations) : comptes, espaces de travail isolés, gestion des tunnels
-et système de design.
+SaaS de création, publication et optimisation de tunnels de vente, pensé pour les marchés
+africains. Aucune IA n'est intégrée : l'utilisateur connecte son propre client IA via MCP.
 
-Architecture, schéma, plan et état des fonctionnalités : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- Architecture, schéma, plan et état : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Serveur MCP (connexion, outils, sécurité) : [docs/MCP.md](docs/MCP.md)
+- Skill obligatoire des agents : [skills/wang-design-engineering](skills/wang-design-engineering/SKILL.md)
 
 ## Prérequis
 

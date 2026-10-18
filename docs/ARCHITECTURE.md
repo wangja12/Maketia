@@ -3,23 +3,37 @@
 ## Vue d'ensemble
 
 Une seule application Next.js 16 (App Router, TypeScript) contient l'interface et le serveur.
-Toute règle métier vit dans `src/server/` : l'interface web, les futures routes API et le futur
-serveur MCP appellent ces mêmes fonctions. Aucune voie ne contourne les autorisations.
+Toute règle métier vit dans `src/server/` : l'interface web et le serveur MCP appellent ces
+mêmes fonctions. Aucune voie ne contourne les autorisations.
+
+**Aucune IA n'est intégrée.** Le SaaS n'appelle aucun fournisseur de modèles et ne demande
+aucune clé d'API d'IA. L'IA est celle du client MCP de l'utilisateur (voir [MCP.md](MCP.md)).
+Le test `tests/integration/architecture.test.ts` échoue si un SDK ou une API de modèle
+apparaît dans le code ou les dépendances.
 
 ```
 src/
   app/                 Pages, layouts et Server Actions (couche fine : session → service → réponse)
     (auth)/            Inscription, connexion, déconnexion
-    app/[workspaceId]/ Espace de travail : tableau de bord des tunnels
+    app/[workspaceId]/ Espace : tunnels, fiche, pages (aperçu, historique), agents IA
+    api/mcp/           Point d'entrée MCP (Streamable HTTP, jeton porteur)
+    preview/[pageId]/  Aperçu privé d'une version de page (rendu réel, iframe responsive)
   server/              Services métier, sans dépendance à Next (testables directement)
     accounts.ts        Inscription, vérification des identifiants (argon2id)
     sessions.ts        Sessions en base (jeton aléatoire, seul son SHA-256 est stocké)
     workspaces.ts      Appartenance et rôles : requireMembership() est le point de contrôle unique
-    funnels.ts         CRUD des tunnels, toujours filtré par espace de travail
+    funnels.ts         CRUD des tunnels et fiche de l'offre, toujours filtrés par espace
+    page-schema.ts     Format de page v1 (zod) : thème + sections, texte brut, URL sûres
+    pages.ts           Pages, versions immuables, conflits, sections, variantes (4 max)
+    page-validation.ts Contrôles déterministes avant publication + revue humaine
+    mcp/server.ts      Outils MCP : quota, droits, skill obligatoire, audit à chaque appel
+    mcp-tokens.ts      Jetons MCP (hachés, révocables), limite de débit, journal
+    design-skill.ts    Lecture de la skill versionnée wang-design-engineering
   db/                  Schéma Drizzle et connexion PostgreSQL
   components/ui/       Système de design (boutons, champs, dialogue, badges)
   lib/                 Glue Next : cookies de session, conversion des erreurs en état de formulaire
   proxy.ts             Redirection optimiste vers /connexion (sans base ; chaque page revérifie)
+skills/wang-design-engineering/  Skill obligatoire pour les agents (source : emilkowalski/skills)
 drizzle/               Migrations SQL versionnées
 tests/integration/     Vitest sur une vraie base PostgreSQL
 tests/e2e/             Playwright (bureau + mobile) sur le build de production
@@ -43,18 +57,25 @@ tests/e2e/             Playwright (bureau + mobile) sur le build de production
 | `sessions` | id = SHA-256 du jeton, user_id, expires_at | cascade sur suppression utilisateur |
 | `workspaces` | id, name | |
 | `workspace_members` | workspace_id, user_id, role (`owner`/`admin`/`editor`/`viewer`) | clé primaire composée |
-| `funnels` | id, workspace_id, name, slug, status (`draft`/`published`/`archived`), updated_at | slug unique par espace |
+| `funnels` | id, workspace_id, name, slug, status (`draft`/`published`/`archived`), brief (jsonb validé), updated_at | slug unique par espace |
+| `pages` | id, funnel_id, name, kind, variant_group_id, variant_label (A–D), current_version | label unique par groupe ; 4 pages max par groupe (verrou consultatif) |
+| `page_versions` | page_id, version, content (jsonb v1), author_kind (`user`/`agent`), author_user_id, mcp_token_id, note | immuable, clé (page_id, version) |
+| `mcp_tokens` | id, workspace_id, user_id, name, token_hash (SHA-256), access (`read`/`write`), last_used_at, revoked_at | |
+| `mcp_audit_log` | token_id, workspace_id, user_id, tool, resource_id, ok, error, created_at | sert aussi au calcul de la limite de débit |
 
 Rôles : `viewer` lit ; `editor` lit et modifie ; `owner`/`admin` peuvent aussi supprimer.
 
-Tables prévues pour les phases suivantes (non créées) : `pages`, `page_versions` (structure JSON
-validée et versionnée), `variants`, `experiments`, `events`, `contacts`, `orders`, `payments`,
-`payment_providers`, `domains`, `plans`, `subscriptions`, `usage`, `audit_log`, `mcp_tokens`.
+Tables prévues pour les phases suivantes (non créées) : `publications`, `experiments`,
+`events`, `contacts`, `orders`, `payments`, `payment_providers`, `domains`, `plans`,
+`subscriptions`, `usage`.
 
 ## Système de design
 
-Défini dans `src/app/globals.css`, appliqué avec les principes du skill `emil-design-eng`
-(Emil Kowalski) et du skill `animate`, lus depuis `emilkowalski/skill` :
+Défini dans `src/app/globals.css`. Les règles sont formalisées dans la skill versionnée
+[`skills/wang-design-engineering/SKILL.md`](../skills/wang-design-engineering/SKILL.md),
+tirée de `emilkowalski/skills` (commit `2d22863`, MIT) ; sources et procédure de mise à jour
+dans [SOURCE.md](../skills/wang-design-engineering/SOURCE.md). Elle s'impose au code du
+produit et aux agents MCP :
 
 - Couleurs : neutres chauds et un seul accent vert ; variantes sombres via `prefers-color-scheme`.
   Un statut a toujours un libellé texte, jamais une couleur seule.
@@ -71,8 +92,8 @@ Défini dans `src/app/globals.css`, appliqué avec les principes du skill `emil-
 
 | Intégration | Phase | Nécessite |
 | --- | --- | --- |
-| Fournisseur IA (génération structurée) | 2 | Clé API et choix du fournisseur |
-| Stockage objet compatible S3 | 2–3 | Bucket et identifiants |
+| Clients IA externes via MCP | 2 | Rien côté SaaS (jeton porteur) ; OAuth 2.1 pour les connecteurs claude.ai / ChatGPT |
+| Stockage objet compatible S3 (logos, images) | 3 | Bucket et identifiants |
 | Hébergement, sous-domaines, domaines personnalisés, SSL | 4 | Domaine du produit, compte Vercel ou équivalent |
 | CinetPay / PayDunya (paiements des clients finaux) | 5 | Comptes marchands, vérification pays, devises, webhooks |
 | Abonnements du SaaS | 7 | Prestataire disponible dans le pays d'exploitation |
@@ -85,18 +106,32 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ## Plan priorisé
 
-1. **Fondations** (cette livraison) — voir l'état ci-dessous.
-2. Génération IA : formulaire guidé, schéma de page versionné et validé (zod), 2 à 4 variantes, aperçu.
+1. **Fondations** — livrée.
+2. **Serveur MCP et pages structurées** (cette livraison) — voir l'état ci-dessous.
 3. Éditeur visuel : édition directe, sections, annuler/rétablir, sauvegarde automatique, historique.
 4. Publication : sous-domaine, aperçu privé, versions publiées, domaines et DNS.
 5. Paiements : premier prestataire africain éligible, commandes, webhooks vérifiés.
 6. Analytics et tests A/B (2 à 4 variantes).
-7. CRM, abonnements, quotas, administration, coûts IA, serveur MCP.
+7. CRM, abonnements, quotas, administration, suivi de l'usage MCP.
 8. Qualité et lancement.
 
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 2 — MCP et pages**
+
+- Fiche de l'offre (formulaire guidé + description libre), validée et lue par les agents.
+- Pages structurées (schéma v1 validé côté serveur, sans HTML ni code) créées depuis un modèle sans IA.
+- Versions immuables, historique avec auteur (utilisateur ou agent), restauration, conflit détecté au lieu d'écraser.
+- Variantes indépendantes A–D, 4 maximum, message explicite à la 5e, sûr en concurrence.
+- Aperçu privé réel en bureau / tablette / mobile ; contrôles automatiques et revue humaine affichés.
+- Serveur MCP : 23 outils, ressource de skill, jetons hachés révocables, droits plafonnés par le rôle, un espace par jeton, limite de débit, journal consultable.
+- Skill `wang-design-engineering` 1.0.0 versionnée, exposée via MCP, exigée par les outils de conception ; absence de la skill signalée et bloquante.
+- Aucun SDK ni appel de fournisseur d'IA (test automatique), aucun module d'e-mail marketing.
+- Vérifié par : 41 tests d'intégration, 12 tests de bout en bout (dont un client MCP réel en HTTP), Claude Code CLI connecté (« √ Connected »).
+
+**Phase 1 — Fondations**
 
 - Inscription (nom, e-mail, mot de passe ≥ 10 caractères) avec création d'un espace dont l'utilisateur est propriétaire.
 - Connexion, déconnexion, sessions en base, expiration à 30 jours, accès à `/app` refusé sans session.
@@ -108,11 +143,13 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 1 est fermée.
+- Rien : la phase 2 est fermée. Prochaine : phase 3, éditeur visuel (modification directe sans IA).
 
 ### Bloquées ou à décider
 
 - Limitation du nombre de tentatives de connexion : à ajouter avant la mise en production (phase 8, ou plus tôt si l'application est exposée publiquement).
 - Suppression de compte, profil, invitation de membres : écrans non construits (le modèle de rôles est prêt).
-- Choix du fournisseur IA et clé API : nécessaires pour démarrer la phase 2.
+- Connecteurs claude.ai et ChatGPT : nécessitent OAuth 2.1 côté serveur MCP (non construit).
+- Import de logos et d'images : nécessite un stockage S3 (images par URL https en attendant).
+- Modification visuelle manuelle d'une page : phase 3. En attendant, sans agent IA, on crée des pages depuis un modèle, on les duplique, on crée des variantes et on restaure des versions, mais on ne modifie pas encore leur texte à la main.
 - Domaine du produit, hébergeur, comptes CinetPay / PayDunya : nécessaires pour les phases 4 et 5.

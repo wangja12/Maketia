@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signOutAction } from "@/app/(auth)/actions";
 import { buttonClass } from "@/components/ui/button";
+import { NavLinks } from "./nav-links";
 import { loadWorkspace } from "./workspace";
 
 export default async function WorkspaceLayout({ children, params }: LayoutProps<"/app/[workspaceId]">) {
@@ -13,8 +14,9 @@ export default async function WorkspaceLayout({ children, params }: LayoutProps<
           <Link href={`/app/${workspace.id}`} className="text-sm font-semibold tracking-tight">
             Tunnels IA
           </Link>
-          <span className="text-border-strong" aria-hidden="true">/</span>
-          <span className="truncate text-sm text-muted">{workspace.name}</span>
+          <span className="hidden text-border-strong md:inline" aria-hidden="true">/</span>
+          <span className="hidden truncate text-sm text-muted md:inline">{workspace.name}</span>
+          <NavLinks workspaceId={workspace.id} />
           <div className="ml-auto flex min-w-0 items-center gap-2">
             <span className="hidden truncate text-sm text-muted sm:inline">{user.name}</span>
             <form action={signOutAction}>
