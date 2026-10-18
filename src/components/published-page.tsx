@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { PageRenderer, type CheckoutTarget } from "@/components/page-renderer";
+import { ViewTracker } from "@/components/view-tracker";
 import { getDb } from "@/db";
+import { signViewToken } from "@/server/analytics/tracking";
 import { productsForContent } from "@/server/payments/checks";
 import { resolvePublishedPage, type PublicSite } from "@/server/publishing";
 
@@ -15,11 +19,24 @@ const CHECKOUT_MESSAGES: Record<string, string> = {
 
 type Search = Record<string, string | string[] | undefined>;
 
+/** Ids the proxy set for this visitor; absent when they opted out of tracking. */
+async function trackingIds() {
+  const h = await headers();
+  return { visitorId: h.get("x-tia-visitor"), sessionId: h.get("x-tia-session") };
+}
+
+/** One resolution per request, so metadata and page always agree on the variant served. */
+const resolve = cache(async (siteKey: string, path: string) => {
+  const site: PublicSite = JSON.parse(siteKey);
+  const { visitorId } = await trackingIds();
+  return resolvePublishedPage(getDb(), site, path, visitorId);
+});
+
 /** Visitor-facing page: only live publications, no account, no editor code. */
 export async function PublishedPage({ site, path, search }: { site: PublicSite; path?: string[]; search: Search }) {
   if (path && path.length > 1) notFound();
   const pagePath = path?.[0] ?? "";
-  const page = await resolvePublishedPage(getDb(), site, pagePath);
+  const page = await resolve(JSON.stringify(site), pagePath);
   if (!page) notFound();
   const products = await productsForContent(getDb(), page.workspaceId, page.content);
 
@@ -32,7 +49,25 @@ export async function PublishedPage({ site, path, search }: { site: PublicSite; 
     path: pagePath,
     error: code && CHECKOUT_MESSAGES[code] ? { sectionId, message: CHECKOUT_MESSAGES[code], fields } : undefined,
   };
-  return <PageRenderer content={page.content} products={products} checkout={checkout} />;
+  const { visitorId, sessionId } = await trackingIds();
+  const token =
+    visitorId && sessionId
+      ? signViewToken({
+          workspaceId: page.workspaceId,
+          funnelId: page.funnelId,
+          pageId: page.pageId,
+          variantLabel: page.variantLabel,
+          experimentId: page.experimentId,
+          visitorId,
+          sessionId,
+        })
+      : null;
+  return (
+    <>
+      <PageRenderer content={page.content} products={products} checkout={checkout} />
+      {token && <ViewTracker token={token} />}
+    </>
+  );
 }
 
 /** Field errors travel in the URL as JSON; only known keys and short strings are kept. */
@@ -49,6 +84,6 @@ function safeFields(raw: string) {
 
 export async function publishedMetadata(site: PublicSite, path?: string[]): Promise<Metadata> {
   if (path && path.length > 1) return {};
-  const page = await resolvePublishedPage(getDb(), site, path?.[0] ?? "");
+  const page = await resolve(JSON.stringify(site), path?.[0] ?? "");
   return page ? { title: page.title } : {};
 }

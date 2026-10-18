@@ -8,6 +8,7 @@ import type { PageContent } from "./page-schema";
 import { validatePageContent } from "./page-validation";
 import { getPage } from "./pages";
 import { checkoutProblems } from "./payments/checks";
+import { assignArm, runningExperimentAt } from "./analytics/assignment";
 
 /*
  * Publication: a page version becomes public at a path of the funnel's site.
@@ -162,9 +163,21 @@ export type PublicSite = { subdomain: string } | { hostname: string };
  * What a visitor sees at a site path, or null. Public: no user, so it only ever returns
  * live publications of a funnel reachable through its subdomain or a verified domain.
  */
-export type ResolvedPage = { content: PageContent; title: string; funnelId: string; workspaceId: string; pageId: string; variantLabel: string };
+export type ResolvedPage = {
+  content: PageContent;
+  title: string;
+  funnelId: string;
+  workspaceId: string;
+  pageId: string;
+  variantLabel: string;
+  experimentId: string | null;
+};
 
-export async function resolvePublishedPage(db: Db, site: PublicSite, path: string): Promise<ResolvedPage | null> {
+/**
+ * `visitorId` (anonymous cookie) decides the arm when an A/B test runs on this path;
+ * otherwise the live publication is served.
+ */
+export async function resolvePublishedPage(db: Db, site: PublicSite, path: string, visitorId: string | null = null): Promise<ResolvedPage | null> {
   if (!pathSchema.safeParse(path).success) return null;
   let funnelId: string | undefined;
   if ("subdomain" in site) {
@@ -179,6 +192,30 @@ export async function resolvePublishedPage(db: Db, site: PublicSite, path: strin
     funnelId = row?.id;
   }
   if (!funnelId) return null;
+
+  const experiment = await runningExperimentAt(db, funnelId, path);
+  const arm = experiment ? await assignArm(db, experiment.id, visitorId) : null;
+  if (arm) {
+    const [served] = await db
+      .select({ content: pageVersions.content, name: pages.name, workspaceId: funnels.workspaceId })
+      .from(pageVersions)
+      .innerJoin(pages, eq(pages.id, pageVersions.pageId))
+      .innerJoin(funnels, eq(funnels.id, pages.funnelId))
+      .where(and(eq(pageVersions.pageId, arm.pageId), eq(pageVersions.version, arm.version)));
+    if (served) {
+      const hero = served.content.sections.find((s) => s.type === "hero");
+      return {
+        content: served.content,
+        title: hero && "headline" in hero ? hero.headline : served.name,
+        funnelId,
+        workspaceId: served.workspaceId,
+        pageId: arm.pageId,
+        variantLabel: arm.variantLabel,
+        experimentId: arm.experimentId,
+      };
+    }
+  }
+
   const [row] = await db
     .select({ content: pageVersions.content, name: pages.name, pageId: pages.id, variantLabel: pages.variantLabel, workspaceId: funnels.workspaceId })
     .from(publications)
@@ -195,6 +232,7 @@ export async function resolvePublishedPage(db: Db, site: PublicSite, path: strin
     workspaceId: row.workspaceId,
     pageId: row.pageId,
     variantLabel: row.variantLabel,
+    experimentId: null,
   };
 }
 

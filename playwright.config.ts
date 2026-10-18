@@ -39,6 +39,7 @@ export default defineConfig({
         PAYMENT_SECRETS_KEY: Buffer.alloc(32, 9).toString("base64"),
         ALLOW_PROVIDER_BASE_URL_OVERRIDE: "1",
         CINETPAY_BASE_URL: "http://localhost:3199",
+        ANALYTICS_SECRET: "e2e-analytics-secret-not-for-production-use",
       },
     },
   ],

@@ -81,6 +81,11 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
             </Link>
           ))}
           <span className="ml-1 text-xs text-muted">{variants.length}/{MAX_VARIANTS}</span>
+          {variants.length >= 2 && (
+            <Link href={`/app/${workspace.id}/tunnels/${funnel.id}/experiences`} className="ml-2 text-sm font-medium text-accent underline-offset-4 hover:underline">
+              Tester ces variantes (A/B)
+            </Link>
+          )}
         </nav>
       </div>
 

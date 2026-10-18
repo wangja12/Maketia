@@ -16,7 +16,9 @@ import {
 import { createFunnel } from "@/server/funnels";
 import { buildMcpServer } from "@/server/mcp/server";
 import { authenticateMcpToken, createMcpToken, revokeMcpToken, RATE_LIMIT_PER_MINUTE } from "@/server/mcp-tokens";
-import { getPage } from "@/server/pages";
+import { createExperiment, startExperiment } from "@/server/analytics/experiments";
+import { createPage, createVariant, getPage } from "@/server/pages";
+import { publishPage } from "@/server/publishing";
 import { db, makeUser } from "./db";
 
 async function connect(token: string, loadSkill: SkillLoader = loadDesignSkill) {
@@ -51,6 +53,7 @@ describe("MCP server", () => {
       [
         "add_page_section", "create_funnel", "create_page", "create_page_variant", "duplicate_page",
         "get_design_engineering_skill", "get_funnel", "get_integrations_status", "get_page", "get_page_schema", "get_publication_status", "preview_page", "list_products", "list_orders", "get_payment_status",
+        "get_funnel_analytics", "get_page_analytics", "compare_page_variants", "list_ab_experiments", "get_ab_experiment_results", "create_ab_experiment", "update_ab_traffic_split",
         "list_funnels", "list_page_variants", "list_page_versions", "list_pages", "list_workspaces",
         "remove_page_section", "reorder_page_sections", "restore_page_version", "update_funnel",
         "update_page_content", "update_page_section", "update_page_theme", "validate_page",
@@ -157,7 +160,6 @@ describe("MCP server", () => {
   it("reads publication state and preview links, but cannot publish", async () => {
     const { call, client, funnel, userId } = await setupAgent();
     const { data: page } = await call("create_page", { funnel_id: funnel.id, name: "P", kind: "landing", skill_version: DESIGN_SKILL_VERSION });
-    const { publishPage } = await import("@/server/publishing");
     await publishPage(db, userId, page.id, { path: "", reviewConfirmed: true });
     const status = await call("get_publication_status", { funnel_id: funnel.id });
     expect(status.data.live).toEqual([expect.objectContaining({ pageId: page.id, version: 1, path: "" })]);
@@ -233,5 +235,51 @@ describe("MCP security", () => {
     const r = await call("list_funnels");
     expect(r.isError).toBe(true);
     expect(r.text).toContain("Limite atteinte");
+  });
+});
+
+describe("MCP analytics and A/B tools", () => {
+  it("reads analytics and prepares drafts, but never starts a test", async () => {
+    const { client, call, funnel, userId } = await setupAgent();
+    const a = await createPage(db, { userId }, funnel.id, { name: "Accueil", kind: "landing" });
+    const b = await createVariant(db, { userId }, a.id);
+    await publishPage(db, userId, a.id, { path: "", reviewConfirmed: true });
+
+    const stats = await call("get_funnel_analytics", { funnel_id: funnel.id, period: "7" });
+    expect(stats.data.totals.visitors).toBe(0);
+    expect(stats.data.limits.length).toBeGreaterThan(0);
+    const compared = await call("compare_page_variants", { page_id: a.id });
+    expect(compared.data.variants.map((v: { variant: string }) => v.variant)).toEqual(["A", "B"]);
+
+    const created = await call("create_ab_experiment", {
+      funnel_id: funnel.id, name: "Accroche", goal: "cta_click", variants: [{ page_id: a.id }, { page_id: b.id }],
+    });
+    expect(created.data.status).toBe("draft");
+    const split = await call("update_ab_traffic_split", { experiment_id: created.data.id, weights: { [a.id]: 70, [b.id]: 30 } });
+    expect(split.data.map((x: { weight: number }) => x.weight)).toEqual([70, 30]);
+    const results = await call("get_ab_experiment_results", { experiment_id: created.data.id });
+    expect(results.data.verdict.kind).toBe("insufficient");
+
+    // No MCP tool starts, stops or picks a winner.
+    const { tools } = await client.listTools();
+    expect(tools.map((t) => t.name).filter((n) => /start|stop|winner|publish_page/.test(n))).toEqual([]);
+
+    // Once a person started it, the agent can no longer change the split.
+    await startExperiment(db, userId, created.data.id, { reviewConfirmed: true });
+    const refused = await call("update_ab_traffic_split", { experiment_id: created.data.id, weights: { [a.id]: 50 } });
+    expect(refused.isError).toBe(true);
+    expect(refused.text).toContain("Seul un brouillon");
+  });
+
+  it("keeps experiments of another workspace out of reach", async () => {
+    const owner = await setupAgent();
+    const a = await createPage(db, { userId: owner.userId }, owner.funnel.id, { name: "P", kind: "landing" });
+    const b = await createVariant(db, { userId: owner.userId }, a.id);
+    const exp = await createExperiment(db, owner.userId, owner.funnel.id, { name: "X", goal: "cta_click", arms: [{ pageId: a.id }, { pageId: b.id }] });
+
+    const other = await setupAgent();
+    expect((await other.call("get_ab_experiment_results", { experiment_id: exp.id })).isError).toBe(true);
+    expect((await other.call("get_funnel_analytics", { funnel_id: owner.funnel.id })).isError).toBe(true);
+    expect((await other.call("update_ab_traffic_split", { experiment_id: exp.id, weights: { [a.id]: 10 } })).isError).toBe(true);
   });
 });

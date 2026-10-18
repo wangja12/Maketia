@@ -1,6 +1,7 @@
 import { createElement, memo, type ComponentType, type CSSProperties, type ReactNode } from "react";
 import type { PageContent, Section } from "@/server/page-schema";
 import { onAccent, PAGE_BACKGROUNDS } from "@/server/page-validation";
+import { money } from "@/lib/format";
 
 /*
  * Renders page content (schema v1). Shared by the private preview (server) and the visual
@@ -28,14 +29,6 @@ export type TextSlotProps = {
 export type EditHooks = {
   Text: ComponentType<TextSlotProps>;
   Section: ComponentType<{ section: Section; children: ReactNode }>;
-};
-
-const currencyFormat = (price: number, currency: string) => {
-  try {
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency, maximumFractionDigits: 0 }).format(price);
-  } catch {
-    return `${price} ${currency}`;
-  }
 };
 
 export function themeStyle(theme: PageContent["theme"]): CSSProperties {
@@ -129,7 +122,7 @@ function Cta({ s, path, cta, edit }: { s: Section; path: (string | number)[]; ct
     );
   }
   return (
-    <a href={cta.href} className={className}>
+    <a href={cta.href} className={className} data-tia-cta={s.id}>
       {cta.label}
     </a>
   );
@@ -217,7 +210,7 @@ function SectionBody({ s, edit }: { s: Section; edit?: EditHooks }) {
           <div className="rounded-2xl border border-[var(--p-border)] p-6 @min-[640px]:p-10">
             {s.title && <T edit={edit} sectionId={s.id} path={["title"]} value={s.title} label="Titre de l’offre" as="h2" className="text-xl font-semibold" />}
             <p className="mt-3 text-4xl font-bold tracking-tight">
-              {currencyFormat(s.price, s.currency)}
+              {money(s.price, s.currency)}
               {s.period && <span className="ml-1 text-base font-normal text-[var(--p-muted)]">/ {s.period}</span>}
             </p>
             {s.features.length > 0 && (
@@ -364,7 +357,7 @@ function CheckoutForm({ s, edit, products, checkout }: { s: Extract<Section, { t
         {product ? (
           <div className="flex flex-wrap items-baseline justify-between gap-2 text-left">
             <span className="font-semibold">{product.name}</span>
-            <span className="text-2xl font-bold">{currencyFormat(product.price, product.currency)}</span>
+            <span className="text-2xl font-bold">{money(product.price, product.currency)}</span>
           </div>
         ) : (
           <p className="text-sm text-red-600">Produit à choisir dans les réglages de la section.</p>

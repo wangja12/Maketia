@@ -340,6 +340,9 @@ export const orders = pgTable(
     customerPhone: text("customer_phone"),
     // For abuse limits only: SHA-256 of the client IP, never the IP itself.
     ipHash: text("ip_hash"),
+    // Attribution: the anonymous visitor and the experiment the order came from.
+    visitorId: text("visitor_id"),
+    experimentId: uuid("experiment_id"),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -366,6 +369,107 @@ export const paymentEvents = pgTable(
   (t) => [index("payment_events_order_idx").on(t.orderId, t.createdAt)],
 );
 
+export const experimentStatus = pgEnum("experiment_status", ["draft", "running", "stopped"]);
+export const experimentGoal = pgEnum("experiment_goal", ["order_paid", "checkout_submitted", "cta_click"]);
+
+/** A/B test on one path of a funnel, between 2 and 4 pages of the same variant group. */
+export const experiments = pgTable(
+  "experiments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    funnelId: uuid("funnel_id")
+      .notNull()
+      .references(() => funnels.id, { onDelete: "cascade" }),
+    variantGroupId: uuid("variant_group_id").notNull(),
+    name: text("name").notNull(),
+    // Chosen before starting and never changed afterwards (no goal-switching after the fact).
+    goal: experimentGoal("goal").notNull(),
+    status: experimentStatus("status").notNull().default("draft"),
+    path: text("path"),
+    winnerPageId: uuid("winner_page_id").references(() => pages.id, { onDelete: "set null" }),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    stoppedAt: timestamp("stopped_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("experiments_funnel_idx").on(t.funnelId),
+    // One running test per path.
+    uniqueIndex("experiments_running_path_idx").on(t.funnelId, t.path).where(sql`${t.status} = 'running'`),
+  ],
+);
+
+export const experimentArms = pgTable(
+  "experiment_arms",
+  {
+    experimentId: uuid("experiment_id")
+      .notNull()
+      .references(() => experiments.id, { onDelete: "cascade" }),
+    pageId: uuid("page_id")
+      .notNull()
+      .references(() => pages.id, { onDelete: "cascade" }),
+    variantLabel: text("variant_label").notNull(),
+    // Frozen when the experiment starts (or when the arm is added to a running one).
+    version: integer("version"),
+    // Relative traffic share, 1–100.
+    weight: integer("weight").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.experimentId, t.pageId] })],
+);
+
+/** Sticky assignment: a visitor sees the same arm for the whole experiment. */
+export const experimentAssignments = pgTable(
+  "experiment_assignments",
+  {
+    experimentId: uuid("experiment_id")
+      .notNull()
+      .references(() => experiments.id, { onDelete: "cascade" }),
+    visitorId: text("visitor_id").notNull(),
+    pageId: uuid("page_id").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.experimentId, t.visitorId] })],
+);
+
+export const eventType = pgEnum("event_type", ["page_view", "cta_click", "checkout_submitted", "order_paid"]);
+
+/**
+ * Measured events only: page views and clicks come from the visitor's browser with a
+ * server-signed token; checkouts and payments are written by the server itself.
+ * The unique index makes every event count once.
+ */
+export const events = pgTable(
+  "events",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    funnelId: uuid("funnel_id")
+      .notNull()
+      .references(() => funnels.id, { onDelete: "cascade" }),
+    pageId: uuid("page_id").references(() => pages.id, { onDelete: "set null" }),
+    variantLabel: text("variant_label"),
+    experimentId: uuid("experiment_id").references(() => experiments.id, { onDelete: "set null" }),
+    type: eventType("type").notNull(),
+    visitorId: text("visitor_id").notNull(),
+    sessionId: text("session_id"),
+    dedupKey: text("dedup_key").notNull(),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    amount: integer("amount"),
+    currency: text("currency"),
+    source: text("source"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("events_dedup_idx").on(t.type, t.funnelId, t.visitorId, t.dedupKey),
+    index("events_funnel_time_idx").on(t.funnelId, t.createdAt),
+    index("events_experiment_idx").on(t.experimentId, t.type),
+  ],
+);
+
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type Funnel = typeof funnels.$inferSelect;
 export type Page = typeof pages.$inferSelect;
@@ -375,4 +479,6 @@ export type Publication = typeof publications.$inferSelect;
 export type PaymentProvider = typeof paymentProviders.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;
+export type Experiment = typeof experiments.$inferSelect;
+export type ExperimentArm = typeof experimentArms.$inferSelect;
 export type Domain = typeof domains.$inferSelect;

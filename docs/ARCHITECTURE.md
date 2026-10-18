@@ -111,7 +111,7 @@ produit et aux agents MCP :
 | Hébergement, sous-domaines, domaines personnalisés, SSL | 4 | Domaine du produit, compte Vercel ou équivalent |
 | CinetPay / PayDunya (paiements des clients finaux) | 5 | Comptes marchands, vérification pays, devises, webhooks |
 | Abonnements du SaaS | 7 | Prestataire disponible dans le pays d'exploitation |
-| PostHog ou équivalent | 6 | Projet et clé, politique de consentement |
+| PostHog ou équivalent | 6 | Projet et clé, politique de consentement. En attendant : mesure interne (voir phase 6), point d'extension `forwardEvent` |
 
 Aucune de ces intégrations n'est simulée. Elles seront construites derrière une interface commune
 (adaptateurs) quand les comptes seront disponibles.
@@ -124,14 +124,25 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 2. **Serveur MCP et pages structurées** — livrée.
 3. **Éditeur visuel** — livrée.
 4. **Publication** — livrée.
-5. **Paiements** (cette livraison) — voir l'état ci-dessous et [PAIEMENTS.md](PAIEMENTS.md).
-6. Analytics et tests A/B (2 à 4 variantes).
+5. **Paiements** — livrée ; voir [PAIEMENTS.md](PAIEMENTS.md).
+6. **Analytics et tests A/B** (cette livraison) — voir l'état ci-dessous.
 7. CRM, abonnements, quotas, administration, suivi de l'usage MCP.
 8. Qualité et lancement.
 
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 6 — Analytics et tests A/B**
+
+- Mesure interne dans PostgreSQL (PostHog non connecté) : vues de page, clics sur les appels à l'action, commandes commencées, paiements confirmés par le prestataire.
+- Identifiants de visiteur (`tia_v`, 6 mois) et de session (`tia_s`, 30 min glissantes) posés par `proxy.ts` sur les sites publiés seulement ; aucun cookie ni comptage si le navigateur envoie Do Not Track ou Global Privacy Control.
+- Événements du navigateur acceptés seulement avec un jeton signé par le serveur au rendu (HMAC, `ANALYTICS_SECRET`, 24 h) et lié au cookie du visiteur : le navigateur ne peut inventer ni page, ni variante, ni expérience. Commandes et paiements écrits par le serveur. Doublons écartés par un index unique.
+- Statistiques par tunnel : totaux, chiffre d'affaires par devise (jamais additionnées) et panier moyen, détail par page/variante et par source (utm_source ou site d'origine), filtres période/page/variante/source, limites de la mesure affichées.
+- Tests A/B de 2 à 4 variantes d'une page : brouillon, objectif fixé avant le démarrage, poids du trafic, démarrage par une personne après contrôles et revue humaine, versions figées, assignation aléatoire pondérée et stable par visiteur (première écriture gagnante en concurrence), ajout d'une variante (4 actives maximum, message explicite), arrêt, gagnant choisi par une personne et publié par le circuit normal.
+- Résultats : taux, intervalle de Wilson à 95 %, écart en points et test z face à A avec correction de Bonferroni, part prévue et réelle du trafic ; « données insuffisantes » sous 100 visiteurs et 10 conversions par variante, avertissement au choix du gagnant.
+- MCP : `get_funnel_analytics`, `get_page_analytics`, `compare_page_variants`, `list_ab_experiments`, `get_ab_experiment_results` (lecture) ; `create_ab_experiment`, `update_ab_traffic_split` (brouillons seulement). Démarrer, arrêter et choisir le gagnant restent humains.
+- Vérifié par : tests unitaires des statistiques, 6 tests d'intégration des expériences et des jetons, 2 tests MCP, 1 e2e (bureau et mobile) : création, démarrage, 6 visiteurs réels plus un visiteur DNT non compté, résultats, statistiques, gagnant publié.
 
 **Phase 5 — Paiements (CinetPay)**
 
@@ -191,7 +202,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 5 est fermée côté code. Prochaine : phase 6, analytics et tests A/B.
+- Rien : la phase 6 est fermée côté code. Prochaine : phase 7, CRM, abonnements, quotas, administration.
 
 ### Bloquées ou à décider
 
@@ -206,3 +217,6 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - **Test réel CinetPay** : compte bac à sable + déploiement HTTPS ; procédure dans PAIEMENTS.md.
 - **PayDunya** : non intégré (documentation inaccessible ici) ; l'interface d'adaptateur est prête.
 - **Remboursements** : non exposés par l'API CinetPay utilisée.
+- **PostHog** : non connecté (pas de compte, réseau fermé). La mesure interne suffit aux statistiques et tests A/B ; `forwardEvent` est l'endroit où brancher un envoi.
+- **Bannière de consentement** : non construite. Les cookies de mesure sont internes et sans tiers, DNT/GPC respectés ; l'exigence légale dépend des pays visés (à valider avant lancement).
+- **Filtrage des robots** : seuls les navigateurs exécutant JavaScript sont comptés ; aucun filtre supplémentaire.

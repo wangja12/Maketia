@@ -1,4 +1,5 @@
 import { getDb } from "@/db";
+import { visitorCookieOf } from "@/server/analytics/tracking";
 import { CheckoutError, startCheckout } from "@/server/payments/service";
 
 /*
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
       sectionId: section,
       customer: { firstName: get("first_name"), lastName: get("last_name"), email: get("email"), phone: get("phone") },
       ip: clientIp(request),
+      visitorId: visitorCookieOf(request),
     });
     return Response.redirect(paymentUrl, 303);
   } catch (e) {

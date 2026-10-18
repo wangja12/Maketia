@@ -44,6 +44,11 @@ Seuls les outils réellement implémentés et testés sont exposés.
 | `list_products` | lecture | Produits (id à utiliser dans une section `checkout`) |
 | `list_orders` | lecture | Commandes récentes et statut (« paid » = confirmé par le prestataire) |
 | `get_payment_status` | lecture | Statut et historique du paiement d'une commande |
+| `get_funnel_analytics`, `get_page_analytics` | lecture | Mesures d'un tunnel ou d'une page, avec filtres et limites de la mesure |
+| `compare_page_variants` | lecture | Chiffres des variantes côte à côte (descriptif, pas une preuve) |
+| `list_ab_experiments`, `get_ab_experiment_results` | lecture | Tests A/B et résultats (intervalles, p-valeurs, verdict) |
+| `create_ab_experiment` | écriture | Brouillon de test A/B (2 à 4 variantes) ; rien n'est montré aux visiteurs |
+| `update_ab_traffic_split` | écriture | Poids des variantes d'un brouillon |
 | `get_integrations_status` | lecture | État réel des intégrations (rien n'est présenté comme actif sans l'être) |
 | `create_funnel`, `update_funnel` | écriture | Créer ou renommer un tunnel |
 | `create_page` | conception | Créer une page (modèle par type, ou contenu complet) |
@@ -64,7 +69,9 @@ fait dans l'application, par une personne, après la revue humaine. L'agent pré
 transmet le lien d'aperçu.
 
 Aucun outil MCP ne configure un prestataire, ne modifie un produit ou une commande.
-Non exposés pour l'instant (non construits) : expériences A/B, statistiques, contacts, quotas. Aucun outil ne supprime une ressource.
+Démarrer, arrêter un test A/B ou choisir son gagnant : dans l'application uniquement. Un agent
+ne doit pas désigner de gagnant si `verdict.kind` n'est pas `difference`.
+Non exposés pour l'instant (non construits) : contacts, quotas. Aucun outil ne supprime une ressource.
 
 Ressource : `wang://skills/design-engineering` (même texte que l'outil).
 

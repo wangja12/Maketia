@@ -12,6 +12,7 @@ import { CINETPAY_COUNTRIES, CinetPayError, parseWebhook, type CinetPayCountry }
 import { defaultGatewayFactory, type GatewayFactory } from "./gateway";
 import { resolvePublishedPage, type PublicSite } from "../publishing";
 export { checkoutProblems, productsForContent } from "./checks";
+import { recordCheckoutSubmitted, recordOrderPaid } from "../analytics/tracking";
 
 /*
  * Payments for orders placed on published funnels.
@@ -177,10 +178,11 @@ export function appBaseUrl() {
  */
 export async function startCheckout(
   db: Db,
-  input: { site: PublicSite; path: string; sectionId: string; customer: unknown; ip: string | null },
+  input: { site: PublicSite; path: string; sectionId: string; customer: unknown; ip: string | null; visitorId?: string | null },
   factory: GatewayFactory = defaultGatewayFactory,
 ) {
-  const page = await resolvePublishedPage(db, input.site, input.path);
+  // With the visitor id, the same A/B arm the buyer saw is resolved again.
+  const page = await resolvePublishedPage(db, input.site, input.path, input.visitorId ?? null);
   const section = page?.content.sections.find((s) => s.id === input.sectionId && s.type === "checkout");
   if (!page || !section || section.type !== "checkout") throw new CheckoutError("unavailable", "Ce formulaire de commande n’est plus en ligne.");
 
@@ -231,9 +233,12 @@ export async function startCheckout(
       customerEmail: c.email,
       customerPhone: c.phone || null,
       ipHash,
+      visitorId: input.visitorId ?? null,
+      experimentId: page.experimentId,
     })
     .returning();
   await logEvent(db, order.id, "order_created", null, `${product.price} ${product.currency}`);
+  await recordCheckoutSubmitted(db, order);
 
   try {
     const result = await factory(provider).createPayment({
@@ -295,7 +300,7 @@ export async function refreshOrderStatus(db: Db, orderId: string, factory: Gatew
     return order;
   }
 
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const [locked] = await tx.select().from(orders).where(eq(orders.id, orderId)).for("update");
     const next = status.outcome === "pending" ? "pending" : status.outcome;
     if (locked.status === "paid" || (locked.status === next && locked.providerStatus === status.status)) {
@@ -310,6 +315,9 @@ export async function refreshOrderStatus(db: Db, orderId: string, factory: Gatew
     await tx.insert(paymentEvents).values({ orderId, kind: "status_changed", providerStatus: status.status, detail: `${locked.status} → ${next} (${origin})` });
     return updated;
   });
+  // Deduplicated by order id, so a replay cannot count the sale twice.
+  if (result.status === "paid") await recordOrderPaid(db, result);
+  return result;
 }
 
 export class WebhookRejected extends Error {

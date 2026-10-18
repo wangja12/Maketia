@@ -2,16 +2,9 @@ import type { Metadata } from "next";
 import { getDb } from "@/db";
 import { publicOrderStatus } from "@/server/payments/service";
 import { AutoRefresh } from "./auto-refresh";
+import { money } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Votre paiement", robots: { index: false, follow: false } };
-
-const money = (amount: number, currency: string) => {
-  try {
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
-  } catch {
-    return `${amount} ${currency}`;
-  }
-};
 
 /**
  * Where the provider sends the buyer back. Arriving here proves nothing: the status shown is

@@ -6,18 +6,11 @@ import { getOrderForUser, listOrders, listProducts, listProviders } from "@/serv
 import { can } from "@/server/workspaces";
 import { loadWorkspace } from "../workspace";
 import { ProductForm, ProviderForm, RefreshOrderButton, RemoveProviderButton, ToggleProductButton, VerifyProviderButton } from "./forms";
+import { money } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Paiements · Tunnels IA" };
 
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" });
-const money = (amount: number, currency: string) => {
-  try {
-    return new Intl.NumberFormat("fr-FR", { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
-  } catch {
-    return `${amount} ${currency}`;
-  }
-};
-
 const ORDER_STATUS: Record<Order["status"], { label: string; className: string }> = {
   started: { label: "Commencée", className: "bg-surface-sunken text-muted" },
   pending: { label: "Paiement en attente", className: "bg-surface-sunken text-fg" },

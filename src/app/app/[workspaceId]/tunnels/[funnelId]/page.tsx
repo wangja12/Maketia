@@ -48,9 +48,15 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
         <Link href={`/app/${workspace.id}`} className="w-fit text-sm text-muted underline-offset-4 hover:underline">
           ← Tous les tunnels
         </Link>
-        <div className="flex min-w-0 items-center gap-2">
-          <h1 className="truncate text-2xl font-semibold tracking-tight">{funnel.name}</h1>
-          <StatusBadge status={funnel.status} />
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <h1 className="truncate text-2xl font-semibold tracking-tight">{funnel.name}</h1>
+            <StatusBadge status={funnel.status} />
+          </div>
+          <nav aria-label="Mesure" className="flex gap-4 text-sm font-medium">
+            <Link href={`${base}/statistiques`} className="text-accent underline-offset-4 hover:underline">Statistiques</Link>
+            <Link href={`${base}/experiences`} className="text-accent underline-offset-4 hover:underline">Tests A/B</Link>
+          </nav>
         </div>
       </div>
 
