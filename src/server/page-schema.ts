@@ -32,6 +32,14 @@ const sectionId = z
   .string()
   .regex(/^[a-z0-9][a-z0-9-]{0,39}$/, "Identifiant de section : minuscules, chiffres, tirets (40 max)");
 
+/** Optional per-section presentation; added in v1 without breaking existing pages. */
+const layout = z
+  .object({
+    align: z.enum(["left", "center"]).optional(),
+    spacing: z.enum(["compact", "normal", "airy"]).optional(),
+  })
+  .optional();
+
 const cta = z.object({ label: text(40), href });
 const image = z.object({
   url: imageUrl,
@@ -40,6 +48,7 @@ const image = z.object({
 
 const hero = z.object({
   id: sectionId,
+  layout,
   type: z.literal("hero"),
   eyebrow: optionalText(60),
   headline: text(120),
@@ -50,6 +59,7 @@ const hero = z.object({
 
 const features = z.object({
   id: sectionId,
+  layout,
   type: z.literal("features"),
   title: optionalText(120),
   items: z.array(z.object({ title: text(80), body: text(400) })).min(1).max(8),
@@ -57,6 +67,7 @@ const features = z.object({
 
 const benefits = z.object({
   id: sectionId,
+  layout,
   type: z.literal("benefits"),
   title: optionalText(120),
   items: z.array(text(200)).min(1).max(10),
@@ -64,6 +75,7 @@ const benefits = z.object({
 
 const testimonials = z.object({
   id: sectionId,
+  layout,
   type: z.literal("testimonials"),
   title: optionalText(120),
   // Fabricated testimonials are forbidden. The author of the change must assert the source.
@@ -78,6 +90,7 @@ const testimonials = z.object({
 
 const pricing = z.object({
   id: sectionId,
+  layout,
   type: z.literal("pricing"),
   title: optionalText(120),
   price: z.number().nonnegative().max(1_000_000_000),
@@ -89,6 +102,7 @@ const pricing = z.object({
 
 const faq = z.object({
   id: sectionId,
+  layout,
   type: z.literal("faq"),
   title: optionalText(120),
   items: z.array(z.object({ question: text(200), answer: text(1000) })).min(1).max(12),
@@ -96,6 +110,7 @@ const faq = z.object({
 
 const ctaSection = z.object({
   id: sectionId,
+  layout,
   type: z.literal("cta"),
   headline: text(120),
   body: optionalText(400),
@@ -104,6 +119,7 @@ const ctaSection = z.object({
 
 const textSection = z.object({
   id: sectionId,
+  layout,
   type: z.literal("text"),
   title: optionalText(120),
   body: text(4000),
@@ -111,6 +127,7 @@ const textSection = z.object({
 
 const imageSection = z.object({
   id: sectionId,
+  layout,
   type: z.literal("image"),
   image,
   caption: optionalText(200),
@@ -153,6 +170,7 @@ export const pageContentSchema = z
 export type PageContent = z.infer<typeof pageContentSchema>;
 export type Section = z.infer<typeof sectionSchema>;
 export type SectionType = Section["type"];
+export type SectionLayout = NonNullable<Section["layout"]>;
 export const SECTION_TYPES = sectionSchema.options.map((o) => o.shape.type.value);
 
 /** Short human-readable path + message, for API and MCP error messages. */

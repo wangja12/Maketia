@@ -205,3 +205,36 @@ body {
     animation-duration: 1.5s;
   }
 }
+
+/*
+ * Visual editor canvas. Outlines change instantly: selecting and hovering happen
+ * dozens of times per session, so they never animate.
+ */
+[data-editor-canvas] .editable {
+  cursor: text;
+  border-radius: 2px;
+  outline: 1px dashed transparent;
+  outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  [data-editor-canvas] .editable:hover {
+    outline-color: rgb(37 99 235 / 0.5);
+  }
+}
+[data-editor-canvas] .editable:focus {
+  outline: 2px solid var(--focus);
+}
+[data-editor-canvas] .editable[aria-invalid="true"] {
+  outline: 2px solid var(--danger);
+}
+/* An emptied field keeps a visible, clickable target. */
+[data-editor-canvas] .editable:empty::before {
+  content: attr(aria-label);
+  opacity: 0.45;
+}
+[data-editor-canvas] .section-frame[data-selected] {
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+[data-editor-canvas] .section-frame[data-error] {
+  box-shadow: inset 0 0 0 2px var(--danger);
+}

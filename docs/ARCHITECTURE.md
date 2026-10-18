@@ -31,6 +31,8 @@ src/
     design-skill.ts    Lecture de la skill versionnée wang-design-engineering
   db/                  Schéma Drizzle et connexion PostgreSQL
   components/ui/       Système de design (boutons, champs, dialogue, badges)
+  components/page-renderer.tsx  Rendu des pages, partagé par l'aperçu et l'éditeur (container queries)
+  editor/              Éditeur visuel : état pur (annuler/rétablir), texte éditable, panneaux, blocs
   lib/                 Glue Next : cookies de session, conversion des erreurs en état de formulaire
   proxy.ts             Redirection optimiste vers /connexion (sans base ; chaque page revérifie)
 skills/wang-design-engineering/  Skill obligatoire pour les agents (source : emilkowalski/skills)
@@ -107,8 +109,8 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 ## Plan priorisé
 
 1. **Fondations** — livrée.
-2. **Serveur MCP et pages structurées** (cette livraison) — voir l'état ci-dessous.
-3. Éditeur visuel : édition directe, sections, annuler/rétablir, sauvegarde automatique, historique.
+2. **Serveur MCP et pages structurées** — livrée.
+3. **Éditeur visuel** (cette livraison) — voir l'état ci-dessous.
 4. Publication : sous-domaine, aperçu privé, versions publiées, domaines et DNS.
 5. Paiements : premier prestataire africain éligible, commandes, webhooks vérifiés.
 6. Analytics et tests A/B (2 à 4 variantes).
@@ -118,6 +120,21 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 3 — Éditeur visuel (sans IA)**
+
+- Modification directe des textes en cliquant dans l'aperçu (titres, paragraphes, listes, boutons, questions, témoignages).
+- Panneau de propriétés selon le type de section : textes, listes (ajout, retrait, ordre), boutons et liens, images par URL, prix, devise.
+- Thème : couleur d'accent (sélecteur + hexadécimal, contraste calculé en direct), fond clair/sombre, police.
+- Alignement (gauche/centré) et espacement (serré/normal/aéré) par section.
+- Sections : bibliothèque de 9 blocs, ajout après la sélection, duplication, suppression, déplacement par boutons, glisser-déposer ou Alt + ↑/↓.
+- Aperçu bureau / tablette / mobile dans l'éditeur (container queries) et mode aperçu sans contrôles.
+- Annuler / Rétablir (boutons et Ctrl/Cmd + Z, Ctrl/Cmd + Maj + Z, Ctrl + Y), frappes regroupées par champ.
+- Sauvegarde automatique après 800 ms, statut réel (enregistré · vN, en attente, enregistrement, erreur avec réessai), Ctrl/Cmd + S, alerte avant de quitter avec des changements non enregistrés.
+- Validation en direct avec le schéma du serveur : champ fautif signalé, sauvegarde suspendue tant qu'il reste une erreur.
+- Version enregistrée ailleurs (agent MCP, autre onglet) : annoncée par un bandeau, jamais appliquée d'office ; conflit proposé (« garder ma version » ou « charger la leur »), rien n'est écrasé.
+- Seules les sections modifiées se re-rendent (sections mémoïsées, mises à jour immuables).
+- Vérifié par : 7 tests unitaires de l'état de l'éditeur, 5 tests e2e de l'éditeur (bureau et mobile), dont l'édition concurrente par un agent MCP réel.
 
 **Phase 2 — MCP et pages**
 
@@ -143,7 +160,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 2 est fermée. Prochaine : phase 3, éditeur visuel (modification directe sans IA).
+- Rien : la phase 3 est fermée. Prochaine : phase 4, publication (sous-domaine, versions publiées, domaines, DNS, SSL).
 
 ### Bloquées ou à décider
 
@@ -151,5 +168,5 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - Suppression de compte, profil, invitation de membres : écrans non construits (le modèle de rôles est prêt).
 - Connecteurs claude.ai et ChatGPT : nécessitent OAuth 2.1 côté serveur MCP (non construit).
 - Import de logos et d'images : nécessite un stockage S3 (images par URL https en attendant).
-- Modification visuelle manuelle d'une page : phase 3. En attendant, sans agent IA, on crée des pages depuis un modèle, on les duplique, on crée des variantes et on restaure des versions, mais on ne modifie pas encore leur texte à la main.
+- Choix de police au-delà de « avec / sans empattement » : à décider (polices web hébergées, poids des pages).
 - Domaine du produit, hébergeur, comptes CinetPay / PayDunya : nécessaires pour les phases 4 et 5.

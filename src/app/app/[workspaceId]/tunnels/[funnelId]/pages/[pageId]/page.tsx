@@ -7,6 +7,7 @@ import { getPage, listVariants, listVersions, MAX_VARIANTS } from "@/server/page
 import { PAGE_KIND_LABELS } from "@/server/page-templates";
 import { validatePageContent } from "@/server/page-validation";
 import { can } from "@/server/workspaces";
+import { buttonClass } from "@/components/ui/button";
 import { loadFunnel } from "../../funnel";
 import { DevicePreview } from "./device-preview";
 import { DeletePageButton, DuplicateButton, RestoreButton, VariantButton } from "./page-actions";
@@ -49,6 +50,11 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">{page.name}</h1>
           <span className="text-sm text-muted">{PAGE_KIND_LABELS[page.kind]}</span>
+          {canEdit && (
+            <Link href={`${base}/${page.id}/editer`} className={buttonClass("primary", "ml-auto")}>
+              Modifier la page
+            </Link>
+          )}
         </div>
         <nav aria-label="Variantes" className="flex flex-wrap items-center gap-1">
           {variants.map((p) => (
@@ -76,7 +82,7 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
         <section aria-label="Aperçu" className="min-w-0">
           <DevicePreview src={`/preview/${page.id}?v=${version.version}`} title={`Aperçu de ${page.name}, version ${version.version}`} />
           <p className="mt-2 text-xs text-muted">
-            Aperçu privé. L’éditeur visuel arrive en phase 3 ; en attendant, les modifications se font via votre agent IA (MCP) ou en restaurant une version.
+            Aperçu privé de la version {version.version}. Modifiez la page dans l’éditeur visuel, ou demandez-le à votre agent IA (MCP).
           </p>
         </section>
 
