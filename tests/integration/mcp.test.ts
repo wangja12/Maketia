@@ -50,7 +50,7 @@ describe("MCP server", () => {
     expect(names).toEqual(
       [
         "add_page_section", "create_funnel", "create_page", "create_page_variant", "duplicate_page",
-        "get_design_engineering_skill", "get_funnel", "get_integrations_status", "get_page", "get_page_schema",
+        "get_design_engineering_skill", "get_funnel", "get_integrations_status", "get_page", "get_page_schema", "get_publication_status", "preview_page",
         "list_funnels", "list_page_variants", "list_page_versions", "list_pages", "list_workspaces",
         "remove_page_section", "reorder_page_sections", "restore_page_version", "update_funnel",
         "update_page_content", "update_page_section", "update_page_theme", "validate_page",
@@ -152,6 +152,21 @@ describe("MCP server", () => {
     expect(fifth.isError).toBe(true);
     expect(fifth.text).toContain("4 variantes maximum");
     expect((await call("list_page_variants", { page_id: page.id })).data.map((p: { variantLabel: string }) => p.variantLabel)).toEqual(["A", "B", "C", "D"]);
+  });
+
+  it("reads publication state and preview links, but cannot publish", async () => {
+    const { call, client, funnel, userId } = await setupAgent();
+    const { data: page } = await call("create_page", { funnel_id: funnel.id, name: "P", kind: "landing", skill_version: DESIGN_SKILL_VERSION });
+    const { publishPage } = await import("@/server/publishing");
+    await publishPage(db, userId, page.id, { path: "", reviewConfirmed: true });
+    const status = await call("get_publication_status", { funnel_id: funnel.id });
+    expect(status.data.live).toEqual([expect.objectContaining({ pageId: page.id, version: 1, path: "" })]);
+    expect(status.data.subdomain).toBe("coaching");
+    const preview = await call("preview_page", { page_id: page.id });
+    expect(preview.data).toMatchObject({ version: 1, requiresLogin: true });
+    expect(preview.data.url).toContain(`/preview/${page.id}?v=1`);
+    const { tools } = await client.listTools();
+    expect(tools.some((t) => /publish/.test(t.name) && !t.annotations?.readOnlyHint)).toBe(false);
   });
 
   it("validate_page returns blocking errors and a manual review list", async () => {

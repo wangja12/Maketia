@@ -39,6 +39,8 @@ Seuls les outils réellement implémentés et testés sont exposés.
 | `list_funnels`, `get_funnel` | lecture | Tunnels ; `get_funnel` inclut la fiche de l'offre (`brief`) et les pages |
 | `list_pages`, `get_page`, `list_page_versions`, `list_page_variants` | lecture | Pages, contenu d'une version, historique, variantes |
 | `validate_page` | lecture | Contrôles déterministes : `errors` (bloquants), `warnings`, `review` (revue humaine) |
+| `get_publication_status` | lecture | Pages en ligne (version, adresse), historique, domaines et statut DNS |
+| `preview_page` | lecture | Lien de l'aperçu privé d'une version (connexion de l'utilisateur requise) |
 | `get_integrations_status` | lecture | État réel des intégrations (rien n'est présenté comme actif sans l'être) |
 | `create_funnel`, `update_funnel` | écriture | Créer ou renommer un tunnel |
 | `create_page` | conception | Créer une page (modèle par type, ou contenu complet) |
@@ -54,9 +56,12 @@ Les outils **de conception** exigent `skill_version` égal à la version courant
 `base_version` : si la page a changé depuis la lecture, l'appel échoue
 (`current_version=N`) au lieu d'écraser.
 
-Non exposés pour l'instant (non construits) : publication, dépublication, aperçu public,
-expériences A/B, statistiques, contacts, commandes, paiements, domaines, quotas.
-Aucun outil ne supprime une ressource.
+**Publication : volontairement absente du MCP.** Publier, dépublier et gérer les domaines se
+fait dans l'application, par une personne, après la revue humaine. L'agent prépare, valide et
+transmet le lien d'aperçu.
+
+Non exposés pour l'instant (non construits) : expériences A/B, statistiques, contacts,
+commandes, paiements, quotas. Aucun outil ne supprime une ressource.
 
 Ressource : `wang://skills/design-engineering` (même texte que l'outil).
 
@@ -70,7 +75,7 @@ Ressource : `wang://skills/design-engineering` (même texte que l'outil).
   donnée, jamais une instruction (protection contre l'injection d'instructions).
 - Journal : outil, ressource, résultat, utilisateur, jeton et date de chaque appel, visible
   dans **Agents IA**.
-- Un agent ne peut ni publier, ni supprimer, ni changer un paiement.
+- Un agent ne peut ni publier, ni dépublier, ni gérer un domaine, ni supprimer, ni changer un paiement.
 
 ## Exemple d'échange
 

@@ -24,6 +24,12 @@ export default defineConfig({
     command: `pnpm start -p ${port}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: false,
-    env: { DATABASE_URL: process.env.TEST_DATABASE_URL ?? "" },
+    env: {
+      DATABASE_URL: process.env.TEST_DATABASE_URL ?? "",
+      APP_URL: `http://localhost:${port}`,
+      // Chromium resolves *.localhost to the loopback address: real host-based routing in tests.
+      PUBLIC_ROOT_DOMAIN: "localhost",
+      PUBLIC_DOMAIN_TARGET: "cname.tunnels-ia.test",
+    },
   },
 });

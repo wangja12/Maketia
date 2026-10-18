@@ -12,6 +12,7 @@ import {
   uuid,
   index,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 import type { FunnelBrief } from "@/server/brief";
 import type { PageContent } from "@/server/page-schema";
@@ -91,6 +92,8 @@ export const funnels = pgTable(
     status: funnelStatus("status").notNull().default("draft"),
     // Offer description filled in by the user; read by external agents through MCP.
     brief: jsonb("brief").$type<FunnelBrief>(),
+    // Public address <subdomain>.<PUBLIC_ROOT_DOMAIN>; unique on the whole platform, set at first publication.
+    subdomain: text("subdomain").unique(),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
@@ -205,8 +208,65 @@ export const mcpAuditLog = pgTable(
   ],
 );
 
+/**
+ * One row per publish action, never deleted: the history of what was live and when.
+ * A path has at most one live row (unpublishedAt null), enforced by a partial unique index.
+ */
+export const publications = pgTable(
+  "publications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    funnelId: uuid("funnel_id")
+      .notNull()
+      .references(() => funnels.id, { onDelete: "cascade" }),
+    pageId: uuid("page_id")
+      .notNull()
+      .references(() => pages.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    // "" is the home page of the site; otherwise one lowercase segment.
+    path: text("path").notNull(),
+    publishedBy: uuid("published_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    unpublishedAt: timestamp("unpublished_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("publications_live_path_idx").on(t.funnelId, t.path).where(sql`${t.unpublishedAt} is null`),
+    index("publications_page_idx").on(t.pageId),
+  ],
+);
+
+export const domainStatus = pgEnum("domain_status", ["pending", "verified", "misconfigured"]);
+
+export const domains = pgTable(
+  "domains",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    funnelId: uuid("funnel_id")
+      .notNull()
+      .references(() => funnels.id, { onDelete: "cascade" }),
+    hostname: text("hostname").notNull(),
+    // Proves ownership: must appear in a TXT record only the domain owner can create.
+    verificationToken: text("verification_token").notNull(),
+    status: domainStatus("status").notNull().default("pending"),
+    lastError: text("last_error"),
+    lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    // Several workspaces may claim a hostname, but only one can hold it verified.
+    uniqueIndex("domains_verified_hostname_idx").on(t.hostname).where(sql`${t.status} = 'verified'`),
+    uniqueIndex("domains_workspace_hostname_idx").on(t.workspaceId, t.hostname),
+  ],
+);
+
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type Funnel = typeof funnels.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type PageKind = (typeof pageKind.enumValues)[number];
 export type McpToken = typeof mcpTokens.$inferSelect;
+export type Publication = typeof publications.$inferSelect;
+export type Domain = typeof domains.$inferSelect;

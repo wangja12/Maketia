@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { toActionState, type ActionState } from "@/lib/action-state";
 import { getFunnel } from "@/server/funnels";
 import { createVariant, deletePage, duplicatePage, getPage, restoreVersion } from "@/server/pages";
+import { publishPage, unpublishPage } from "@/server/publishing";
 
 async function pagePath(userId: string, funnelId: string, pageId?: string) {
   const funnel = await getFunnel(getDb(), userId, funnelId);
@@ -63,4 +64,31 @@ export async function deletePageAction(pageId: string, _prev: ActionState): Prom
     return toActionState(e);
   }
   redirect(target);
+}
+
+export async function publishAction(pageId: string, version: number, _prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const values = { path: String(form.get("path") ?? "") };
+  const items = form.getAll("review");
+  const expected = Number(form.get("reviewCount") ?? -1);
+  try {
+    const row = await publishPage(getDb(), user.id, pageId, { path: values.path, version, reviewConfirmed: items.length === expected && expected > 0 });
+    revalidatePath(await pagePath(user.id, row.funnelId, pageId));
+    revalidatePath(await pagePath(user.id, row.funnelId));
+  } catch (e) {
+    return toActionState(e, values);
+  }
+  return { ok: true, values };
+}
+
+export async function unpublishAction(pageId: string, _prev: ActionState): Promise<ActionState> {
+  const user = await requireUser();
+  try {
+    const row = await unpublishPage(getDb(), user.id, pageId);
+    revalidatePath(await pagePath(user.id, row.funnelId, pageId));
+    revalidatePath(await pagePath(user.id, row.funnelId));
+  } catch (e) {
+    return toActionState(e);
+  }
+  return { ok: true };
 }

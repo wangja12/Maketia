@@ -11,6 +11,10 @@ import { buttonClass } from "@/components/ui/button";
 import { loadFunnel } from "../../funnel";
 import { DevicePreview } from "./device-preview";
 import { DeletePageButton, DuplicateButton, RestoreButton, VariantButton } from "./page-actions";
+import { PublishPanel } from "./publish-panel";
+import { slugify } from "@/server/funnels";
+import { listPublications } from "@/server/publishing";
+import { siteBaseUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = { title: "Page · Tunnels IA" };
 
@@ -34,7 +38,16 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
   const { page, version } = data;
   if (page.funnelId !== funnel.id) notFound();
 
-  const [variants, versions] = await Promise.all([listVariants(db, actor, page.id), listVersions(db, actor, page.id)]);
+  const [variants, versions, history] = await Promise.all([
+    listVariants(db, actor, page.id),
+    listVersions(db, actor, page.id),
+    listPublications(db, user.id, funnel.id),
+  ]);
+  const livePaths = history.filter((h) => !h.unpublishedAt);
+  const mine = livePaths.find((h) => h.pageId === page.id);
+  const siteBase = funnel.subdomain ? await siteBaseUrl(funnel.subdomain) : null;
+  const live = mine && siteBase ? { version: mine.version, path: mine.path, url: mine.path ? `${siteBase}/${mine.path}` : `${siteBase}/` } : null;
+  const defaultPath = livePaths.some((h) => h.path === "") ? slugify(page.name) : "";
   const report = validatePageContent(page.kind, version.content);
   const canEdit = can(workspace.role, "edit");
   const canDelete = can(workspace.role, "delete");
@@ -106,13 +119,19 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
             </ul>
           </section>
 
-          <section aria-labelledby="review-title" className="flex flex-col gap-2">
-            <h2 id="review-title" className="text-sm font-semibold">Revue humaine avant publication</h2>
-            <p className="text-xs text-muted">Ces points ne peuvent pas être vérifiés automatiquement (skill wang-design-engineering).</p>
-            <ul className="flex list-disc flex-col gap-1 pl-4 text-sm text-muted">
-              {report.review.map((r) => <li key={r}>{r}</li>)}
-            </ul>
-          </section>
+          {canEdit ? (
+            <PublishPanel
+              pageId={page.id}
+              version={version.version}
+              currentVersion={page.currentVersion}
+              live={live}
+              defaultPath={defaultPath}
+              review={report.review}
+              blocked={report.errors.length > 0}
+            />
+          ) : (
+            <p className="text-sm text-muted">{live ? `En ligne (v${live.version}) : ${live.url}` : "Pas en ligne."}</p>
+          )}
 
           {(canEdit || canDelete) && (
             <section aria-label="Actions" className="flex flex-col gap-2">

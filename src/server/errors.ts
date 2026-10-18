@@ -46,3 +46,9 @@ export function isDomainError(
     e instanceof ConflictError
   );
 }
+
+/** Postgres unique violation (23505), whether raw or wrapped by Drizzle in `cause`. */
+export function isUniqueViolation(e: unknown): boolean {
+  const code = (x: unknown) => (typeof x === "object" && x !== null && "code" in x ? (x as { code: unknown }).code : undefined);
+  return code(e) === "23505" || code((e as { cause?: unknown })?.cause) === "23505";
+}

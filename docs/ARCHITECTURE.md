@@ -18,6 +18,7 @@ src/
     app/[workspaceId]/ Espace : tunnels, fiche, pages (aperçu, historique), agents IA
     api/mcp/           Point d'entrée MCP (Streamable HTTP, jeton porteur)
     preview/[pageId]/  Aperçu privé d'une version de page (rendu réel, iframe responsive)
+    s/[site]/, d/[host]/  Pages publiées (sous-domaine, domaine vérifié), sans compte
   server/              Services métier, sans dépendance à Next (testables directement)
     accounts.ts        Inscription, vérification des identifiants (argon2id)
     sessions.ts        Sessions en base (jeton aléatoire, seul son SHA-256 est stocké)
@@ -29,12 +30,15 @@ src/
     mcp/server.ts      Outils MCP : quota, droits, skill obligatoire, audit à chaque appel
     mcp-tokens.ts      Jetons MCP (hachés, révocables), limite de débit, journal
     design-skill.ts    Lecture de la skill versionnée wang-design-engineering
+    publishing.ts      Publication (instantané d'une version), historique, sous-domaines, résolution publique
+    domains.ts         Domaines personnalisés : vérification DNS réelle (TXT + CNAME/A)
+    site-config.ts     APP_URL, PUBLIC_ROOT_DOMAIN, PUBLIC_DOMAIN_TARGET
   db/                  Schéma Drizzle et connexion PostgreSQL
   components/ui/       Système de design (boutons, champs, dialogue, badges)
   components/page-renderer.tsx  Rendu des pages, partagé par l'aperçu et l'éditeur (container queries)
   editor/              Éditeur visuel : état pur (annuler/rétablir), texte éditable, panneaux, blocs
   lib/                 Glue Next : cookies de session, conversion des erreurs en état de formulaire
-  proxy.ts             Redirection optimiste vers /connexion (sans base ; chaque page revérifie)
+  proxy.ts             Routage par nom d'hôte vers les sites publiés + redirection optimiste vers /connexion
 skills/wang-design-engineering/  Skill obligatoire pour les agents (source : emilkowalski/skills)
 drizzle/               Migrations SQL versionnées
 tests/integration/     Vitest sur une vraie base PostgreSQL
@@ -59,15 +63,17 @@ tests/e2e/             Playwright (bureau + mobile) sur le build de production
 | `sessions` | id = SHA-256 du jeton, user_id, expires_at | cascade sur suppression utilisateur |
 | `workspaces` | id, name | |
 | `workspace_members` | workspace_id, user_id, role (`owner`/`admin`/`editor`/`viewer`) | clé primaire composée |
-| `funnels` | id, workspace_id, name, slug, status (`draft`/`published`/`archived`), brief (jsonb validé), updated_at | slug unique par espace |
+| `funnels` | id, workspace_id, name, slug, status (`draft`/`published`/`archived`), brief (jsonb validé), subdomain, updated_at | slug unique par espace ; subdomain unique sur la plateforme |
 | `pages` | id, funnel_id, name, kind, variant_group_id, variant_label (A–D), current_version | label unique par groupe ; 4 pages max par groupe (verrou consultatif) |
 | `page_versions` | page_id, version, content (jsonb v1), author_kind (`user`/`agent`), author_user_id, mcp_token_id, note | immuable, clé (page_id, version) |
 | `mcp_tokens` | id, workspace_id, user_id, name, token_hash (SHA-256), access (`read`/`write`), last_used_at, revoked_at | |
+| `publications` | funnel_id, page_id, version, path, published_by, created_at, unpublished_at | jamais supprimée (historique) ; une seule ligne en ligne par (tunnel, adresse) via index partiel |
+| `domains` | workspace_id, funnel_id, hostname, verification_token, status (`pending`/`verified`/`misconfigured`), last_error, last_checked_at | un seul espace peut détenir un nom vérifié (index partiel) |
 | `mcp_audit_log` | token_id, workspace_id, user_id, tool, resource_id, ok, error, created_at | sert aussi au calcul de la limite de débit |
 
 Rôles : `viewer` lit ; `editor` lit et modifie ; `owner`/`admin` peuvent aussi supprimer.
 
-Tables prévues pour les phases suivantes (non créées) : `publications`, `experiments`,
+Tables prévues pour les phases suivantes (non créées) : `experiments`,
 `events`, `contacts`, `orders`, `payments`, `payment_providers`, `domains`, `plans`,
 `subscriptions`, `usage`.
 
@@ -110,8 +116,8 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 1. **Fondations** — livrée.
 2. **Serveur MCP et pages structurées** — livrée.
-3. **Éditeur visuel** (cette livraison) — voir l'état ci-dessous.
-4. Publication : sous-domaine, aperçu privé, versions publiées, domaines et DNS.
+3. **Éditeur visuel** — livrée.
+4. **Publication** (cette livraison) — voir l'état ci-dessous.
 5. Paiements : premier prestataire africain éligible, commandes, webhooks vérifiés.
 6. Analytics et tests A/B (2 à 4 variantes).
 7. CRM, abonnements, quotas, administration, suivi de l'usage MCP.
@@ -120,6 +126,16 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 4 — Publication**
+
+- Publication d'une version précise à une adresse du site (accueil ou /mot) ; instantané : les modifications suivantes ne changent rien en ligne avant republication.
+- Garde-fous : contrôles bloquants (schéma, contraste) et revue humaine cochée point par point, vérifiés côté serveur ; un agent MCP ne peut pas publier.
+- Historique complet des publications ; republier une ancienne version (retour arrière) ; dépublier avec confirmation (404 ensuite) ; une page en ligne ne peut pas être supprimée.
+- Sous-domaine unique attribué à la première publication (`<sous-domaine>.PUBLIC_ROOT_DOMAIN`), modifiable, mots réservés refusés ; routage réel par nom d'hôte dans `proxy.ts`. Sans DNS générique : pages servies sous `/s/<sous-domaine>`.
+- Domaines personnalisés : instructions TXT + CNAME, vérification DNS réelle à la demande, statut et erreur exacts, domaine servi seulement une fois vérifié et rétrogradé si le DNS change ; un nom vérifié appartient à un seul espace.
+- MCP : `get_publication_status` et `preview_page` (lecture seule).
+- Vérifié par : 10 tests d'intégration (résolveur DNS simulé dans les tests uniquement), 2 tests e2e dont publication réelle sur `*.localhost` et vérification DNS réelle d'un domaine inexistant.
 
 **Phase 3 — Éditeur visuel (sans IA)**
 
@@ -160,7 +176,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 3 est fermée. Prochaine : phase 4, publication (sous-domaine, versions publiées, domaines, DNS, SSL).
+- Rien : la phase 4 est fermée. Prochaine : phase 5, paiements (premier prestataire africain éligible).
 
 ### Bloquées ou à décider
 
@@ -169,4 +185,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - Connecteurs claude.ai et ChatGPT : nécessitent OAuth 2.1 côté serveur MCP (non construit).
 - Import de logos et d'images : nécessite un stockage S3 (images par URL https en attendant).
 - Choix de police au-delà de « avec / sans empattement » : à décider (polices web hébergées, poids des pages).
-- Domaine du produit, hébergeur, comptes CinetPay / PayDunya : nécessaires pour les phases 4 et 5.
+- **Mise en ligne réelle** : domaine du produit, DNS générique `*.domaine`, hébergeur. À configurer : `APP_URL`, `PUBLIC_ROOT_DOMAIN`, `PUBLIC_DOMAIN_TARGET`.
+- **HTTPS des domaines personnalisés** : délivré par l'hébergeur (ex. API Domains de Vercel). Non intégré tant que l'hébergeur n'est pas choisi ; l'interface ne le présente jamais comme actif.
+- **Vérification DNS automatique périodique** : aujourd'hui à la demande (bouton) ; une tâche planifiée est à prévoir avec l'hébergement.
+- Comptes CinetPay / PayDunya : nécessaires pour la phase 5.

@@ -1,7 +1,7 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
-import { mcpTokens, pageKind, pageVersions, pages, users, type Page, type PageKind } from "@/db/schema";
+import { mcpTokens, pageKind, pageVersions, pages, publications, users, type Page, type PageKind } from "@/db/schema";
 import { ConflictError, NotFoundError, ValidationError } from "./errors";
 import { requireFunnel } from "./funnels";
 import { formatIssues, pageContentSchema, sectionSchema, type PageContent, type Section } from "./page-schema";
@@ -294,6 +294,11 @@ export async function listVariants(db: Db, actor: Actor, pageId: string) {
 
 export async function deletePage(db: Db, actor: Actor, pageId: string): Promise<Page> {
   const { page } = await requirePage(db, actor, pageId, "delete");
+  const [live] = await db
+    .select({ id: publications.id })
+    .from(publications)
+    .where(and(eq(publications.pageId, page.id), isNull(publications.unpublishedAt)));
+  if (live) throw new ValidationError("Cette page est en ligne : dépubliez-la avant de la supprimer.");
   await db.delete(pages).where(eq(pages.id, page.id));
   return page;
 }

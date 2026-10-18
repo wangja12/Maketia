@@ -15,6 +15,13 @@
       "when": 1792318751979,
       "tag": "0001_pages_mcp",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792321546336,
+      "tag": "0002_publication_domains",
+      "breakpoints": true
     }
   ]
 }

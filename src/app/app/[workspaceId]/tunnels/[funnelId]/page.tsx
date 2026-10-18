@@ -9,6 +9,9 @@ import { can } from "@/server/workspaces";
 import { BriefForm } from "./brief-form";
 import { CreatePageForm } from "./create-page-form";
 import { loadFunnel } from "./funnel";
+import { SiteSection } from "./site-section";
+import { listDomains } from "@/server/domains";
+import { listPublications } from "@/server/publishing";
 
 export const metadata: Metadata = { title: "Tunnel · Tunnels IA" };
 
@@ -19,9 +22,11 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
   const { workspaceId, funnelId } = await params;
   const { user, workspace, funnel } = await loadFunnel(workspaceId, funnelId);
   const db = getDb();
-  const [pageList, tokens] = await Promise.all([
+  const [pageList, tokens, history, domainList] = await Promise.all([
     listPages(db, { userId: user.id }, funnel.id),
     listMcpTokens(db, user.id, workspace.id),
+    listPublications(db, user.id, funnel.id),
+    listDomains(db, user.id, funnel.id),
   ]);
   const canEdit = can(workspace.role, "edit");
 
@@ -112,6 +117,7 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
             </ul>
           )}
           {canEdit && <CreatePageForm funnelId={funnel.id} />}
+          <SiteSection funnel={funnel} history={history} domainList={domainList} canEdit={canEdit} />
         </section>
 
         <aside aria-labelledby="brief-title" className="flex flex-col gap-4">
