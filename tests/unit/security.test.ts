@@ -55,17 +55,15 @@ describe("production configuration check", () => {
   it("accepts a complete configuration", () => {
     expect(checkProductionConfig(good)).toEqual({ errors: [], warnings: [] });
   });
-  it("blocks test switches, plain HTTP, bad keys and a shared test database", () => {
+  it("blocks plain HTTP, bad keys and a shared test database", () => {
     const r = checkProductionConfig({
       ...good,
       APP_URL: "http://app.tunnels.exemple",
-      ALLOW_PROVIDER_BASE_URL_OVERRIDE: "1",
-      CINETPAY_BASE_URL: "http://localhost:3199",
       PAYMENT_SECRETS_KEY: "court",
       ANALYTICS_SECRET: "court",
       TEST_DATABASE_URL: good.DATABASE_URL,
     });
-    expect(r.errors).toHaveLength(6);
+    expect(r.errors).toHaveLength(4);
   });
   it("warns about optional integrations that are off", () => {
     const { errors, warnings } = checkProductionConfig({ DATABASE_URL: "x", APP_URL: "https://a.exemple" });

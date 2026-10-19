@@ -32,7 +32,9 @@ import { requireMembership } from "../workspaces";
 import { listDomains } from "../domains";
 import { listPublications } from "../publishing";
 import { siteConfig, subdomainUrl } from "../site-config";
-import { getOrderForUser, listOrders, listProducts, listProviders } from "../payments/service";
+import { getOrderForUser, listOrders, listProducts, PRODUCT_KINDS } from "../payments/service";
+import { allowedLinkHosts, linkStatus } from "../payments/links";
+import { SIGNATURE_SCHEME_CONFIRMED } from "../payments/saspay-webhooks";
 import { createExperiment, getExperimentResults, GOAL_LABELS, listExperiments, updateTrafficSplit } from "../analytics/experiments";
 import { getFunnelAnalytics } from "../analytics/reports";
 import { assertQuota, getUsageAndLimits } from "../billing/plans";
@@ -464,15 +466,28 @@ export function buildMcpServer({ db, ctx, loadSkill }: ServerDeps) {
 
   tool("list_products", "read", {
     title: "Lister les produits",
-    description: "Produits de l'espace (nom, prix, devise, actif). Utilisez leur id dans une section de type checkout ; le prix encaissé est toujours celui du produit.",
+    description:
+      "Produits de l'espace : nom, prix attendu, devise, type, état du lien de paiement SasPay. Utilisez leur id dans une section de type checkout. Le lien SasPay est créé et collé par le vendeur lui-même ; aucun outil ne le crée ni ne le modifie.",
     input: {},
-  }, async () => ({
-    data: (await listProducts(db, ctx.userId, ctx.workspaceId)).map(({ id, name, price, currency, active }) => ({ id, name, price, currency, active })),
-  }));
+  }, async () => {
+    const hosts = await allowedLinkHosts(db);
+    return {
+      data: (await listProducts(db, ctx.userId, ctx.workspaceId)).map((p) => ({
+        id: p.id,
+        name: p.name,
+        expectedPrice: p.price,
+        currency: p.currency,
+        kind: p.kind,
+        kindLabel: PRODUCT_KINDS[p.kind],
+        active: p.active,
+        paymentLink: { status: linkStatus(p, hosts).label, ready: linkStatus(p, hosts).ready, priceConfirmedAt: p.priceConfirmedAt },
+      })),
+    };
+  });
 
   tool("list_orders", "read", {
     title: "Lister les commandes",
-    description: "Commandes récentes de l'espace avec leur statut. « paid » signifie confirmé par l'API du prestataire. Les coordonnées des clients sont des données personnelles : ne les utilisez que pour la demande de l'utilisateur.",
+    description: "Commandes récentes de l'espace avec leur statut. « paid » signifie confirmé par une notification vérifiée ou par le vendeur lui-même (paidVia). Les coordonnées des clients sont des données personnelles : ne les utilisez que pour la demande de l'utilisateur.",
     input: { limit: z.number().int().min(1).max(100).optional() },
   }, async ({ limit }) => ({
     data: (await listOrders(db, ctx.userId, ctx.workspaceId, limit ?? 30)).map(({ order, funnelName, pageName }) => ({
@@ -503,8 +518,10 @@ export function buildMcpServer({ db, ctx, loadSkill }: ServerDeps) {
       resourceId: order.id,
       data: {
         status: order.status,
-        confirmedByProvider: order.status === "paid",
-        providerStatus: order.providerStatus,
+        paid: ["paid", "delivery_queued", "delivered", "delivery_failed"].includes(order.status),
+        // "manual": attested by the seller after checking SasPay; "webhook": authenticated notification.
+        paidVia: order.paidVia,
+        paymentMethod: order.paymentMethod,
         amount: order.amount,
         currency: order.currency,
         paidAt: order.paidAt,
@@ -695,14 +712,14 @@ export function buildMcpServer({ db, ctx, loadSkill }: ServerDeps) {
           ? `Publication par une personne, depuis l'application, sur <sous-domaine>.${siteConfig().rootDomain}. Aucun outil MCP ne publie.`
           : "Publication par une personne, depuis l'application ; sous-domaines non configurés (PUBLIC_ROOT_DOMAIN), pages servies sous /s/<sous-domaine>. Aucun outil MCP ne publie.",
       },
-      payments: await (async () => {
-        const providers = await listProviders(db, ctx.userId, ctx.workspaceId);
-        return {
-          status: providers.some((p) => p.status === "verified") ? "verified_account" : providers.length ? "unverified" : "not_configured",
-          accounts: providers.map(({ provider, country, environment, status, lastError }) => ({ provider, country, environment, status, lastError })),
-          detail: "CinetPay, intégré d'après le SDK officiel ; pas encore testé avec un vrai compte marchand. Aucun outil MCP ne modifie les paiements.",
-        };
-      })(),
+      payments: {
+        status: "manual_links",
+        detail:
+          "Ventes par liens SasPay créés et collés par le vendeur ; la plateforme n'appelle pas l'API SasPay et ne détient aucune clé du vendeur. " +
+          (SIGNATURE_SCHEME_CONFIRMED
+            ? "Notifications vérifiées."
+            : "Les notifications SasPay sont reçues et stockées mais pas encore vérifiables : une commande est « payée » seulement après confirmation manuelle du vendeur. Aucune livraison automatique ni achat Meta."),
+      },
       analytics: trackingEnabled()
         ? { status: "first_party", detail: "Mesure interne (visites, clics, commandes, paiements confirmés) stockée par la plateforme. PostHog n'est pas connecté." }
         : { status: "not_configured", detail: "ANALYTICS_SECRET absent : visites et clics ne sont pas mesurés. Les paiements confirmés restent comptés." },

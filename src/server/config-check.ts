@@ -27,11 +27,7 @@ export function checkProductionConfig(env: Env): ConfigReport {
   if (!env.APP_URL) errors.push("APP_URL absent (adresse publique de l'application, utilisée pour les retours de paiement).");
   else if (!URL.canParse(env.APP_URL) || new URL(env.APP_URL).protocol !== "https:") errors.push("APP_URL doit être une adresse https://.");
 
-  // Test-only switches that redirect payment calls: never in production.
-  if (env.ALLOW_PROVIDER_BASE_URL_OVERRIDE) errors.push("ALLOW_PROVIDER_BASE_URL_OVERRIDE est défini : réservé aux tests, à retirer.");
-  if (env.CINETPAY_BASE_URL) errors.push("CINETPAY_BASE_URL est défini : réservé aux tests, à retirer.");
-
-  if (!env.PAYMENT_SECRETS_KEY) warnings.push("PAYMENT_SECRETS_KEY absent : aucun compte de paiement ne pourra être enregistré.");
+  if (!env.PAYMENT_SECRETS_KEY) warnings.push("PAYMENT_SECRETS_KEY absent : aucun secret de webhook SasPay ne pourra être enregistré.");
   else if (base64Bytes(env.PAYMENT_SECRETS_KEY) !== 32) errors.push("PAYMENT_SECRETS_KEY doit faire 32 octets en base64 (openssl rand -base64 32).");
 
   if (!env.ANALYTICS_SECRET) warnings.push("ANALYTICS_SECRET absent : visites et clics ne seront pas mesurés.");

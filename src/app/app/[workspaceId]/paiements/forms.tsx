@@ -7,94 +7,40 @@ import { FormError } from "@/components/ui/form-error";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { TextField } from "@/components/ui/text-field";
 import {
+  cancelOrderAction,
+  clearSecretAction,
+  confirmPaidAction,
   createProductAction,
-  refreshOrderAction,
-  removeProviderAction,
-  saveProviderAction,
+  ignoreEventAction,
+  reconcileAction,
+  removeLinkAction,
+  rotateUrlAction,
+  saveLinkAction,
+  saveSecretAction,
   toggleProductAction,
-  verifyProviderAction,
 } from "./actions";
 
 const select = "h-10 w-full rounded-control border border-border-strong bg-surface px-3 text-[16px] shadow-raised sm:h-9 sm:text-sm";
+const textarea = "rounded-control border border-border-strong bg-surface p-2.5 text-[16px] shadow-raised sm:text-sm";
 
-export function ProviderForm({ workspaceId, countries }: { workspaceId: string; countries: { code: string; name: string; currency: string }[] }) {
-  const id = useId();
-  const [state, action] = useActionState(saveProviderAction.bind(null, workspaceId), {});
-  const fe = state.fieldErrors ?? {};
-  return (
-    <form action={action} className="flex flex-col gap-3" noValidate>
-      <FormError message={state.fieldErrors ? undefined : state.error} />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={`${id}-country`} className="text-sm font-medium">Pays du compte marchand</label>
-          <select id={`${id}-country`} name="country" defaultValue={state.values?.country ?? "CI"} className={select}>
-            {countries.map((c) => <option key={c.code} value={c.code}>{c.name} ({c.currency})</option>)}
-          </select>
-          {fe.country && <p className="text-xs text-danger">{fe.country}</p>}
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={`${id}-env`} className="text-sm font-medium">Environnement</label>
-          <select id={`${id}-env`} name="environment" defaultValue={state.values?.environment ?? "sandbox"} className={select}>
-            <option value="sandbox">Test (bac à sable)</option>
-            <option value="production">Production</option>
-          </select>
-        </div>
-      </div>
-      <TextField label="Clé API (api_key)" name="apiKey" autoComplete="off" error={fe.apiKey} key={state.ok ? "k-done" : "k"} />
-      <TextField label="Mot de passe API (api_password)" name="apiPassword" type="password" autoComplete="new-password" error={fe.apiPassword} key={state.ok ? "p-done" : "p"} />
-      <p className="text-xs text-muted">Chiffrés avant enregistrement (AES-256-GCM), jamais réaffichés. Un compte CinetPay correspond à un pays.</p>
-      <SubmitButton className="w-fit">Enregistrer le compte</SubmitButton>
-      <p role="status" className="text-xs text-success">{state.ok ? "Compte enregistré. Vérifiez maintenant la connexion." : ""}</p>
-    </form>
-  );
-}
-
-export function VerifyProviderButton({ workspaceId, providerId }: { workspaceId: string; providerId: string }) {
-  const [state, action] = useActionState(verifyProviderAction.bind(null, workspaceId, providerId), {});
-  return (
-    <form action={action}>
-      <SubmitButton variant="secondary" className="h-8">Vérifier la connexion</SubmitButton>
-      <FormError message={state.error} />
-    </form>
-  );
-}
-
-export function RemoveProviderButton({ workspaceId, providerId, label }: { workspaceId: string; providerId: string; label: string }) {
-  const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(removeProviderAction.bind(null, workspaceId, providerId), {});
-  return (
-    <>
-      <Button variant="ghost" className="h-8 text-danger!" onClick={() => setOpen(true)}>Retirer</Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title={`Retirer le compte ${label} ?`} description="Les formulaires de commande dans cette devise ne pourront plus encaisser. Les commandes existantes restent consultables.">
-        <form action={action} className="flex flex-col gap-4">
-          <FormError message={state.error} />
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setOpen(false)}>Annuler</Button>
-            <SubmitButton variant="danger">Retirer</SubmitButton>
-          </div>
-        </form>
-      </Dialog>
-    </>
-  );
-}
-
-export function ProductForm({ workspaceId, currencies }: { workspaceId: string; currencies: string[] }) {
+export function ProductForm({ workspaceId, kinds }: { workspaceId: string; kinds: [string, string][] }) {
   const id = useId();
   const [state, action] = useActionState(createProductAction.bind(null, workspaceId), {});
   const v = state.ok ? {} : (state.values ?? {});
   const fe = state.fieldErrors ?? {};
   return (
-    <form action={action} className="grid gap-3 sm:grid-cols-[1fr_9rem_7rem_auto] sm:items-end" noValidate>
+    <form action={action} className="grid gap-3 sm:grid-cols-[1fr_8rem_6rem_12rem_auto] sm:items-end" noValidate>
       <TextField label="Nom du produit" name="name" defaultValue={v.name} key={`n${v.name}${state.ok}`} error={fe.name} />
       <TextField label="Prix" name="price" inputMode="numeric" defaultValue={v.price} key={`p${v.price}${state.ok}`} error={fe.price} />
+      <TextField label="Devise" name="currency" defaultValue={v.currency ?? "XOF"} key={`c${v.currency}${state.ok}`} maxLength={3} error={fe.currency} />
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${id}-cur`} className="text-sm font-medium">Devise</label>
-        <select id={`${id}-cur`} name="currency" defaultValue={v.currency ?? "XOF"} className={select}>
-          {currencies.map((c) => <option key={c}>{c}</option>)}
+        <label htmlFor={`${id}-kind`} className="text-sm font-medium">Type</label>
+        <select id={`${id}-kind`} name="kind" defaultValue={v.kind ?? "no_delivery"} className={select}>
+          {kinds.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
         </select>
       </div>
       <SubmitButton>Ajouter</SubmitButton>
-      {(fe.currency || (state.error && !state.fieldErrors)) && <p className="text-xs text-danger sm:col-span-4">{fe.currency ?? state.error}</p>}
+      {state.error && !state.fieldErrors && <p className="text-xs text-danger sm:col-span-5">{state.error}</p>}
     </form>
   );
 }
@@ -109,12 +55,199 @@ export function ToggleProductButton({ workspaceId, productId, active }: { worksp
   );
 }
 
-export function RefreshOrderButton({ workspaceId, orderId }: { workspaceId: string; orderId: string }) {
-  const [state, action] = useActionState(refreshOrderAction.bind(null, workspaceId, orderId), {});
+/** The seller pastes the public link they created in SasPay and confirms the price matches. */
+export function LinkForm({
+  workspaceId,
+  product,
+}: {
+  workspaceId: string;
+  product: { id: string; name: string; price: number; currency: string; saspayLinkUrl: string | null; phoneRequired: boolean };
+}) {
+  const id = useId();
+  const [state, action] = useActionState(saveLinkAction.bind(null, workspaceId, product.id), {});
+  const fe = state.fieldErrors ?? {};
+  const v = state.values ?? {};
+  return (
+    <form action={action} className="flex flex-col gap-3" noValidate>
+      <TextField label="Lien public SasPay du produit" name="url" type="url" placeholder="https://…" defaultValue={v.url ?? product.saspayLinkUrl ?? ""} error={fe.url}
+        hint="Copiez l’adresse du lien créé dans votre compte SasPay. Aucune clé API n’est demandée." />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TextField label="Prix fixé sur le lien SasPay" name="price" inputMode="numeric" defaultValue={v.price ?? String(product.price)} error={fe.price} />
+        <TextField label="Devise du lien SasPay" name="currency" maxLength={3} defaultValue={v.currency ?? product.currency} error={fe.currency} />
+      </div>
+      <label className="flex items-start gap-2 text-sm">
+        <input type="checkbox" name="phoneRequired" defaultChecked={product.phoneRequired} className="mt-0.5 accent-[var(--accent)]" />
+        <span>Demander le téléphone de l’acheteur<span className="block text-xs text-muted">Utile pour retrouver son paiement dans votre tableau de bord SasPay.</span></span>
+      </label>
+      <label htmlFor={`${id}-ok`} className="flex items-start gap-2 text-sm">
+        <input id={`${id}-ok`} type="checkbox" name="confirmed" aria-invalid={fe.confirmed ? true : undefined} className="mt-0.5 accent-[var(--accent)]" />
+        <span>
+          Je confirme que ce lien SasPay est à montant fixe, avec exactement ce prix et cette devise.
+          <span className="block text-xs text-muted">La plateforme ne peut pas le vérifier : si vous changez le prix dans SasPay, changez-le aussi ici.</span>
+        </span>
+      </label>
+      {fe.confirmed && <p className="text-xs text-danger">{fe.confirmed}</p>}
+      <FormError message={state.fieldErrors ? undefined : state.error} />
+      <div className="flex items-center gap-3">
+        <SubmitButton className="w-fit">Enregistrer le lien</SubmitButton>
+        <p role="status" className="text-xs text-success">{state.ok ? "Lien enregistré." : ""}</p>
+      </div>
+    </form>
+  );
+}
+
+export function RemoveLinkButton({ workspaceId, productId }: { workspaceId: string; productId: string }) {
+  const [state, action] = useActionState(removeLinkAction.bind(null, workspaceId, productId), {});
   return (
     <form action={action}>
-      <SubmitButton variant="ghost" className="h-7 px-2 text-xs">Vérifier le statut</SubmitButton>
+      <SubmitButton variant="ghost" className="h-8 text-danger!">Retirer le lien</SubmitButton>
+      <FormError message={state.error} />
+    </form>
+  );
+}
+
+export function CopyField({ label, value }: { label: string; value: string }) {
+  const id = useId();
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium">{label}</label>
+      <div className="flex gap-2">
+        <input id={id} readOnly value={value} onFocus={(e) => e.currentTarget.select()} className={`${select} min-w-0 font-mono text-xs!`} />
+        <Button
+          variant="secondary"
+          onClick={async () => {
+            await navigator.clipboard.writeText(value);
+            setCopied(true);
+          }}
+        >
+          {copied ? "Copié" : "Copier"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function SecretForm({ workspaceId, hasSecret }: { workspaceId: string; hasSecret: boolean }) {
+  const [state, action] = useActionState(saveSecretAction.bind(null, workspaceId), {});
+  return (
+    <form action={action} className="flex flex-col gap-2" noValidate>
+      <TextField
+        label={hasSecret ? "Remplacer le secret de signature" : "Secret de signature du webhook"}
+        name="secret"
+        type="password"
+        autoComplete="off"
+        key={state.ok ? "done" : "edit"}
+        error={state.fieldErrors?.secret ?? (state.fieldErrors ? undefined : state.error)}
+        hint="Le secret affiché par SasPay à la création du webhook. Ce n’est pas votre clé API : ne collez jamais une clé sk_live ou sk_test."
+      />
+      <div className="flex items-center gap-3">
+        <SubmitButton className="w-fit">Enregistrer le secret</SubmitButton>
+        <p role="status" className="text-xs text-success">{state.ok ? "Secret enregistré, chiffré. Il ne sera plus affiché." : ""}</p>
+      </div>
+    </form>
+  );
+}
+
+export function ClearSecretButton({ workspaceId }: { workspaceId: string }) {
+  const [state, action] = useActionState(clearSecretAction.bind(null, workspaceId), {});
+  return (
+    <form action={action}>
+      <SubmitButton variant="ghost" className="h-8 text-danger!">Supprimer le secret</SubmitButton>
+      <FormError message={state.error} />
+    </form>
+  );
+}
+
+export function RotateUrlButton({ workspaceId }: { workspaceId: string }) {
+  const [open, setOpen] = useState(false);
+  const [state, action] = useActionState(rotateUrlAction.bind(null, workspaceId), {});
+  return (
+    <>
+      <Button variant="ghost" className="h-8" onClick={() => setOpen(true)}>Changer d’adresse</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} title="Générer une nouvelle adresse ?" description="L’adresse actuelle cessera aussitôt de fonctionner. Vous devrez coller la nouvelle dans votre tableau de bord SasPay.">
+        <form action={action} className="flex flex-col gap-4">
+          <FormError message={state.error} />
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setOpen(false)}>Annuler</Button>
+            <SubmitButton>Générer</SubmitButton>
+          </div>
+        </form>
+      </Dialog>
+    </>
+  );
+}
+
+const ATTESTATION = "J’ai vérifié dans mon tableau de bord SasPay que ce paiement est réussi, du bon montant, et qu’il vient de cet acheteur.";
+
+export function ConfirmPaidButton({ workspaceId, orderId, label }: { workspaceId: string; orderId: string; label: string }) {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const [state, action] = useActionState(confirmPaidAction.bind(null, workspaceId, orderId), {});
+  return (
+    <>
+      <Button variant="secondary" className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>Confirmer le paiement</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} title={`Confirmer le paiement de ${label} ?`}
+        description="La commande passera à « payée (confirmée par vous) ». Cette action est enregistrée à votre nom. Aucun événement n’est envoyé à Meta.">
+        <form action={action} className="flex flex-col gap-4">
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" name="attested" className="mt-0.5 accent-[var(--accent)]" />
+            <span>{ATTESTATION}</span>
+          </label>
+          <div className="flex flex-col gap-1">
+            <label htmlFor={`${id}-note`} className="text-sm font-medium">Référence SasPay ou note (facultatif)</label>
+            <input id={`${id}-note`} name="note" maxLength={300} className={select} />
+          </div>
+          <FormError message={state.error} />
+          {state.ok && <p role="status" className="text-sm text-success">Paiement confirmé.</p>}
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setOpen(false)}>Fermer</Button>
+            <SubmitButton>Confirmer</SubmitButton>
+          </div>
+        </form>
+      </Dialog>
+    </>
+  );
+}
+
+export function CancelOrderButton({ workspaceId, orderId }: { workspaceId: string; orderId: string }) {
+  const [state, action] = useActionState(cancelOrderAction.bind(null, workspaceId, orderId), {});
+  return (
+    <form action={action}>
+      <SubmitButton variant="ghost" className="h-7 px-2 text-xs">Annuler</SubmitButton>
       {state.error && <p className="text-xs text-danger">{state.error}</p>}
     </form>
   );
+}
+
+export function ReconcileForm({ workspaceId, eventId, orders }: { workspaceId: string; eventId: number; orders: { id: string; label: string }[] }) {
+  const id = useId();
+  const [state, action] = useActionState(reconcileAction.bind(null, workspaceId, eventId), {});
+  const [ignoreState, ignore] = useActionState(ignoreEventAction.bind(null, workspaceId, eventId), {});
+  return (
+    <div className="flex flex-col gap-3">
+      <form action={action} className="flex flex-col gap-2">
+        <label htmlFor={`${id}-order`} className="text-xs font-medium">Commande correspondante</label>
+        <select id={`${id}-order`} name="orderId" className={select} disabled={orders.length === 0}>
+          {orders.length === 0 ? <option>Aucune commande en attente</option> : orders.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+        </select>
+        <label className="flex items-start gap-2 text-xs">
+          <input type="checkbox" name="attested" className="mt-0.5 accent-[var(--accent)]" />
+          <span>{ATTESTATION}</span>
+        </label>
+        <input name="note" placeholder="Note (facultatif)" maxLength={300} className={select} />
+        <FormError message={state.error} />
+        <SubmitButton variant="secondary" className="w-fit" disabled={orders.length === 0}>Rapprocher et confirmer</SubmitButton>
+      </form>
+      <form action={ignore} className="flex flex-wrap items-center gap-2">
+        <input name="note" placeholder="Pourquoi l’ignorer ? (ex. vente hors tunnel)" maxLength={300} className={`${select} max-w-sm`} />
+        <SubmitButton variant="ghost" className="h-8">Ignorer</SubmitButton>
+        <FormError message={ignoreState.error} />
+      </form>
+    </div>
+  );
+}
+
+export function RawBody({ body }: { body: string }) {
+  return <pre tabIndex={0} className={`${textarea} max-h-48 overflow-auto font-mono text-xs whitespace-pre-wrap [overflow-wrap:anywhere]`}>{body}</pre>;
 }

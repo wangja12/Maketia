@@ -19,6 +19,7 @@ import {
   type PlanLimits,
 } from "@/db/schema";
 import { planOf, usageOf } from "./billing/plans";
+import { normalizeHosts } from "./payments/links";
 import { NotFoundError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 import { isUuid } from "./workspaces";
@@ -309,16 +310,22 @@ export async function adminAuditTrail(db: Db, adminId: string) {
 export async function getPlatformSettings(db: Db, adminId: string) {
   await requirePlatformAdmin(db, adminId);
   const [row] = await db.select().from(platformSettings);
-  return row ?? { id: 1, signupsOpen: true, updatedAt: new Date() };
+  return row ?? { id: 1, signupsOpen: true, saspayLinkHosts: [], updatedAt: new Date() };
 }
 
-export async function updatePlatformSettings(db: Db, adminId: string, input: { signupsOpen: boolean }) {
+export async function updatePlatformSettings(db: Db, adminId: string, input: { signupsOpen: boolean; saspayLinkHosts?: string }) {
   await requirePlatformAdmin(db, adminId);
+  const set: { signupsOpen: boolean; saspayLinkHosts?: string[] } = { signupsOpen: input.signupsOpen };
+  if (input.saspayLinkHosts !== undefined) {
+    const { hosts, bad } = normalizeHosts(input.saspayLinkHosts);
+    if (bad.length) throw new ValidationError(`Domaine invalide : ${bad.join(", ")}`, { saspayLinkHosts: "Noms de domaine seulement, ex. pay.exemple.com" });
+    set.saspayLinkHosts = hosts;
+  }
   await db
     .insert(platformSettings)
-    .values({ id: 1, signupsOpen: input.signupsOpen })
-    .onConflictDoUpdate({ target: platformSettings.id, set: { signupsOpen: input.signupsOpen, updatedAt: sql`now()` } });
-  await audit(db, adminId, "settings.update", "platform", null, `signupsOpen=${input.signupsOpen}`);
+    .values({ id: 1, ...set })
+    .onConflictDoUpdate({ target: platformSettings.id, set: { ...set, updatedAt: sql`now()` } });
+  await audit(db, adminId, "settings.update", "platform", null, JSON.stringify(set));
 }
 
 /** Command-line only (scripts/grant-admin.mts): there is no UI path to become an admin. */

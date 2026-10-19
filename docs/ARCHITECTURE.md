@@ -33,7 +33,7 @@ src/
     publishing.ts      Publication (instantané d'une version), historique, sous-domaines, résolution publique
     domains.ts         Domaines personnalisés : vérification DNS réelle (TXT + CNAME/A)
     site-config.ts     APP_URL, PUBLIC_ROOT_DOMAIN, PUBLIC_DOMAIN_TARGET
-    payments/          Paiements : client CinetPay, interface PaymentGateway, commandes, webhooks (voir PAIEMENTS.md)
+    payments/          Ventes par liens SasPay manuels : produits, commandes, réception des webhooks (voir PAIEMENTS.md)
     secrets.ts         Chiffrement AES-256-GCM des identifiants des prestataires
   db/                  Schéma Drizzle et connexion PostgreSQL
   components/ui/       Système de design (boutons, champs, dialogue, badges)
@@ -109,7 +109,9 @@ produit et aux agents MCP :
 | Clients IA externes via MCP | 2 | Rien côté SaaS (jeton porteur) ; OAuth 2.1 pour les connecteurs claude.ai / ChatGPT |
 | Stockage objet compatible S3 (logos, images) | 3 | Bucket et identifiants |
 | Hébergement, sous-domaines, domaines personnalisés, SSL | 4 | Domaine du produit, compte Vercel ou équivalent |
-| CinetPay / PayDunya (paiements des clients finaux) | 5 | Comptes marchands, vérification pays, devises, webhooks |
+| SasPay (liens créés par chaque vendeur) | 5 | Documentation webhooks/payload à vérifier ; compte de test pour un vrai paiement |
+| Meta Pixel / Conversions API (par vendeur) | 6 | Documentation Meta à vérifier ; Pixel et jeton de test du vendeur |
+| Stockage objet privé + e-mails transactionnels | 5 | Bucket compatible S3, prestataire d'e-mails transactionnels |
 | Abonnements du SaaS | 7 | Prestataire disponible dans le pays d'exploitation. Plans et quotas construits ; paiement des abonnements non branché |
 | PostHog ou équivalent | 6 | Projet et clé, politique de consentement. En attendant : mesure interne (voir phase 6), point d'extension `forwardEvent` |
 
@@ -132,6 +134,14 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Ventes par liens SasPay manuels (remplace CinetPay, cahier des charges §29)**
+
+- Lien SasPay collé par le vendeur, sans clé API ni appel à SasPay ; prix attendu confirmé ; publication bloquée sans lien prêt.
+- Commande `pending` puis redirection vers le lien du vendeur ; UTM conservés ; retour navigateur sans effet sur le statut.
+- Adresse de notification unique par espace, secret de signature chiffré, notifications stockées brutes et dédoublonnées, file « à rapprocher », confirmation manuelle auditée.
+- CinetPay retiré du code (données conservées en base, aucun appel).
+- Détails et limites : [PAIEMENTS.md](PAIEMENTS.md).
 
 **Phase 8 — Qualité et lancement**
 
@@ -162,7 +172,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - MCP : `get_funnel_analytics`, `get_page_analytics`, `compare_page_variants`, `list_ab_experiments`, `get_ab_experiment_results` (lecture) ; `create_ab_experiment`, `update_ab_traffic_split` (brouillons seulement). Démarrer, arrêter et choisir le gagnant restent humains.
 - Vérifié par : tests unitaires des statistiques, 6 tests d'intégration des expériences et des jetons, 2 tests MCP, 1 e2e (bureau et mobile) : création, démarrage, 6 visiteurs réels plus un visiteur DNT non compté, résultats, statistiques, gagnant publié.
 
-**Phase 5 — Paiements (CinetPay)**
+**Phase 5 — Paiements (CinetPay) — remplacée par les liens SasPay ci-dessus, conservée pour l'historique**
 
 - Comptes marchands par pays, identifiants chiffrés, vérification réelle de connexion (authentification).
 - Produits (prix entier, devise du compte) ; section « Commande et paiement » dans l'éditeur ; publication bloquée si le paiement ne peut pas aboutir.
@@ -236,9 +246,10 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - **Mise en ligne réelle** : domaine du produit, DNS générique `*.domaine`, hébergeur. À configurer : `APP_URL`, `PUBLIC_ROOT_DOMAIN`, `PUBLIC_DOMAIN_TARGET`.
 - **HTTPS des domaines personnalisés** : délivré par l'hébergeur (ex. API Domains de Vercel). Non intégré tant que l'hébergeur n'est pas choisi ; l'interface ne le présente jamais comme actif.
 - **Vérification DNS automatique périodique** : aujourd'hui à la demande (bouton) ; une tâche planifiée est à prévoir avec l'hébergement.
-- **Test réel CinetPay** : compte bac à sable + déploiement HTTPS ; procédure dans PAIEMENTS.md.
-- **PayDunya** : non intégré (documentation inaccessible ici) ; l'interface d'adaptateur est prête.
-- **Remboursements** : non exposés par l'API CinetPay utilisée.
+- **SasPay — vérification des notifications et rapprochement automatique** : documentation officielle inaccessible depuis l'environnement (`docs.saspay.me` refusé). Aucun traitement automatique tant que le format de signature et le payload `transaction.success` ne sont pas vérifiés.
+- **Livraison numérique (fichiers, e-mails transactionnels)** : non construite ; dépend du rapprochement fiable, d'un stockage objet privé et d'un prestataire d'e-mails transactionnels.
+- **Meta Pixel / Conversions API** : non construits ; documentation Meta inaccessible depuis l'environnement (`developers.facebook.com` refusé).
+- **Remboursements** : à faire dans le compte SasPay du vendeur ; la plateforme ne peut ni les lancer ni les constater.
 - **PostHog** : non connecté (pas de compte, réseau fermé). La mesure interne suffit aux statistiques et tests A/B ; `forwardEvent` est l'endroit où brancher un envoi.
 - **Bannière de consentement** : non construite. Les cookies de mesure sont internes et sans tiers, DNT/GPC respectés ; l'exigence légale dépend des pays visés (à valider avant lancement).
 - **Filtrage des robots** : seuls les navigateurs exécutant JavaScript sont comptés ; aucun filtre supplémentaire.

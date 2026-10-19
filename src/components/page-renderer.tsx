@@ -45,9 +45,8 @@ export function themeStyle(theme: PageContent["theme"]): CSSProperties {
   } as CSSProperties;
 }
 
-export type ProductInfo = { name: string; price: number; currency: string; active: boolean };
+export type ProductInfo = { name: string; price: number; currency: string; active: boolean; phoneRequired?: boolean };
 
-/** Present only on a live published page: makes order forms submit for real. */
 /** Where a published page's forms post, and the outcome of the last submission (from the URL). */
 export type FormTarget = {
   site: string;
@@ -55,6 +54,8 @@ export type FormTarget = {
   path: string;
   error?: { sectionId: string; message: string; fields?: Record<string, string> };
   success?: { sectionId: string };
+  /** UTM parameters of the visit, carried with the form (no personal data). */
+  attribution?: Record<string, string>;
 };
 
 type RenderContext = { edit?: EditHooks; products: Record<string, ProductInfo>; forms?: FormTarget };
@@ -304,12 +305,12 @@ function SectionBody({ s, edit }: { s: Section; edit?: EditHooks }) {
   }
 }
 
-const FIELDS = [
+const orderFields = (phoneRequired: boolean) => [
   { name: "first_name", key: "firstName", label: "Prénom", type: "text", autoComplete: "given-name", required: true },
   { name: "last_name", key: "lastName", label: "Nom", type: "text", autoComplete: "family-name", required: true },
-  { name: "email", key: "email", label: "E-mail", type: "email", autoComplete: "email", required: true },
-  { name: "phone", key: "phone", label: "Téléphone (facultatif, ex. +225…)", type: "tel", autoComplete: "tel", required: false },
-] as const;
+  { name: "email", key: "email", label: "E-mail (pour recevoir votre commande)", type: "email", autoComplete: "email", required: true },
+  { name: "phone", key: "phone", label: phoneRequired ? "Téléphone (ex. +225…)" : "Téléphone (facultatif, ex. +225…)", type: "tel", autoComplete: "tel", required: phoneRequired },
+];
 
 /**
  * Order form. Real only on a live publication (posts to /api/checkout, works without
@@ -327,6 +328,7 @@ function HiddenTarget({ forms, sectionId }: { forms: FormTarget; sectionId: stri
       <input type="hidden" name="site_kind" value={forms.siteKind} />
       <input type="hidden" name="path" value={forms.path} />
       <input type="hidden" name="section" value={sectionId} />
+      {Object.entries(forms.attribution ?? {}).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
     </>
   );
 }
@@ -338,7 +340,7 @@ function CheckoutForm({ s, edit, products, forms }: { s: Extract<Section, { type
   const input = formInput;
   const body = (
     <>
-      {FIELDS.map((f) => (
+      {orderFields(product?.phoneRequired ?? false).map((f) => (
         <div key={f.name} className="flex flex-col gap-1.5 text-left">
           <label htmlFor={`${s.id}-${f.name}`} className="text-sm font-medium">{f.label}</label>
           <input
@@ -359,7 +361,7 @@ function CheckoutForm({ s, edit, products, forms }: { s: Extract<Section, { type
         <T edit={edit} sectionId={s.id} path={["buttonLabel"]} value={s.buttonLabel} label="Libellé du bouton de paiement" as="span" />
       </button>
       <p className="text-xs text-[var(--p-muted)]">
-        Vos coordonnées servent uniquement à traiter cette commande. Paiement sécurisé chez notre prestataire ; la commande est confirmée après vérification du paiement.
+        Vos coordonnées servent uniquement à traiter cette commande. Vous allez être redirigé vers la page de paiement SasPay du vendeur ; la commande est confirmée après vérification du paiement.
       </p>
       {!live && (
         <p className="text-xs text-[var(--p-muted)]">

@@ -46,5 +46,5 @@ export async function updatePlanAction(planId: string, _prev: ActionState, form:
 }
 
 export async function updateSettingsAction(_prev: ActionState, form: FormData) {
-  return run("/admin/parametres", (a) => updatePlatformSettings(getDb(), a, { signupsOpen: form.get("signupsOpen") === "on" }));
+  return run("/admin/parametres", (a) => updatePlatformSettings(getDb(), a, { signupsOpen: form.get("signupsOpen") === "on", saspayLinkHosts: String(form.get("saspayLinkHosts") ?? "") }));
 }

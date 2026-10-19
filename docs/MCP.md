@@ -41,8 +41,8 @@ Seuls les outils réellement implémentés et testés sont exposés.
 | `validate_page` | lecture | Contrôles déterministes : `errors` (bloquants), `warnings`, `review` (revue humaine) |
 | `get_publication_status` | lecture | Pages en ligne (version, adresse), historique, domaines et statut DNS |
 | `preview_page` | lecture | Lien de l'aperçu privé d'une version (connexion de l'utilisateur requise) |
-| `list_products` | lecture | Produits (id à utiliser dans une section `checkout`) |
-| `list_orders` | lecture | Commandes récentes et statut (« paid » = confirmé par le prestataire) |
+| `list_products` | lecture | Produits, prix attendu, type et état du lien SasPay (id à utiliser dans une section `checkout`) |
+| `list_orders` | lecture | Commandes récentes et statut (`paid` : confirmé par le vendeur ou par notification vérifiée, voir `paidVia`) |
 | `get_payment_status` | lecture | Statut et historique du paiement d'une commande |
 | `get_funnel_analytics`, `get_page_analytics` | lecture | Mesures d'un tunnel ou d'une page, avec filtres et limites de la mesure |
 | `compare_page_variants` | lecture | Chiffres des variantes côte à côte (descriptif, pas une preuve) |

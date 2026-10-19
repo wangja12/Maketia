@@ -16,10 +16,10 @@ import { LeadError, LEADS_LIMIT_PER_10_MIN, submitLead } from "@/server/crm/lead
 import { ForbiddenError, NotFoundError, ValidationError } from "@/server/errors";
 import { createFunnel } from "@/server/funnels";
 import { addSection, createPage } from "@/server/pages";
-import { createProduct, handleCinetPayWebhook, saveProvider, startCheckout, verifyProvider } from "@/server/payments/service";
+import { platformSettings } from "@/db/schema";
+import { confirmOrderPaidManually, createProduct, setProductPaymentLink, startCheckout } from "@/server/payments/service";
 import { publishPage } from "@/server/publishing";
 import { db, makeUser } from "./db";
-import { fakeGateway } from "./fake-gateway";
 
 beforeAll(() => {
   process.env.PAYMENT_SECRETS_KEY = Buffer.alloc(32, 7).toString("base64");
@@ -29,10 +29,9 @@ beforeAll(() => {
 /** A published funnel with a contact form on "/" and an order form on "/achat". */
 async function site(phone: "hidden" | "optional" | "required" = "optional") {
   const u = await makeUser();
-  const gateway = fakeGateway();
-  const provider = await saveProvider(db, u.userId, u.workspaceId, { country: "CI", environment: "sandbox", apiKey: "k", apiPassword: "p" });
-  await verifyProvider(db, u.userId, provider.id, gateway.factory);
+  await db.update(platformSettings).set({ saspayLinkHosts: ["pay.saspay-test.example"] });
   const product = await createProduct(db, u.userId, u.workspaceId, { name: "Formation", price: "15000", currency: "XOF" });
+  await setProductPaymentLink(db, u.userId, product.id, { url: "https://pay.saspay-test.example/l/f", price: "15000", currency: "XOF", confirmed: true });
   const funnel = await createFunnel(db, u.userId, u.workspaceId, { name: "Formation" });
   const optin = await createPage(db, { userId: u.userId }, funnel.id, { name: "Inscription", kind: "landing" });
   await addSection(db, { userId: u.userId }, optin.id, 1, { id: "contact", type: "lead_form", title: "Être rappelé", phone, buttonLabel: "Envoyer", successMessage: "Merci !" });
@@ -43,8 +42,8 @@ async function site(phone: "hidden" | "optional" | "required" = "optional") {
   const target = { subdomain: "formation" };
   const lead = (fields: Record<string, string>, ip = "10.1.0.1", visitorId: string | null = null) =>
     submitLead(db, { site: target, path: "", sectionId: "contact", fields, ip, visitorId });
-  const buy = (c: Record<string, string>) => startCheckout(db, { site: target, path: "achat", sectionId: "commande", customer: c, ip: "10.2.0.1" }, gateway.factory);
-  return { ...u, funnel, optin, sales, gateway, lead, buy };
+  const buy = (c: Record<string, string>) => startCheckout(db, { site: target, path: "achat", sectionId: "commande", customer: c, ip: "10.2.0.1" });
+  return { ...u, funnel, optin, sales, lead, buy };
 }
 
 const awa = { firstName: "Awa", email: "Awa@Exemple.test", phone: "+225 07 00 00 00 01", consent: "on" };
@@ -84,7 +83,7 @@ describe("contacts from published pages (scenario 15)", () => {
     expect((await listContacts(db, s.userId, s.workspaceId)).total).toBe(0);
   });
 
-  it("links orders to the contact and turns them into a customer only once the provider confirms", async () => {
+  it("links orders to the contact and turns them into a customer only once the payment is confirmed", async () => {
     const s = await site();
     const { contactId } = await s.lead(awa);
     const { orderId } = await s.buy({ firstName: "Awa", lastName: "Diop", email: "awa@exemple.test", phone: "" });
@@ -93,11 +92,8 @@ describe("contacts from published pages (scenario 15)", () => {
     expect(contact.lastName).toBe("Diop");
     expect(bought).toMatchObject([{ id: orderId, status: "pending", amount: 15000 }]);
 
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
-    s.gateway.state.get(order.merchantTransactionId)!.status = "SUCCESS";
-    const webhook = { notify_token: `notify-${order.merchantTransactionId}`, merchant_transaction_id: order.merchantTransactionId, transaction_id: order.providerTransactionId };
-    await handleCinetPayWebhook(db, webhook, s.gateway.factory);
-    await handleCinetPayWebhook(db, webhook, s.gateway.factory); // replay
+    await confirmOrderPaidManually(db, s.userId, orderId, { attested: true });
+    await expect(confirmOrderPaidManually(db, s.userId, orderId, { attested: true })).rejects.toThrow(); // no double counting
     ({ contact, orders: bought } = await getContact(db, s.userId, contactId));
     expect(contact.status).toBe("customer");
     expect(bought[0].status).toBe("paid");

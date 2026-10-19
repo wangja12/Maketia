@@ -14,7 +14,6 @@ const CHECKOUT_MESSAGES: Record<string, string> = {
   invalid: "Vérifiez vos informations puis réessayez.",
   unavailable: "Le paiement en ligne n’est pas disponible pour le moment.",
   rate_limited: "Trop de tentatives. Réessayez dans quelques minutes.",
-  provider: "Le paiement n’a pas pu démarrer. Aucun montant n’a été débité. Réessayez plus tard.",
 };
 
 /** Messages for the ?inscription=<code> a contact form redirects back with. */
@@ -58,6 +57,11 @@ export async function PublishedPage({ site, path, search }: { site: PublicSite; 
     path: pagePath,
     error: message ? { sectionId, message, fields } : undefined,
     success: lead === "ok" ? { sectionId } : undefined,
+    attribution: Object.fromEntries(
+      ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"]
+        .map((k) => [k, typeof search[k] === "string" ? (search[k] as string).slice(0, 100) : ""])
+        .filter(([, v]) => v),
+    ),
   };
   const { visitorId, sessionId } = await trackingIds();
   const token =

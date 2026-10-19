@@ -19,8 +19,8 @@ Commandes : `pnpm test` (unitaires et intégration, PostgreSQL), `pnpm build && 
 | 8 | Prévisualiser une version | Vérifié | `e2e/editor.spec`, `e2e/mcp.spec` (aperçu bureau/tablette/mobile) |
 | 9 | Publier une page | Vérifié | `e2e/publish.spec` (sous-domaine réel `*.localhost`) |
 | 10 | Connecter un domaine (infrastructure configurée) | Partiel | `e2e/publish.spec` : instructions et vérification DNS réelles ; HTTPS d'un vrai domaine non testé (aucun hébergeur) |
-| 11 | Configurer un prestataire et payer en test | Partiel | `e2e/payments.spec` contre un simulateur du protocole CinetPay ; **non testé contre CinetPay réel** (pas de compte) |
-| 12 | Un paiement confirmé met à jour la commande | Vérifié (simulateur) | `integration/payments.test`, `e2e/payments.spec` |
+| 11 | Coller un lien SasPay sans clé API, payer en test | Partiel | `e2e/payments.spec` : lien collé, prix confirmé, acheteur redirigé vers le lien du vendeur ; **page SasPay et paiement réel non testés** (pas de compte, documentation inaccessible) |
+| 12 | Un paiement confirmé met à jour la commande | Partiel | Confirmation **manuelle** du vendeur testée (`integration/payments.test`, `e2e/payments.spec`) ; confirmation par webhook **bloquée** (format de signature et payload non vérifiés, voir PAIEMENTS.md) |
 | 13 | Visites et conversions mesurées | Vérifié | `e2e/analytics.spec`, `integration/experiments.test` |
 | 14 | Tests A/B comparant des variantes | Vérifié | `e2e/analytics.spec`, `unit/stats.test` |
 | 15 | Contacts dans le CRM | Vérifié | `e2e/crm.spec`, `integration/crm.test` |

@@ -113,10 +113,21 @@ export function PlanForm({ plan }: { plan?: Plan }) {
   );
 }
 
-export function SettingsForm({ signupsOpen }: { signupsOpen: boolean }) {
+export function SettingsForm({ signupsOpen, saspayLinkHosts }: { signupsOpen: boolean; saspayLinkHosts: string[] }) {
+  const id = useId();
   const [state, action] = useActionState(updateSettingsAction, {});
   return (
     <form action={action} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <label htmlFor={id} className="text-sm font-medium">Domaines des liens de paiement SasPay</label>
+        <input id={id} name="saspayLinkHosts" defaultValue={saspayLinkHosts.join(", ")} placeholder="ex. le domaine d’un vrai lien SasPay"
+          aria-invalid={state.fieldErrors?.saspayLinkHosts ? true : undefined} className={control} />
+        <p className="text-xs text-muted">
+          Seuls les liens sur ces domaines exacts sont acceptés comme liens de paiement des vendeurs. Renseignez-les après avoir vérifié l’adresse d’un vrai lien
+          créé dans SasPay (séparés par des virgules). Vide : aucun lien accepté.
+        </p>
+        {state.fieldErrors?.saspayLinkHosts && <p className="text-xs text-danger">{state.fieldErrors.saspayLinkHosts}</p>}
+      </div>
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" name="signupsOpen" defaultChecked={signupsOpen} className="mt-0.5 accent-[var(--accent)]" />
         <span>Inscriptions ouvertes<span className="block text-xs text-muted">Fermées : la page d’inscription refuse les nouveaux comptes. Les comptes existants ne sont pas touchés.</span></span>

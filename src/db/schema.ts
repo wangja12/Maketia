@@ -343,6 +343,8 @@ export const paymentProviders = pgTable(
   (t) => [uniqueIndex("payment_providers_workspace_idx").on(t.workspaceId, t.provider, t.country)],
 );
 
+export const productKind = pgEnum("product_kind", ["digital_file", "service", "booking", "no_delivery"]);
+
 export const products = pgTable(
   "products",
   {
@@ -351,10 +353,16 @@ export const products = pgTable(
       .notNull()
       .references(() => workspaces.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    // Whole units of the currency (XOF, XAF, GNF and CDF are charged without decimals).
+    // Expected price, a copy of what the seller fixed on their SasPay link (whole currency units).
     price: integer("price").notNull(),
     currency: text("currency").notNull(),
     active: boolean("active").notNull().default(true),
+    kind: productKind("kind").notNull().default("no_delivery"),
+    // Public SasPay payment link created by the seller in their own SasPay account (not a secret).
+    saspayLinkUrl: text("saspay_link_url"),
+    // When the seller confirmed that price and currency match their SasPay link. Reset on change.
+    priceConfirmedAt: timestamp("price_confirmed_at", { withTimezone: true }),
+    phoneRequired: boolean("phone_required").notNull().default(false),
     createdAt: createdAt(),
   },
   (t) => [index("products_workspace_idx").on(t.workspaceId)],
@@ -431,7 +439,20 @@ export const segments = pgTable(
   (t) => [index("segments_workspace_idx").on(t.workspaceId)],
 );
 
-export const orderStatus = pgEnum("order_status", ["started", "pending", "paid", "failed", "expired"]);
+// started/failed/expired: legacy CinetPay orders. SasPay link orders: pending → paid, or
+// payment_unmatched (an authenticated payment that cannot be tied to one order without doubt).
+export const orderStatus = pgEnum("order_status", [
+  "started",
+  "pending",
+  "paid",
+  "failed",
+  "expired",
+  "payment_unmatched",
+  "delivery_queued",
+  "delivered",
+  "delivery_failed",
+  "cancelled",
+]);
 
 /**
  * An end customer's order. "paid" is set only from the provider's own status API,
@@ -470,6 +491,12 @@ export const orders = pgTable(
     visitorId: text("visitor_id"),
     experimentId: uuid("experiment_id"),
     contactId: uuid("contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    // "saspay_link" for current orders; "cinetpay" for orders from the removed integration.
+    paymentMethod: text("payment_method").notNull().default("cinetpay"),
+    // How "paid" was established: "webhook" (authenticated and matched) or "manual" (seller attested).
+    paidVia: text("paid_via"),
+    // UTM parameters of the page the order came from (no personal data).
+    attribution: jsonb("attribution").$type<Record<string, string>>(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -598,10 +625,64 @@ export const events = pgTable(
   ],
 );
 
+/**
+ * One SasPay notification endpoint per workspace. The seller pastes the URL in their own SasPay
+ * dashboard; the opaque token routes notifications here. The signing secret is encrypted.
+ */
+export const saspayWebhookEndpoints = pgTable("saspay_webhook_endpoints", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .unique()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  signingSecret: text("signing_secret"),
+  secretUpdatedAt: timestamp("secret_updated_at", { withTimezone: true }),
+  lastEventAt: timestamp("last_event_at", { withTimezone: true }),
+  createdAt: createdAt(),
+});
+
+/**
+ * Every notification received, stored before anything else, raw. Nothing is processed
+ * automatically until its signature can be verified with the documented SasPay scheme and the
+ * transaction is matched to exactly one order.
+ */
+export const saspayWebhookEvents = pgTable(
+  "saspay_webhook_events",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    bodySha256: text("body_sha256").notNull(),
+    rawBody: text("raw_body").notNull(),
+    // Only headers whose name mentions a signature or a timestamp (needed to verify later).
+    signatureHeaders: jsonb("signature_headers").$type<Record<string, string>>().notNull(),
+    // scheme_unconfirmed | no_secret | invalid | valid
+    verification: text("verification").notNull(),
+    eventType: text("event_type"),
+    transactionRef: text("transaction_ref"),
+    // to_reconcile | matched | ignored
+    status: text("status").notNull().default("to_reconcile"),
+    matchedOrderId: uuid("matched_order_id").references(() => orders.id, { onDelete: "set null" }),
+    resolvedBy: uuid("resolved_by").references(() => users.id, { onDelete: "set null" }),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    note: text("note"),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    // A provider retry of the same notification is stored once.
+    uniqueIndex("saspay_events_dedup_idx").on(t.workspaceId, t.bodySha256),
+    index("saspay_events_workspace_idx").on(t.workspaceId, t.receivedAt),
+  ],
+);
+
 /** Platform-wide settings, one row (id = 1), edited from the admin area. */
 export const platformSettings = pgTable("platform_settings", {
   id: integer("id").primaryKey().default(1),
   signupsOpen: boolean("signups_open").notNull().default(true),
+  // Hosts accepted for seller payment links, set by an admin after checking SasPay's real links.
+  saspayLinkHosts: text("saspay_link_hosts").array().notNull().default(sql`'{}'::text[]`),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -628,6 +709,7 @@ export type McpToken = typeof mcpTokens.$inferSelect;
 export type Publication = typeof publications.$inferSelect;
 export type PaymentProvider = typeof paymentProviders.$inferSelect;
 export type Product = typeof products.$inferSelect;
+export type ProductKind = (typeof productKind.enumValues)[number];
 export type Order = typeof orders.$inferSelect;
 export type Experiment = typeof experiments.$inferSelect;
 export type ExperimentArm = typeof experimentArms.$inferSelect;

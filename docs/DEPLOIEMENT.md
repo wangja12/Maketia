@@ -31,8 +31,7 @@ partagent alors aucun cookie avec l'application.
 | `ANALYTICS_SECRET` | pour la mesure | `openssl rand -base64 48` |
 | `NODE_ENV` | oui | `production` (active la CSP et HSTS) |
 
-Interdites en production (le contrôle les refuse) : `ALLOW_PROVIDER_BASE_URL_OVERRIDE`,
-`CINETPAY_BASE_URL`, et un `TEST_DATABASE_URL` égal à `DATABASE_URL`.
+Interdit en production (le contrôle le refuse) : un `TEST_DATABASE_URL` égal à `DATABASE_URL`.
 
 Aucune clé d'API d'IA n'est nécessaire ni lue : la plateforme n'exécute aucun modèle.
 

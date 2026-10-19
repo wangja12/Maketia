@@ -1,52 +1,68 @@
+import { execFileSync } from "node:child_process";
 import { expect, test, type Page } from "@playwright/test";
 
 /*
- * Full purchase on a published page. The payment provider is the test-only stand-in
- * (tests/e2e/mock-cinetpay.mjs), speaking the CinetPay protocol: login, payment creation,
- * webhook with notify token, canonical status check.
+ * Sale through a seller's own SasPay payment link. The platform never calls SasPay: the buyer
+ * is sent to the link the seller pasted (a test domain here, so the SasPay page itself is not shown).
  */
+
+const LINK_HOST = "pay.saspay-test.example";
+const LINK = `https://${LINK_HOST}/l/ebook-excel`;
 
 test.beforeEach(({}, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "One full purchase run is enough; the forms are covered on mobile elsewhere.");
 });
 
 async function owner(page: Page) {
+  const email = `pay-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@exemple.test`;
   await page.goto("/inscription");
   await page.getByLabel("Nom").fill("Aminata");
-  await page.getByLabel("E-mail").fill(`pay-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@exemple.test`);
+  await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
   await expect(page.getByRole("heading", { name: "Tunnels de vente" })).toBeVisible();
-  return page.url();
+  return { workspaceUrl: page.url(), email };
 }
 
-test("connect CinetPay, sell a product from a published page, confirm through the webhook", async ({ page, browser }) => {
-  const workspaceUrl = await owner(page);
+test("paste a SasPay link, sell from a published page, reconcile the notification by hand", async ({ page, browser }) => {
+  test.setTimeout(90_000);
+  const { workspaceUrl, email } = await owner(page);
 
-  // 1. Provider account: wrong credentials are reported, right ones verified for real (login call).
-  await page.getByRole("link", { name: "Paiements" }).click();
-  await page.getByLabel("Pays du compte marchand").selectOption("CI");
-  await page.getByLabel("Clé API (api_key)").fill("bad-key");
-  await page.getByLabel("Mot de passe API (api_password)").fill("secret");
-  await page.getByRole("button", { name: "Enregistrer le compte" }).click();
-  await page.getByRole("button", { name: "Vérifier la connexion" }).click();
-  await expect(page.getByText("Échec de connexion")).toBeVisible();
-  await expect(page.getByText(/INVALID_CREDENTIALS/)).toBeVisible();
+  // 0. A platform admin declares the SasPay link domain (here a test domain).
+  execFileSync("pnpm", ["-s", "admin:grant", email], { env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL } });
+  await page.goto("/admin/parametres");
+  await page.getByLabel("Domaines des liens de paiement SasPay").fill(LINK_HOST);
+  await page.getByRole("button", { name: "Enregistrer" }).click();
+  await expect(page.getByText("Paramètres enregistrés.")).toBeVisible();
 
-  await page.getByText("Ajouter ou remplacer un compte").click();
-  await page.getByLabel("Clé API (api_key)").fill("test-key");
-  await page.getByLabel("Mot de passe API (api_password)").fill("secret");
-  await page.getByRole("button", { name: "Enregistrer le compte" }).click();
-  await page.getByRole("button", { name: "Vérifier la connexion" }).click();
-  await expect(page.getByText("Connexion vérifiée")).toBeVisible();
-
-  // 2. Product.
+  // 1. Product, then the link pasted from SasPay with the price confirmation. No API key anywhere.
+  await page.goto(`${workspaceUrl}/paiements`);
+  await expect(page.getByText(/aucune clé API/).first()).toBeVisible();
+  await expect(page.getByLabel(/Clé API/)).toHaveCount(0);
   await page.getByLabel("Nom du produit").fill("E-book Excel");
-  await page.getByLabel("Prix").fill("5000");
+  await page.getByLabel("Prix", { exact: true }).fill("5000");
+  await page.getByLabel("Type").selectOption("digital_file");
   await page.getByRole("button", { name: "Ajouter", exact: true }).click();
-  await expect(page.getByRole("listitem").filter({ hasText: "E-book Excel" })).toBeVisible();
+  const product = page.getByRole("listitem").filter({ hasText: "E-book Excel" });
+  await expect(product.getByText("Lien absent")).toBeVisible();
+  await product.getByLabel("Lien public SasPay du produit").fill("https://evil.example/pay");
+  await product.getByLabel(/Je confirme/).check();
+  await product.getByRole("button", { name: "Enregistrer le lien" }).click();
+  await expect(product.getByText(/pas un lien SasPay reconnu/)).toBeVisible();
+  await product.getByLabel("Lien public SasPay du produit").fill(LINK);
+  await product.getByLabel(/Je confirme/).check();
+  await product.getByRole("button", { name: "Enregistrer le lien" }).click();
+  await expect(product.getByText("Lien configuré")).toBeVisible();
 
-  // 3. Page with an order form, built in the editor.
+  // 2. Webhook: unique URL to paste in SasPay, signing secret stored encrypted.
+  const webhookUrl = await page.getByLabel("Adresse de notification (propre à votre espace)").inputValue();
+  expect(webhookUrl).toMatch(/\/api\/webhooks\/saspay\/[A-Za-z0-9_-]{30,}$/);
+  await page.getByLabel("Secret de signature du webhook").fill("whsec_test_0123456789abcdef");
+  await page.getByRole("button", { name: "Enregistrer le secret" }).click();
+  await expect(page.getByText("Secret enregistré, chiffré. Il ne sera plus affiché.")).toBeVisible();
+  await expect(page.getByText("Webhook en attente de test")).toBeVisible();
+
+  // 3. Order form on a page, published.
   await page.goto(workspaceUrl);
   await page.getByLabel("Nouveau tunnel").fill("Excel");
   await page.getByRole("button", { name: "Créer le tunnel" }).click();
@@ -59,11 +75,8 @@ test("connect CinetPay, sell a product from a published page, confirm through th
   await page.getByRole("link", { name: "Modifier la page" }).click();
   await page.getByRole("button", { name: "Ajouter une section" }).click();
   await page.getByRole("dialog").getByRole("button", { name: /Commande et paiement/ }).click();
-  await expect(page.getByText(/Non enregistré : 1 champ à corriger/)).toBeVisible();
   await page.getByRole("complementary", { name: "Propriétés" }).getByLabel("Produit vendu").selectOption({ label: "E-book Excel · 5000 XOF" });
   await expect(page.getByText("Enregistré · v2")).toBeVisible();
-
-  // 4. Publish.
   await page.goto(pageUrl);
   const panel = page.getByRole("region", { name: "Publication" });
   for (const box of await panel.getByRole("checkbox").all()) await box.check();
@@ -71,84 +84,47 @@ test("connect CinetPay, sell a product from a published page, confirm through th
   await expect(panel.getByText("Publié.")).toBeVisible();
   const publicUrl = (await panel.getByRole("link", { name: /localhost/ }).getAttribute("href"))!;
 
-  // 5. A visitor buys. Server-side validation first, then the real flow.
-  const visitor = await (await browser.newContext()).newPage();
-  await visitor.goto(publicUrl);
+  // 4. A buyer orders: server-side validation, then sent to the seller's SasPay link.
+  const visitorContext = await browser.newContext();
+  const visitor = await visitorContext.newPage();
+  await visitor.goto(`${publicUrl}?utm_source=facebook&utm_campaign=lancement`);
   const form = visitor.locator("section#checkout");
-  await expect(form.getByText("5 000 F CFA")).toBeVisible();
   await form.getByLabel("Prénom").fill("A");
   await form.getByLabel("Nom", { exact: true }).fill("Koné");
-  await form.getByLabel("E-mail").fill("awa@exemple.test");
+  await form.getByLabel(/E-mail/).fill("awa@exemple.test");
   await form.getByRole("button", { name: "Payer maintenant" }).click();
-  await expect(visitor.locator("section#checkout").getByRole("alert")).toHaveText("Vérifiez vos informations puis réessayez.");
   await expect(visitor.getByText("Prénom : 2 caractères minimum")).toBeVisible();
-
   const retry = visitor.locator("section#checkout");
   await retry.getByLabel("Prénom").fill("Awa");
   await retry.getByLabel("Nom", { exact: true }).fill("Koné");
-  await retry.getByLabel("E-mail").fill("awa@exemple.test");
-  await retry.getByLabel(/Téléphone/).fill("+225 07 00 00 00 01");
+  await retry.getByLabel(/E-mail/).fill("awa@exemple.test");
+  // The test link host does not exist: the browser lands on an error page, but at the seller's link.
+  const redirect = visitor.waitForRequest((r) => r.url() === LINK);
   await retry.getByRole("button", { name: "Payer maintenant" }).click();
+  await redirect;
+  await visitorContext.close();
 
-  // Provider page (stand-in), then back to the app: confirmed only after the status check.
-  await expect(visitor.getByRole("heading", { name: "Simulateur de paiement — tests uniquement" })).toBeVisible();
-  await expect(visitor.getByText("E-book Excel : 5000 XOF")).toBeVisible();
-  await visitor.getByRole("button", { name: "Confirmer le paiement (simulateur)" }).click();
-  await expect(visitor.getByRole("heading", { name: "Paiement confirmé" })).toBeVisible();
-  await expect(visitor.getByText(/Référence : TIA[0-9A-F]{24}/)).toBeVisible();
-
-  // 6. The owner sees a confirmed order, with its trail.
+  // 5. The order is pending: nothing the buyer's browser did marks it paid.
   await page.goto(`${workspaceUrl}/paiements`);
   const order = page.getByRole("listitem").filter({ hasText: "Awa Koné" });
-  await expect(order.getByText("Payée (confirmée)")).toBeVisible();
-  await expect(order.getByText("+2250700000001")).toBeVisible();
-  await order.getByText("Historique du paiement").click();
-  await expect(order.getByText(/Notification reçue \(authentifiée\)/)).toBeVisible();
-  await expect(order.getByText(/Statut confirmé par le prestataire · SUCCESS/)).toBeVisible();
-});
+  await expect(order.getByText("Paiement en attente")).toBeVisible();
 
-test("a refused payment never shows as paid", async ({ page, browser }) => {
-  const workspaceUrl = await owner(page);
-  await page.goto(`${workspaceUrl}/paiements`);
-  await page.getByLabel("Clé API (api_key)").fill("test-key");
-  await page.getByLabel("Mot de passe API (api_password)").fill("secret");
-  await page.getByRole("button", { name: "Enregistrer le compte" }).click();
-  await page.getByRole("button", { name: "Vérifier la connexion" }).click();
-  await expect(page.getByText("Connexion vérifiée")).toBeVisible();
-  await page.getByLabel("Nom du produit").fill("Coaching");
-  await page.getByLabel("Prix").fill("15000");
-  await page.getByRole("button", { name: "Ajouter", exact: true }).click();
-  await expect(page.getByRole("listitem").filter({ hasText: "Coaching" })).toBeVisible();
+  // 6. A notification arrives on the seller's URL: stored, not trusted, to reconcile by hand.
+  const posted = await page.request.post(webhookUrl, { data: { type: "transaction.success", data: { id: "tx_e2e", status: "SUCCESS", amount: 5000, currency: "XOF" } } });
+  expect(posted.status()).toBe(200);
+  expect((await page.request.post(webhookUrl.replace(/[^/]+$/, "jeton-inconnu-jeton-inconnu-1"), { data: {} })).status()).toBe(404);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "À rapprocher (1)" })).toBeVisible();
+  await expect(page.getByText(/référence annoncée : tx_e2e/)).toBeVisible();
+  await expect(order.getByText("Paiement en attente")).toBeVisible();
 
-  await page.goto(workspaceUrl);
-  await page.getByLabel("Nouveau tunnel").fill("Coaching");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
-  await page.getByRole("link", { name: "Coaching", exact: true }).click();
-  await page.getByLabel("Nom", { exact: true }).fill("Vente");
-  await page.getByRole("button", { name: "Créer la page" }).click();
-  await expect(page.getByRole("heading", { name: "Vente", level: 1 })).toBeVisible();
-  const pageUrl = page.url();
-  await page.getByRole("link", { name: "Modifier la page" }).click();
-  await page.getByRole("button", { name: "Ajouter une section" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: /Commande et paiement/ }).click();
-  await page.getByRole("complementary", { name: "Propriétés" }).getByLabel("Produit vendu").selectOption({ label: "Coaching · 15000 XOF" });
-  await expect(page.getByText("Enregistré · v2")).toBeVisible();
-  await page.goto(pageUrl);
-  const panel = page.getByRole("region", { name: "Publication" });
-  for (const box of await panel.getByRole("checkbox").all()) await box.check();
-  await panel.getByRole("button", { name: /Publier la version 2/ }).click();
-  const publicUrl = (await panel.getByRole("link", { name: /localhost/ }).getAttribute("href"))!;
-
-  const visitor = await (await browser.newContext()).newPage();
-  await visitor.goto(publicUrl);
-  const form = visitor.locator("section#checkout");
-  await form.getByLabel("Prénom").fill("Moussa");
-  await form.getByLabel("Nom", { exact: true }).fill("Traoré");
-  await form.getByLabel("E-mail").fill("moussa@exemple.test");
-  await form.getByRole("button", { name: "Payer maintenant" }).click();
-  await visitor.getByRole("button", { name: "Refuser le paiement (simulateur)" }).click();
-  await expect(visitor.getByRole("heading", { name: "Paiement non abouti" })).toBeVisible();
-
-  await page.goto(`${workspaceUrl}/paiements`);
-  await expect(page.getByRole("listitem").filter({ hasText: "Moussa Traoré" }).getByText("Échouée")).toBeVisible();
+  const queue = page.getByRole("listitem").filter({ hasText: "tx_e2e" });
+  await queue.getByRole("button", { name: "Rapprocher et confirmer" }).click();
+  await expect(queue.getByText(/Cochez la confirmation/)).toBeVisible();
+  await queue.getByRole("checkbox").check();
+  await queue.getByRole("button", { name: "Rapprocher et confirmer" }).click();
+  await expect(page.getByRole("heading", { name: "À rapprocher (0)" })).toBeVisible();
+  await expect(order.getByText("Payée (confirmée par vous)")).toBeVisible();
+  await order.getByText("Historique").click();
+  await expect(order.getByText(/Paiement confirmé manuellement/)).toBeVisible();
 });

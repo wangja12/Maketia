@@ -5,7 +5,7 @@ import { CheckoutError, startCheckout } from "@/server/payments/service";
 
 /*
  * Order form target (plain HTML form, works without JavaScript, on any published host).
- * Success: 303 to the provider's payment page. Failure: 303 back to the page with a reason.
+ * Success: 303 to the seller’s SasPay link stored on the product. Failure: 303 back to the page.
  */
 
 export async function POST(request: Request) {
@@ -21,10 +21,11 @@ export async function POST(request: Request) {
       customer: { firstName: get("first_name"), lastName: get("last_name"), email: get("email"), phone: get("phone") },
       ip: clientIp(request),
       visitorId: visitorCookieOf(request),
+      attribution: Object.fromEntries([...form.entries()].filter(([k]) => k.startsWith("utm_"))),
     });
     return Response.redirect(paymentUrl, 303);
   } catch (e) {
-    const code = e instanceof CheckoutError ? e.code : "provider";
+    const code = e instanceof CheckoutError ? e.code : "unavailable";
     if (!(e instanceof CheckoutError)) console.error("[checkout]", e);
     const url = backUrl(request, fallbackPath);
     url.searchParams.set("paiement", code);

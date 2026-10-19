@@ -50,6 +50,13 @@
       "when": 1792435758812,
       "tag": "0006_login_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792446010275,
+      "tag": "0007_saspay_links",
+      "breakpoints": true
     }
   ]
 }
