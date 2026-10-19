@@ -126,12 +126,20 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 4. **Publication** — livrée.
 5. **Paiements** — livrée ; voir [PAIEMENTS.md](PAIEMENTS.md).
 6. **Analytics et tests A/B** — livrée.
-7. **CRM, plans et quotas, administration, suivi de l'usage MCP** (cette livraison) — voir l'état ci-dessous.
-8. Qualité et lancement.
+7. **CRM, plans et quotas, administration, suivi de l'usage MCP** — livrée.
+8. **Qualité et lancement** (cette livraison) — voir [RECETTE.md](RECETTE.md) et [DEPLOIEMENT.md](DEPLOIEMENT.md).
 
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 8 — Qualité et lancement**
+
+- Sécurité : Content-Security-Policy avec nonce par requête (aucun script non émis par le serveur), en-têtes de sécurité, limites de tentatives de connexion (10 échecs par compte, 50 par IP, 15 minutes), liens `//hôte` et `/\hôte` refusés dans les pages (trouvé par les nouveaux tests), audit des dépendances.
+- Accessibilité : axe (WCAG 2.1 AA) sur 17 écrans en bureau et mobile ; zone de défilement de l'éditeur rendue accessible au clavier (trouvé par axe).
+- Responsive : aucun défilement horizontal à 360 px sur tous ces écrans.
+- Réduction des mouvements vérifiée ; budgets de performance (temps de réponse, HTML, JavaScript).
+- Exploitation : `pnpm check:prod` (configuration, migrations, plan par défaut, administrateur), contrôle au démarrage, `GET /api/health`, guide de déploiement, recette des 20 critères.
 
 **Phase 7 — CRM, plans et quotas, administration**
 
@@ -212,14 +220,15 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 7 est fermée côté code. Prochaine : phase 8, qualité et lancement.
+- Rien côté code. La mise en ligne réelle dépend des éléments ci-dessous (domaine, hébergeur, comptes marchands).
 
 ### Bloquées ou à décider
 
-- Limitation du nombre de tentatives de connexion : à ajouter avant la mise en production (phase 8, ou plus tôt si l'application est exposée publiquement).
 - Suppression de compte, profil, invitation de membres : écrans non construits (le modèle de rôles est prêt). Pas de quota « membres » tant que l'invitation n'existe pas.
 - **Paiement des abonnements au SaaS** : aucun prestataire choisi ni vérifié. Les plans payants s'attribuent dans l'administration ; aucun encaissement d'abonnement n'est simulé.
-- **Adresse IP derrière un proxy** : les limites par IP lisent `X-Forwarded-For`. En production, l'hébergeur doit écraser cet en-tête (sinon un client peut le falsifier) — à vérifier au déploiement (phase 8).
+- **Adresse IP derrière un proxy** : les limites par IP lisent `X-Forwarded-For`. L'hébergeur doit écraser cet en-tête (DEPLOIEMENT.md §4) — à vérifier chez l'hébergeur choisi.
+- **Poids JavaScript des pages publiées** (~175 Ko gzip, runtime Next.js) : servir ces pages en HTML statique est la piste pour les réseaux lents ; non réalisé.
+- **Réinitialisation de mot de passe** : impossible sans envoi d'e-mail transactionnel (aucun service d'e-mail n'est intégré). À décider : prestataire d'e-mail transactionnel (pas de marketing) ou réinitialisation par l'administrateur.
 - **Suspension** : les pages publiées des espaces de la personne restent en ligne (elles appartiennent à l'espace, qui peut avoir d'autres membres). Une mise hors ligne par espace est à décider.
 - Connecteurs claude.ai et ChatGPT : nécessitent OAuth 2.1 côté serveur MCP (non construit).
 - Import de logos et d'images : nécessite un stockage S3 (images par URL https en attendant).

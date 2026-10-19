@@ -73,7 +73,7 @@ export async function SiteSection({
                 HTTPS : le certificat est délivré par l’hébergeur, non configuré ici ; il n’est pas vérifié par cette page.
               </p>
               {d.status !== "verified" && (
-                <div className="overflow-x-auto rounded-control bg-surface-sunken p-3 text-xs">
+                <div tabIndex={0} className="overflow-x-auto rounded-control bg-surface-sunken p-3 text-xs">
                   <p className="mb-2 font-medium">Chez votre registraire, créez :</p>
                   <table className="w-full text-left font-mono">
                     <thead className="text-muted"><tr><th className="pr-3 font-normal">Type</th><th className="pr-3 font-normal">Nom</th><th className="font-normal">Valeur</th></tr></thead>

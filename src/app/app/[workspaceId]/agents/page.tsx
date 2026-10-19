@@ -65,7 +65,7 @@ export default async function AgentsPage({ params }: PageProps<"/app/[workspaceI
             {audit.length === 0 ? (
               <p className="text-sm text-muted">Aucune action d’agent pour l’instant.</p>
             ) : (
-              <div className="overflow-x-auto rounded-card border border-border bg-surface">
+              <div tabIndex={0} className="overflow-x-auto rounded-card border border-border bg-surface">
                 <table className="w-full text-left text-sm">
                   <thead className="text-xs text-muted">
                     <tr className="border-b border-border">

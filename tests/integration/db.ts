@@ -10,7 +10,7 @@ export const { db, client } = createDb(url);
 
 beforeEach(async () => {
   await db.execute(
-    sql`TRUNCATE users, sessions, workspaces, workspace_members, funnels, pages, page_versions, mcp_tokens, mcp_audit_log, publications, domains, payment_providers, products, orders, payment_events, experiments, experiment_arms, experiment_assignments, events, contacts, contact_events, segments, admin_audit_log CASCADE`,
+    sql`TRUNCATE users, sessions, workspaces, workspace_members, funnels, pages, page_versions, mcp_tokens, mcp_audit_log, publications, domains, payment_providers, products, orders, payment_events, experiments, experiment_arms, experiment_assignments, events, contacts, contact_events, segments, admin_audit_log, login_attempts CASCADE`,
   );
   // Seeded by the migration: keep the default plan (unlimited) and the settings row.
   await db.execute(sql`DELETE FROM plans WHERE code <> 'defaut'`);

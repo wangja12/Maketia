@@ -14,11 +14,12 @@ const text = (max: number) => z.string().trim().min(1).max(max);
 const optionalText = (max: number) => z.string().trim().max(max).optional();
 
 // Relative paths, in-page anchors, https, and http (some local merchants still serve http).
+// "//host" and "/\host" are external links in browsers, so a path may not start that way.
 const href = z
   .string()
   .trim()
   .max(500)
-  .refine((v) => /^(https?:\/\/[^\s]+|\/[^\s]*|#[\w-]*)$/i.test(v), {
+  .refine((v) => /^(https?:\/\/[^\s]+|\/(?![/\\])[^\s\\]*|#[\w-]*)$/i.test(v), {
     message: "Lien invalide : utilisez https://…, /chemin ou #ancre",
   });
 

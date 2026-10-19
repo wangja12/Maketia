@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,7 +25,9 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Every page renders per request, so Next.js can stamp the CSP nonce on its scripts.
+  await headers();
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="min-h-dvh font-sans">{children}</body>

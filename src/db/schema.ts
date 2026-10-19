@@ -80,6 +80,19 @@ export const plans = pgTable(
   (t) => [uniqueIndex("plans_default_idx").on(t.isDefault).where(sql`${t.isDefault}`)],
 );
 
+/** Sign-in attempts, for brute-force limits. Hashes only: no e-mail or IP in clear. */
+export const loginAttempts = pgTable(
+  "login_attempts",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    emailHash: text("email_hash").notNull(),
+    ipHash: text("ip_hash"),
+    success: boolean("success").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("login_attempts_email_idx").on(t.emailHash, t.createdAt), index("login_attempts_ip_idx").on(t.ipHash, t.createdAt)],
+);
+
 export const workspaces = pgTable("workspaces", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),

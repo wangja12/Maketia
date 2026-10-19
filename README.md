@@ -6,6 +6,8 @@ africains. Aucune IA n'est intégrée : l'utilisateur connecte son propre client
 - Architecture, schéma, plan et état : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Serveur MCP (connexion, outils, sécurité) : [docs/MCP.md](docs/MCP.md)
 - Paiements (CinetPay, sécurité, procédure de test réel) : [docs/PAIEMENTS.md](docs/PAIEMENTS.md)
+- Déploiement en production : [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md)
+- Recette des critères d'acceptation : [docs/RECETTE.md](docs/RECETTE.md)
 - Skill obligatoire des agents : [skills/wang-design-engineering](skills/wang-design-engineering/SKILL.md)
 
 ## Prérequis
@@ -30,6 +32,7 @@ pnpm typecheck
 pnpm lint
 pnpm test                     # intégration, sur TEST_DATABASE_URL (vidée à chaque test)
 pnpm build && pnpm test:e2e   # Playwright, bureau et mobile, sur TEST_DATABASE_URL
+pnpm check:prod               # avant un déploiement : configuration et base de production
 ```
 
 Pour Playwright avec un Chromium déjà installé, définissez `PLAYWRIGHT_CHROMIUM_PATH`.

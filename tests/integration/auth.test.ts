@@ -78,3 +78,22 @@ describe("credentials and sessions", () => {
     expect(await db.select().from(sessions)).toHaveLength(0);
   });
 });
+
+describe("sign-in brute-force limits", () => {
+  it("locks an account after repeated failures, whatever the password, and per IP", async () => {
+    const { signIn, LOGIN_LIMITS } = await import("@/server/accounts");
+    const { userId } = await signUp(db, { name: "Ama", email: "ama@exemple.test", password: "motdepasse-solide" });
+    expect(await signIn(db, { email: "ama@exemple.test", password: "motdepasse-solide", ip: "10.0.0.1" })).toBe(userId);
+    for (let i = 0; i < LOGIN_LIMITS.perEmail; i++) {
+      expect(await signIn(db, { email: "AMA@exemple.test", password: `faux-${i}`, ip: `10.0.1.${i}` })).toBeNull();
+    }
+    // Even the right password is refused now, from any IP.
+    await expect(signIn(db, { email: "ama@exemple.test", password: "motdepasse-solide", ip: "10.9.9.9" })).rejects.toThrow("Trop de tentatives");
+    // Unknown accounts get the same treatment (no hint about which e-mails exist).
+    for (let i = 0; i < LOGIN_LIMITS.perEmail; i++) await signIn(db, { email: "inconnu@exemple.test", password: "x", ip: null });
+    await expect(signIn(db, { email: "inconnu@exemple.test", password: "x", ip: null })).rejects.toThrow("Trop de tentatives");
+    // One IP guessing many accounts is stopped too.
+    for (let i = 0; i < LOGIN_LIMITS.perIp; i++) await signIn(db, { email: `cible${i}@exemple.test`, password: "x", ip: "10.6.6.6" });
+    await expect(signIn(db, { email: "autre@exemple.test", password: "x", ip: "10.6.6.6" })).rejects.toThrow("Trop de tentatives");
+  });
+});

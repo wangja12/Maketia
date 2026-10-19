@@ -1,6 +1,10 @@
 /** Helpers shared by the public form targets (order form, contact form). */
 
-export function clientIp(request: Request) {
+/**
+ * Client IP as reported by the reverse proxy. Trustworthy only if the host overwrites
+ * X-Forwarded-For (see docs/DEPLOIEMENT.md); used for abuse limits, never stored in clear.
+ */
+export function clientIp(request: { headers: Headers }) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || null;
 }
 

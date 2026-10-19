@@ -1,8 +1,9 @@
+import { createHash } from "node:crypto";
 import { hash, verify } from "@node-rs/argon2";
-import { eq } from "drizzle-orm";
+import { and, count, eq, gt, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
-import { platformSettings, users, workspaceMembers, workspaces } from "@/db/schema";
+import { loginAttempts, platformSettings, users, workspaceMembers, workspaces } from "@/db/schema";
 import { ForbiddenError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 
@@ -74,4 +75,38 @@ export async function verifyCredentials(
   if (!(await verify(user.passwordHash, password))) return null;
   if (user.suspendedAt) throw new ForbiddenError("Ce compte est suspendu. Contactez l’équipe de la plateforme.");
   return user.id;
+}
+
+export const LOGIN_LIMITS = { perEmail: 10, perIp: 50, windowMinutes: 15 };
+
+const digest = (value: string) => createHash("sha256").update(`tunnels-ia:${value}`).digest("hex");
+
+/**
+ * Sign-in with brute-force limits: after too many failures for an account (or from one IP)
+ * within 15 minutes, further attempts are refused without checking the password. The
+ * message is the same whether the account exists or not.
+ */
+export async function signIn(db: Db, input: { email: string; password: string; ip: string | null }) {
+  const emailHash = digest(input.email.trim().toLowerCase());
+  const ipHash = input.ip ? digest(input.ip) : null;
+  const since = sql`now() - make_interval(mins => ${LOGIN_LIMITS.windowMinutes})`;
+  const failures = (where: ReturnType<typeof eq>) =>
+    db.select({ n: count() }).from(loginAttempts).where(and(where, eq(loginAttempts.success, false), gt(loginAttempts.createdAt, since)));
+  const [[byEmail], [byIp]] = await Promise.all([
+    failures(eq(loginAttempts.emailHash, emailHash)),
+    ipHash ? failures(eq(loginAttempts.ipHash, ipHash)) : Promise.resolve([{ n: 0 }]),
+  ]);
+  if (byEmail.n >= LOGIN_LIMITS.perEmail || byIp.n >= LOGIN_LIMITS.perIp) {
+    throw new ValidationError(`Trop de tentatives de connexion. Réessayez dans ${LOGIN_LIMITS.windowMinutes} minutes.`);
+  }
+  let userId: string | null;
+  try {
+    userId = await verifyCredentials(db, input.email, input.password);
+  } catch (e) {
+    // Suspended account: the password was right, so it is not a guessing failure.
+    if (e instanceof ForbiddenError) await db.insert(loginAttempts).values({ emailHash, ipHash, success: true });
+    throw e;
+  }
+  await db.insert(loginAttempts).values({ emailHash, ipHash, success: userId !== null });
+  return userId;
 }

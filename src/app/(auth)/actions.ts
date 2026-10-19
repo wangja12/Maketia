@@ -1,10 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { endSession, startSession } from "@/lib/auth";
 import { toActionState, type ActionState } from "@/lib/action-state";
-import { signUp, verifyCredentials } from "@/server/accounts";
+import { clientIp } from "@/lib/public-forms";
+import { signIn, signUp } from "@/server/accounts";
 
 export async function signUpAction(_prev: ActionState, form: FormData): Promise<ActionState> {
   const values = { name: String(form.get("name") ?? ""), email: String(form.get("email") ?? "") };
@@ -23,7 +25,7 @@ export async function signInAction(_prev: ActionState, form: FormData): Promise<
   const email = String(form.get("email") ?? "");
   const password = String(form.get("password") ?? "");
   try {
-    const userId = await verifyCredentials(getDb(), email, password);
+    const userId = await signIn(getDb(), { email, password, ip: clientIp({ headers: await headers() }) });
     // Same message for unknown e-mail and wrong password: do not reveal which accounts exist.
     if (!userId) return { error: "E-mail ou mot de passe incorrect.", values: { email } };
     await startSession(userId);

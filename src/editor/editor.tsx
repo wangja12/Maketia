@@ -271,7 +271,8 @@ export function Editor({
           )}
 
           <main className="order-1 min-w-0 lg:order-2" aria-label="Page en cours d’édition">
-            <div className="h-[calc(100dvh-12rem)] min-h-96 overflow-auto rounded-card border border-border bg-surface-sunken">
+            {/* Focusable so keyboard users can scroll the page with the arrow keys. */}
+            <div tabIndex={0} role="group" aria-label="Défilement de la page" className="h-[calc(100dvh-12rem)] min-h-96 overflow-auto rounded-card border border-border bg-surface-sunken">
               <div style={{ width }} className="mx-auto max-w-full bg-white" data-editor-canvas={previewMode ? undefined : ""}>
                 <PageRenderer content={state.content} edit={previewMode ? undefined : EDIT_HOOKS} products={productMap} className="min-h-full" />
               </div>
