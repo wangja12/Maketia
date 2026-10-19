@@ -4,6 +4,7 @@ import { and, asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
 import { domains } from "@/db/schema";
+import { assertQuota, lockQuota } from "./billing/plans";
 import { isUniqueViolation, NotFoundError, ValidationError } from "./errors";
 import { requireFunnel } from "./funnels";
 import { siteConfig, type SiteConfig } from "./site-config";
@@ -45,11 +46,15 @@ export async function addDomain(db: Db, userId: string, funnelId: string, input:
     const message = "Les adresses de la plateforme ne sont pas des domaines personnalisés.";
     throw new ValidationError(message, { hostname: message });
   }
-  const [row] = await db
-    .insert(domains)
-    .values({ workspaceId: funnel.workspaceId, funnelId: funnel.id, hostname, verificationToken: randomBytes(16).toString("hex") })
-    .onConflictDoNothing({ target: [domains.workspaceId, domains.hostname] })
-    .returning();
+  const [row] = await db.transaction(async (tx) => {
+    await lockQuota(tx, funnel.workspaceId, "customDomains");
+    await assertQuota(tx, funnel.workspaceId, "customDomains");
+    return tx
+      .insert(domains)
+      .values({ workspaceId: funnel.workspaceId, funnelId: funnel.id, hostname, verificationToken: randomBytes(16).toString("hex") })
+      .onConflictDoNothing({ target: [domains.workspaceId, domains.hostname] })
+      .returning();
+  });
   if (!row) throw new ValidationError("Ce domaine est déjà ajouté dans cet espace.", { hostname: "Ce domaine est déjà ajouté dans cet espace." });
   return row;
 }

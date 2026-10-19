@@ -13,7 +13,8 @@ export type FieldDef =
   | { kind: "strings"; key: string; label: string; itemLabel: string; max: number; min: number }
   | { kind: "items"; key: string; label: string; itemLabel: string; max: number; fields: SubField[]; blank: Record<string, string> }
   | { kind: "confirm"; key: string; label: string }
-  | { kind: "product"; key: string; label: string };
+  | { kind: "product"; key: string; label: string }
+  | { kind: "choice"; key: string; label: string; options: [string, string][] };
 
 const title: FieldDef = { kind: "text", key: "title", label: "Titre de la section", optional: true };
 
@@ -74,6 +75,13 @@ export const SECTION_FIELDS: Record<SectionType, FieldDef[]> = {
     { kind: "product", key: "productId", label: "Produit vendu" },
     { kind: "text", key: "buttonLabel", label: "Libellé du bouton" },
     { kind: "textarea", key: "note", label: "Note sous le prix", optional: true },
+  ],
+  lead_form: [
+    title,
+    { kind: "textarea", key: "intro", label: "Texte d’introduction", optional: true },
+    { kind: "choice", key: "phone", label: "Téléphone", options: [["hidden", "Ne pas demander"], ["optional", "Facultatif"], ["required", "Obligatoire"]] },
+    { kind: "text", key: "buttonLabel", label: "Libellé du bouton" },
+    { kind: "textarea", key: "successMessage", label: "Message après l’envoi" },
   ],
   image: [
     { kind: "image", key: "image", label: "Image" },

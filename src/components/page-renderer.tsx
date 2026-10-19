@@ -48,26 +48,30 @@ export function themeStyle(theme: PageContent["theme"]): CSSProperties {
 export type ProductInfo = { name: string; price: number; currency: string; active: boolean };
 
 /** Present only on a live published page: makes order forms submit for real. */
-export type CheckoutTarget = {
+/** Where a published page's forms post, and the outcome of the last submission (from the URL). */
+export type FormTarget = {
   site: string;
   siteKind: "subdomain" | "domain";
   path: string;
   error?: { sectionId: string; message: string; fields?: Record<string, string> };
+  success?: { sectionId: string };
 };
 
-type RenderContext = { edit?: EditHooks; products: Record<string, ProductInfo>; checkout?: CheckoutTarget };
+type RenderContext = { edit?: EditHooks; products: Record<string, ProductInfo>; forms?: FormTarget };
+
+const HAS_FORM = new Set<Section["type"]>(["checkout", "lead_form"]);
 
 export function PageRenderer({
   content,
   edit,
   products = {},
-  checkout,
+  forms,
   className = "min-h-dvh",
 }: {
   content: PageContent;
   edit?: EditHooks;
   products?: Record<string, ProductInfo>;
-  checkout?: CheckoutTarget;
+  forms?: FormTarget;
   className?: string;
 }) {
   return (
@@ -76,7 +80,8 @@ export function PageRenderer({
         <p className="p-12 text-center text-[var(--p-muted)]">Cette page ne contient encore aucune section.</p>
       ) : (
         content.sections.map((s) => (
-          <SectionView key={s.id} section={s} edit={edit} products={s.type === "checkout" ? products : NO_PRODUCTS} checkout={s.type === "checkout" ? checkout : undefined} />
+          // Only form sections receive the form target, so the others keep stable props (memo).
+          <SectionView key={s.id} section={s} edit={edit} products={s.type === "checkout" ? products : NO_PRODUCTS} forms={HAS_FORM.has(s.type) ? forms : undefined} />
         ))
       )}
     </div>
@@ -86,7 +91,8 @@ export function PageRenderer({
 const NO_PRODUCTS: Record<string, ProductInfo> = {};
 
 const SectionView = memo(function SectionView({ section, ...ctx }: { section: Section } & RenderContext) {
-  const body = section.type === "checkout" ? <CheckoutForm s={section} {...ctx} /> : <SectionBody s={section} edit={ctx.edit} />;
+  const body =
+    section.type === "checkout" ? <CheckoutForm s={section} {...ctx} /> : section.type === "lead_form" ? <LeadForm s={section} {...ctx} /> : <SectionBody s={section} edit={ctx.edit} />;
   const edit = ctx.edit;
   return edit ? <edit.Section section={section}>{body}</edit.Section> : body;
 });
@@ -283,6 +289,7 @@ function SectionBody({ s, edit }: { s: Section; edit?: EditHooks }) {
         </Shell>
       );
     case "checkout":
+    case "lead_form":
       return null;
     case "image":
       return (
@@ -308,12 +315,27 @@ const FIELDS = [
  * Order form. Real only on a live publication (posts to /api/checkout, works without
  * JavaScript); in preview and editor it is shown disabled. The price shown is the product's.
  */
-function CheckoutForm({ s, edit, products, checkout }: { s: Extract<Section, { type: "checkout" }> } & RenderContext) {
+const formInput =
+  "h-12 w-full rounded-[10px] border border-[var(--p-border)] bg-[var(--p-bg)] px-3 text-[16px] text-[var(--p-fg)] disabled:opacity-60 aria-invalid:border-red-600";
+const submitButton =
+  "pressable mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-[var(--p-accent)] px-6 text-base font-semibold text-[var(--p-on-accent)] disabled:opacity-60";
+
+function HiddenTarget({ forms, sectionId }: { forms: FormTarget; sectionId: string }) {
+  return (
+    <>
+      <input type="hidden" name="site" value={forms.site} />
+      <input type="hidden" name="site_kind" value={forms.siteKind} />
+      <input type="hidden" name="path" value={forms.path} />
+      <input type="hidden" name="section" value={sectionId} />
+    </>
+  );
+}
+
+function CheckoutForm({ s, edit, products, forms }: { s: Extract<Section, { type: "checkout" }> } & RenderContext) {
   const product = products[s.productId];
-  const live = Boolean(checkout && !edit && product?.active);
-  const error = checkout?.error?.sectionId === s.id ? checkout.error : undefined;
-  const input =
-    "h-12 w-full rounded-[10px] border border-[var(--p-border)] bg-[var(--p-bg)] px-3 text-[16px] text-[var(--p-fg)] disabled:opacity-60 aria-invalid:border-red-600";
+  const live = Boolean(forms && !edit && product?.active);
+  const error = forms?.error?.sectionId === s.id ? forms.error : undefined;
+  const input = formInput;
   const body = (
     <>
       {FIELDS.map((f) => (
@@ -333,11 +355,7 @@ function CheckoutForm({ s, edit, products, checkout }: { s: Extract<Section, { t
         </div>
       ))}
       {error && <p role="alert" className="rounded-[10px] bg-red-50 px-3 py-2 text-sm text-red-700">{error.message}</p>}
-      <button
-        type={live ? "submit" : "button"}
-        disabled={!live && !edit}
-        className="pressable mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-[10px] bg-[var(--p-accent)] px-6 text-base font-semibold text-[var(--p-on-accent)] disabled:opacity-60"
-      >
+      <button type={live ? "submit" : "button"} disabled={!live && !edit} className={submitButton}>
         <T edit={edit} sectionId={s.id} path={["buttonLabel"]} value={s.buttonLabel} label="Libellé du bouton de paiement" as="span" />
       </button>
       <p className="text-xs text-[var(--p-muted)]">
@@ -363,16 +381,77 @@ function CheckoutForm({ s, edit, products, checkout }: { s: Extract<Section, { t
           <p className="text-sm text-red-600">Produit à choisir dans les réglages de la section.</p>
         )}
         {s.note && <T edit={edit} sectionId={s.id} path={["note"]} value={s.note} label="Note" as="p" multiline className="text-sm text-[var(--p-muted)]" />}
-        {live && checkout ? (
+        {live && forms ? (
           <form action="/api/checkout" method="post" className="flex flex-col gap-4">
-            <input type="hidden" name="site" value={checkout.site} />
-            <input type="hidden" name="site_kind" value={checkout.siteKind} />
-            <input type="hidden" name="path" value={checkout.path} />
-            <input type="hidden" name="section" value={s.id} />
+            <HiddenTarget forms={forms} sectionId={s.id} />
             {body}
           </form>
         ) : (
           <div className="flex flex-col gap-4">{body}</div>
+        )}
+      </div>
+    </Shell>
+  );
+}
+
+/**
+ * Contact form. Real only on a live publication (posts to /api/leads, works without
+ * JavaScript). Consent is explicit and required; the details go to the page owner's contacts.
+ */
+function LeadForm({ s, edit, forms }: { s: Extract<Section, { type: "lead_form" }> } & RenderContext) {
+  const live = Boolean(forms && !edit);
+  const error = forms?.error?.sectionId === s.id ? forms.error : undefined;
+  const sent = forms?.success?.sectionId === s.id;
+  const fields = [
+    { name: "first_name", key: "firstName", label: "Prénom", type: "text", autoComplete: "given-name", required: true },
+    { name: "email", key: "email", label: "E-mail", type: "email", autoComplete: "email", required: true },
+    ...(s.phone === "hidden"
+      ? []
+      : [{ name: "phone", key: "phone", label: s.phone === "required" ? "Téléphone (ex. +225…)" : "Téléphone (facultatif, ex. +225…)", type: "tel", autoComplete: "tel", required: s.phone === "required" }]),
+  ];
+  const body = (
+    <>
+      {fields.map((f) => (
+        <div key={f.name} className="flex flex-col gap-1.5 text-left">
+          <label htmlFor={`${s.id}-${f.name}`} className="text-sm font-medium">{f.label}</label>
+          <input id={`${s.id}-${f.name}`} name={f.name} type={f.type} autoComplete={f.autoComplete} required={f.required} disabled={!live}
+            aria-invalid={error?.fields?.[f.key] ? true : undefined} className={formInput} />
+          {error?.fields?.[f.key] && <p className="text-sm text-red-600">{error.fields[f.key]}</p>}
+        </div>
+      ))}
+      <label className="flex items-start gap-2 text-left text-sm">
+        <input type="checkbox" name="consent" required disabled={!live} aria-invalid={error?.fields?.consent ? true : undefined}
+          className="mt-1 size-4 shrink-0 accent-[var(--p-accent)]" />
+        <span>J’accepte que ces informations soient enregistrées pour être recontacté(e) au sujet de cette demande.</span>
+      </label>
+      {error?.fields?.consent && <p className="text-sm text-red-600">{error.fields.consent}</p>}
+      {error && <p role="alert" className="rounded-[10px] bg-red-50 px-3 py-2 text-sm text-red-700">{error.message}</p>}
+      <button type={live ? "submit" : "button"} disabled={!live && !edit} className={submitButton}>
+        <T edit={edit} sectionId={s.id} path={["buttonLabel"]} value={s.buttonLabel} label="Libellé du bouton d’envoi" as="span" />
+      </button>
+      <p className="text-xs text-[var(--p-muted)]">Vos coordonnées ne sont ni revendues ni utilisées pour des envois automatiques. Vous pouvez demander leur suppression.</p>
+      {!live && <p className="text-xs text-[var(--p-muted)]">Aperçu : le formulaire devient actif une fois la page publiée.</p>}
+    </>
+  );
+  return (
+    <Shell s={s} narrow>
+      <SectionTitle s={s} value={s.title} edit={edit} />
+      <div className="flex flex-col gap-4 rounded-2xl border border-[var(--p-border)] p-6 @min-[640px]:p-8">
+        {s.intro && <T edit={edit} sectionId={s.id} path={["intro"]} value={s.intro} label="Introduction" as="p" multiline className="text-left text-[var(--p-muted)]" />}
+        {sent ? (
+          <p role="status" className="rounded-[10px] bg-[var(--p-soft)] px-4 py-3 text-left font-medium">{s.successMessage}</p>
+        ) : live && forms ? (
+          <form action="/api/leads" method="post" className="flex flex-col gap-4">
+            <HiddenTarget forms={forms} sectionId={s.id} />
+            {body}
+          </form>
+        ) : (
+          <div className="flex flex-col gap-4">{body}</div>
+        )}
+        {edit && (
+          <p className="text-left text-xs text-[var(--p-muted)]">
+            Après l’envoi, le visiteur voit : <T edit={edit} sectionId={s.id} path={["successMessage"]} value={s.successMessage} label="Message après l’envoi" as="span" />
+          </p>
         )}
       </div>
     </Shell>

@@ -113,6 +113,8 @@ function FieldEditor({ section, def }: { section: Section; def: FieldDef }) {
       return <TextInput section={section} path={[def.key]} label={def.label} placeholder="XOF" />;
     case "product":
       return <ProductSelect section={section} path={[def.key]} label={def.label} />;
+    case "choice":
+      return <ChoiceSelect section={section} path={[def.key]} label={def.label} options={def.options} />;
     case "confirm":
       return (
         <label className="flex items-start gap-2 rounded-control bg-surface-sunken p-2 text-xs">
@@ -208,6 +210,18 @@ function ProductSelect({ section, path, label }: { section: Section; path: Path;
       </select>
       {products.length === 0 && <p className="text-xs text-muted">Aucun produit : créez-en un dans Paiements.</p>}
       <p className="text-xs text-muted">Le prix affiché et encaissé est toujours celui du produit.</p>
+    </Field>
+  );
+}
+
+function ChoiceSelect({ section, path, label, options }: { section: Section; path: Path; label: string; options: [string, string][] }) {
+  const id = useId();
+  const f = useField(section, path);
+  return (
+    <Field label={label} error={f.error} id={id}>
+      <select id={id} value={(f.value as string) ?? ""} onChange={(e) => f.set(e.target.value)} className={`${control} h-9 sm:h-8`}>
+        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
     </Field>
   );
 }

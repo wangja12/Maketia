@@ -110,7 +110,7 @@ produit et aux agents MCP :
 | Stockage objet compatible S3 (logos, images) | 3 | Bucket et identifiants |
 | Hébergement, sous-domaines, domaines personnalisés, SSL | 4 | Domaine du produit, compte Vercel ou équivalent |
 | CinetPay / PayDunya (paiements des clients finaux) | 5 | Comptes marchands, vérification pays, devises, webhooks |
-| Abonnements du SaaS | 7 | Prestataire disponible dans le pays d'exploitation |
+| Abonnements du SaaS | 7 | Prestataire disponible dans le pays d'exploitation. Plans et quotas construits ; paiement des abonnements non branché |
 | PostHog ou équivalent | 6 | Projet et clé, politique de consentement. En attendant : mesure interne (voir phase 6), point d'extension `forwardEvent` |
 
 Aucune de ces intégrations n'est simulée. Elles seront construites derrière une interface commune
@@ -125,13 +125,23 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 3. **Éditeur visuel** — livrée.
 4. **Publication** — livrée.
 5. **Paiements** — livrée ; voir [PAIEMENTS.md](PAIEMENTS.md).
-6. **Analytics et tests A/B** (cette livraison) — voir l'état ci-dessous.
-7. CRM, abonnements, quotas, administration, suivi de l'usage MCP.
+6. **Analytics et tests A/B** — livrée.
+7. **CRM, plans et quotas, administration, suivi de l'usage MCP** (cette livraison) — voir l'état ci-dessous.
 8. Qualité et lancement.
 
 ## État des fonctionnalités
 
 ### Terminées et vérifiées
+
+**Phase 7 — CRM, plans et quotas, administration**
+
+- Section de page « Formulaire de contact » (éditeur, MCP, rendu public sans JavaScript) : prénom, e-mail, téléphone masqué/facultatif/obligatoire, consentement explicite obligatoire, limite par IP hachée, mesurée comme « inscription » (statistiques et objectif de test A/B).
+- Contacts créés uniquement par les visiteurs (formulaire de contact ou de commande), fusionnés par e-mail dans l'espace, avec origine (tunnel, page, variante, source mesurée), statut prospect/client/perdu, tags, historique (inscriptions, commandes, paiements, changements). « Client » seulement après paiement confirmé par le prestataire, une seule fois même si le webhook est rejoué.
+- Recherche (caractères `%` et `_` traités littéralement), filtres, segments dynamiques (filtres enregistrés, recalculés à chaque lecture), historique d'achat, export CSV (propriétaires et administrateurs, protégé contre l'injection de formules), effacement d'une personne (commandes conservées sans données personnelles). Aucun envoi d'e-mail.
+- Plans configurables en base (prix et limites modifiables dans l'administration, aucun prix dans le code ; un plan par défaut illimité est créé par la migration). Quotas vérifiés côté serveur : tunnels, variantes par page, domaines, modifications MCP par mois, événements mesurés par mois ; verrou transactionnel contre les créations simultanées ; message de dépassement explicite. Un propriétaire passe seul à un plan gratuit ; un plan payant est attribué par l'administrateur.
+- Administration protégée (`/admin`, 404 pour les autres) : vue d'ensemble, utilisateurs et leurs espaces (plan, consommation), suspension avec motif (sessions fermées, connexions MCP coupées, connexion refusée) et réactivation, plans, usage MCP (volume, erreurs, durée par outil, espaces actifs, dernières erreurs), diagnostics (domaines non vérifiés, publications, erreurs de paiement), journal d'administration, ouverture/fermeture des inscriptions. Un administrateur est nommé uniquement en ligne de commande (`pnpm admin:grant`).
+- MCP : `list_leads`, `get_lead`, `get_usage_and_limits` (lecture) ; les écritures MCP comptent dans le quota du plan et sont refusées au-delà ; le journal MCP enregistre le type d'appel et sa durée.
+- Vérifié par : 8 tests d'intégration CRM, 9 tests plans/quotas/administration, 2 tests MCP, 3 e2e (formulaire de contact jusqu'à l'export et l'effacement, bureau et mobile ; plan, quota et suspension en bureau).
 
 **Phase 6 — Analytics et tests A/B**
 
@@ -202,12 +212,15 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### En cours
 
-- Rien : la phase 6 est fermée côté code. Prochaine : phase 7, CRM, abonnements, quotas, administration.
+- Rien : la phase 7 est fermée côté code. Prochaine : phase 8, qualité et lancement.
 
 ### Bloquées ou à décider
 
 - Limitation du nombre de tentatives de connexion : à ajouter avant la mise en production (phase 8, ou plus tôt si l'application est exposée publiquement).
-- Suppression de compte, profil, invitation de membres : écrans non construits (le modèle de rôles est prêt).
+- Suppression de compte, profil, invitation de membres : écrans non construits (le modèle de rôles est prêt). Pas de quota « membres » tant que l'invitation n'existe pas.
+- **Paiement des abonnements au SaaS** : aucun prestataire choisi ni vérifié. Les plans payants s'attribuent dans l'administration ; aucun encaissement d'abonnement n'est simulé.
+- **Adresse IP derrière un proxy** : les limites par IP lisent `X-Forwarded-For`. En production, l'hébergeur doit écraser cet en-tête (sinon un client peut le falsifier) — à vérifier au déploiement (phase 8).
+- **Suspension** : les pages publiées des espaces de la personne restent en ligne (elles appartiennent à l'espace, qui peut avoir d'autres membres). Une mise hors ligne par espace est à décider.
 - Connecteurs claude.ai et ChatGPT : nécessitent OAuth 2.1 côté serveur MCP (non construit).
 - Import de logos et d'images : nécessite un stockage S3 (images par URL https en attendant).
 - Choix de police au-delà de « avec / sans empattement » : à décider (polices web hébergées, poids des pages).

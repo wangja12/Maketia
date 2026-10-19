@@ -2,6 +2,7 @@ import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
 import { mcpTokens, pageKind, pageVersions, pages, publications, users, type Page, type PageKind } from "@/db/schema";
+import { QuotaExceededError, variantLimit } from "./billing/plans";
 import { ConflictError, NotFoundError, ValidationError } from "./errors";
 import { requireFunnel } from "./funnels";
 import { formatIssues, pageContentSchema, sectionSchema, type PageContent, type Section } from "./page-schema";
@@ -243,7 +244,7 @@ export async function duplicatePage(db: Db, actor: Actor, pageId: string, name?:
  * Starts from the source's current content unless `content` is given.
  */
 export async function createVariant(db: Db, actor: Actor, pageId: string, input: { content?: unknown; note?: string } = {}) {
-  const { page: source } = await requirePage(db, actor, pageId, "edit");
+  const { page: source, funnel } = await requirePage(db, actor, pageId, "edit");
   const { version } = await getPage(db, actor, pageId);
   const content = input.content === undefined ? version.content : parseContent(input.content);
 
@@ -257,6 +258,8 @@ export async function createVariant(db: Db, actor: Actor, pageId: string, input:
     if (siblings.length >= MAX_VARIANTS) {
       throw new ValidationError(`Limite atteinte : ${MAX_VARIANTS} variantes maximum par page.`);
     }
+    const { limit, plan } = await variantLimit(tx, funnel.workspaceId, MAX_VARIANTS);
+    if (siblings.length >= limit) throw new QuotaExceededError("variantsPerPage", limit, plan.name);
     const used = new Set(siblings.map((s) => s.label));
     const label = LABELS.find((l) => !used.has(l))!;
     const id = crypto.randomUUID();

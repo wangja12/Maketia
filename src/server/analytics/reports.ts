@@ -39,6 +39,7 @@ export async function getFunnelAnalytics(db: Db, userId: string, funnelId: strin
       sessions: sql<number>`count(distinct ${events.sessionId}) filter (where ${events.type} = 'page_view')::int`,
       pageViews: sql<number>`count(*) filter (where ${events.type} = 'page_view')::int`,
       ctaClicks: sql<number>`count(*) filter (where ${events.type} = 'cta_click')::int`,
+      leads: sql<number>`count(*) filter (where ${events.type} = 'lead_submitted')::int`,
       checkouts: sql<number>`count(*) filter (where ${events.type} = 'checkout_submitted')::int`,
       payments: sql<number>`count(*) filter (where ${events.type} = 'order_paid')::int`,
       buyers: sql<number>`count(distinct ${events.visitorId}) filter (where ${events.type} = 'order_paid')::int`,
@@ -60,6 +61,7 @@ export async function getFunnelAnalytics(db: Db, userId: string, funnelId: strin
       variant: events.variantLabel,
       visitors: sql<number>`count(distinct ${events.visitorId}) filter (where ${events.type} = 'page_view')::int`,
       ctaClicks: sql<number>`count(*) filter (where ${events.type} = 'cta_click')::int`,
+      leads: sql<number>`count(*) filter (where ${events.type} = 'lead_submitted')::int`,
       checkouts: sql<number>`count(*) filter (where ${events.type} = 'checkout_submitted')::int`,
       payments: sql<number>`count(*) filter (where ${events.type} = 'order_paid')::int`,
     })

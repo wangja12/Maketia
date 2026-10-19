@@ -32,6 +32,7 @@ export default async function StatisticsPage({ params, searchParams }: PageProps
     { label: "Visiteurs", value: count(t.visitors) },
     { label: "Vues de page", value: count(t.pageViews) },
     { label: "Clics sur un appel à l’action", value: count(t.ctaClicks) },
+    { label: "Inscriptions", value: count(t.leads) },
     { label: "Commandes commencées", value: count(t.checkouts) },
     { label: "Paiements confirmés", value: count(t.payments) },
     { label: "Taux de conversion", value: t.conversionRate === null ? "—" : percent(t.conversionRate), hint: "Acheteurs ÷ visiteurs" },
@@ -61,7 +62,7 @@ export default async function StatisticsPage({ params, searchParams }: PageProps
         <button type="submit" className={`${control} pressable font-medium [@media(hover:hover)_and_(pointer:fine)]:hover:bg-surface-sunken`}>Filtrer</button>
       </form>
 
-      <section aria-label="Totaux" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <section aria-label="Totaux" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tiles.map((tile) => (
           <div key={tile.label} className="flex flex-col gap-1 rounded-card border border-border bg-surface px-4 py-3 shadow-raised">
             <span className="text-xs text-muted">{tile.label}</span>
@@ -86,8 +87,8 @@ export default async function StatisticsPage({ params, searchParams }: PageProps
         {data.byPage.length === 0 ? (
           <p className="text-sm text-muted">Aucune donnée sur la période.</p>
         ) : (
-          <Table head={["Page", "Variante", "Visiteurs", "Clics", "Commandes", "Paiements"]}
-            rows={data.byPage.map((r) => [r.name ?? "Page supprimée", r.variant ?? "—", count(r.visitors), count(r.ctaClicks), count(r.checkouts), count(r.payments)])} />
+          <Table head={["Page", "Variante", "Visiteurs", "Clics", "Inscriptions", "Commandes", "Paiements"]}
+            rows={data.byPage.map((r) => [r.name ?? "Page supprimée", r.variant ?? "—", count(r.visitors), count(r.ctaClicks), count(r.leads), count(r.checkouts), count(r.payments)])} />
         )}
       </section>
 

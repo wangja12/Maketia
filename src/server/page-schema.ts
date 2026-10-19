@@ -119,6 +119,18 @@ const checkout = z.object({
   note: optionalText(300),
 });
 
+/** Contact form: the visitor leaves their details to be contacted back (stored in the CRM). */
+const leadForm = z.object({
+  id: sectionId,
+  layout,
+  type: z.literal("lead_form"),
+  title: optionalText(120),
+  intro: optionalText(300),
+  phone: z.enum(["hidden", "optional", "required"]),
+  buttonLabel: text(40),
+  successMessage: text(200),
+});
+
 const ctaSection = z.object({
   id: sectionId,
   layout,
@@ -155,6 +167,7 @@ export const sectionSchema = z.discriminatedUnion("type", [
   textSection,
   imageSection,
   checkout,
+  leadForm,
 ]);
 
 export const themeSchema = z.object({

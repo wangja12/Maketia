@@ -34,6 +34,11 @@ pnpm build && pnpm test:e2e   # Playwright, bureau et mobile, sur TEST_DATABASE_
 
 Pour Playwright avec un Chromium déjà installé, définissez `PLAYWRIGHT_CHROMIUM_PATH`.
 
+## Administration
+
+L'espace `/admin` est réservé aux administrateurs de la plateforme. Il n'existe aucun bouton pour le
+devenir : `pnpm admin:grant personne@exemple.com` (sur la base `DATABASE_URL`).
+
 ## Modifier le schéma
 
 1. Éditez `src/db/schema.ts`.

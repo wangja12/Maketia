@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { Db } from "@/db";
 import { funnels } from "@/db/schema";
 import { briefSchema } from "./brief";
+import { assertQuota, lockQuota } from "./billing/plans";
 import { NotFoundError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 import { isUuid, requireMembership, type Permission } from "./workspaces";
@@ -52,24 +53,29 @@ export async function createFunnel(
 
   // Pick the first free slug; the unique index is the real guard, so retry on a race.
   for (let attempt = 0; attempt < 3; attempt++) {
-    const taken = await db
-      .select({ slug: funnels.slug })
-      .from(funnels)
-      .where(
-        and(
-          eq(funnels.workspaceId, workspaceId),
-          or(eq(funnels.slug, base), like(funnels.slug, `${base}-%`)),
-        ),
-      );
-    const used = new Set(taken.map((r) => r.slug));
-    let slug = base;
-    for (let n = 2; used.has(slug); n++) slug = `${base}-${n}`;
+    const created = await db.transaction(async (tx) => {
+      await lockQuota(tx, workspaceId, "funnels");
+      await assertQuota(tx, workspaceId, "funnels");
+      const taken = await tx
+        .select({ slug: funnels.slug })
+        .from(funnels)
+        .where(
+          and(
+            eq(funnels.workspaceId, workspaceId),
+            or(eq(funnels.slug, base), like(funnels.slug, `${base}-%`)),
+          ),
+        );
+      const used = new Set(taken.map((r) => r.slug));
+      let slug = base;
+      for (let n = 2; used.has(slug); n++) slug = `${base}-${n}`;
 
-    const [created] = await db
-      .insert(funnels)
-      .values({ workspaceId, name, slug })
-      .onConflictDoNothing()
-      .returning();
+      const [row] = await tx
+        .insert(funnels)
+        .values({ workspaceId, name, slug })
+        .onConflictDoNothing()
+        .returning();
+      return row;
+    });
     if (created) return created;
   }
   throw new Error("Could not allocate a funnel slug");

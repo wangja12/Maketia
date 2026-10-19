@@ -2,8 +2,8 @@ import { hash, verify } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
-import { users, workspaceMembers, workspaces } from "@/db/schema";
-import { ValidationError } from "./errors";
+import { platformSettings, users, workspaceMembers, workspaces } from "@/db/schema";
+import { ForbiddenError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 
 const signUpSchema = z.object({
@@ -27,6 +27,8 @@ export async function signUp(db: Db, input: SignUpInput) {
     throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
   }
   const { name, email, password } = parsed.data;
+  const [settings] = await db.select({ signupsOpen: platformSettings.signupsOpen }).from(platformSettings);
+  if (settings && !settings.signupsOpen) throw new ValidationError("Les inscriptions sont fermées pour le moment.");
   const passwordHash = await hash(password);
 
   return db.transaction(async (tx) => {
@@ -51,14 +53,17 @@ export async function signUp(db: Db, input: SignUpInput) {
   });
 }
 
-/** Returns the user id when the credentials match, otherwise null. */
+/**
+ * Returns the user id when the credentials match, otherwise null. A suspended account is
+ * told so, but only once the password is right (no hint about which accounts exist).
+ */
 export async function verifyCredentials(
   db: Db,
   email: string,
   password: string,
 ): Promise<string | null> {
   const [user] = await db
-    .select({ id: users.id, passwordHash: users.passwordHash })
+    .select({ id: users.id, passwordHash: users.passwordHash, suspendedAt: users.suspendedAt })
     .from(users)
     .where(eq(users.email, email.trim().toLowerCase()));
   if (!user) {
@@ -66,5 +71,7 @@ export async function verifyCredentials(
     await verify(await dummyHash, password);
     return null;
   }
-  return (await verify(user.passwordHash, password)) ? user.id : null;
+  if (!(await verify(user.passwordHash, password))) return null;
+  if (user.suspendedAt) throw new ForbiddenError("Ce compte est suspendu. Contactez l’équipe de la plateforme.");
+  return user.id;
 }

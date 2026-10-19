@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { PageRenderer, type CheckoutTarget } from "@/components/page-renderer";
+import { PageRenderer, type FormTarget } from "@/components/page-renderer";
 import { ViewTracker } from "@/components/view-tracker";
 import { getDb } from "@/db";
 import { signViewToken } from "@/server/analytics/tracking";
@@ -15,6 +15,13 @@ const CHECKOUT_MESSAGES: Record<string, string> = {
   unavailable: "Le paiement en ligne n’est pas disponible pour le moment.",
   rate_limited: "Trop de tentatives. Réessayez dans quelques minutes.",
   provider: "Le paiement n’a pas pu démarrer. Aucun montant n’a été débité. Réessayez plus tard.",
+};
+
+/** Messages for the ?inscription=<code> a contact form redirects back with. */
+const LEAD_MESSAGES: Record<string, string> = {
+  invalid: "Vérifiez vos informations puis réessayez.",
+  unavailable: "Ce formulaire n’est plus disponible.",
+  rate_limited: "Trop d’envois depuis cette connexion. Réessayez dans quelques minutes.",
 };
 
 type Search = Record<string, string | string[] | undefined>;
@@ -40,14 +47,17 @@ export async function PublishedPage({ site, path, search }: { site: PublicSite; 
   if (!page) notFound();
   const products = await productsForContent(getDb(), page.workspaceId, page.content);
 
-  const code = typeof search.paiement === "string" ? search.paiement : undefined;
   const sectionId = typeof search.section === "string" ? search.section : "";
   const fields = typeof search.champs === "string" ? safeFields(search.champs) : undefined;
-  const checkout: CheckoutTarget = {
+  const payment = typeof search.paiement === "string" ? CHECKOUT_MESSAGES[search.paiement] : undefined;
+  const lead = typeof search.inscription === "string" ? search.inscription : undefined;
+  const message = payment ?? (lead ? LEAD_MESSAGES[lead] : undefined);
+  const forms: FormTarget = {
     site: "subdomain" in site ? site.subdomain : site.hostname,
     siteKind: "subdomain" in site ? "subdomain" : "domain",
     path: pagePath,
-    error: code && CHECKOUT_MESSAGES[code] ? { sectionId, message: CHECKOUT_MESSAGES[code], fields } : undefined,
+    error: message ? { sectionId, message, fields } : undefined,
+    success: lead === "ok" ? { sectionId } : undefined,
   };
   const { visitorId, sessionId } = await trackingIds();
   const token =
@@ -64,7 +74,7 @@ export async function PublishedPage({ site, path, search }: { site: PublicSite; 
       : null;
   return (
     <>
-      <PageRenderer content={page.content} products={products} checkout={checkout} />
+      <PageRenderer content={page.content} products={products} forms={forms} />
       {token && <ViewTracker token={token} />}
     </>
   );
@@ -75,7 +85,7 @@ function safeFields(raw: string) {
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     return Object.fromEntries(
-      Object.entries(parsed).filter(([k, v]) => ["firstName", "lastName", "email", "phone"].includes(k) && typeof v === "string" && v.length < 120),
+      Object.entries(parsed).filter(([k, v]) => ["firstName", "lastName", "email", "phone", "consent"].includes(k) && typeof v === "string" && v.length < 120),
     ) as Record<string, string>;
   } catch {
     return undefined;

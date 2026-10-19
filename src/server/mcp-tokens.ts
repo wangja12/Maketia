@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
-import { mcpAuditLog, mcpTokens } from "@/db/schema";
+import { mcpAuditLog, mcpTokens, users } from "@/db/schema";
 import { NotFoundError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 import { can, isUuid, requireMembership } from "./workspaces";
@@ -78,6 +78,8 @@ export async function authenticateMcpToken(db: Db, token: string): Promise<McpCo
     .from(mcpTokens)
     .where(and(eq(mcpTokens.tokenHash, hashToken(token)), isNull(mcpTokens.revokedAt)));
   if (!row) return null;
+  const [owner] = await db.select({ suspendedAt: users.suspendedAt }).from(users).where(eq(users.id, row.userId));
+  if (!owner || owner.suspendedAt) return null;
   let role;
   try {
     role = (await requireMembership(db, row.userId, row.workspaceId, "read")).role;
@@ -108,13 +110,15 @@ export async function isRateLimited(db: Db, tokenId: string) {
 export async function recordMcpCall(
   db: Db,
   ctx: McpContext,
-  entry: { tool: string; resourceId?: string | null; ok: boolean; error?: string | null },
+  entry: { tool: string; kind?: "read" | "write" | "design"; resourceId?: string | null; ok: boolean; error?: string | null; durationMs?: number },
 ) {
   await db.insert(mcpAuditLog).values({
     tokenId: ctx.tokenId,
     workspaceId: ctx.workspaceId,
     userId: ctx.userId,
     tool: entry.tool,
+    kind: entry.kind ?? "read",
+    durationMs: entry.durationMs ?? null,
     resourceId: entry.resourceId ?? null,
     ok: entry.ok,
     error: entry.error?.slice(0, 500) ?? null,

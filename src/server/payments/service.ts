@@ -13,6 +13,7 @@ import { defaultGatewayFactory, type GatewayFactory } from "./gateway";
 import { resolvePublishedPage, type PublicSite } from "../publishing";
 export { checkoutProblems, productsForContent } from "./checks";
 import { recordCheckoutSubmitted, recordOrderPaid } from "../analytics/tracking";
+import { recordContact, recordContactPurchase } from "../crm/contacts";
 
 /*
  * Payments for orders placed on published funnels.
@@ -215,9 +216,28 @@ export async function startCheckout(
 
   const base = appBaseUrl();
   const c = customer.data;
+  const orderId = crypto.randomUUID();
+  // The buyer becomes (or stays) a contact of the workspace's CRM.
+  const contactId = await recordContact(
+    db,
+    {
+      workspaceId: page.workspaceId,
+      firstName: c.firstName,
+      lastName: c.lastName,
+      email: c.email,
+      phone: c.phone || null,
+      funnelId: page.funnelId,
+      pageId: page.pageId,
+      variantLabel: page.variantLabel,
+      visitorId: input.visitorId,
+    },
+    { kind: "order_started", detail: `${product.name} · ${product.price} ${product.currency}`, orderId },
+  );
   const [order] = await db
     .insert(orders)
     .values({
+      id: orderId,
+      contactId,
       workspaceId: page.workspaceId,
       funnelId: page.funnelId,
       pageId: page.pageId,
@@ -313,6 +333,7 @@ export async function refreshOrderStatus(db: Db, orderId: string, factory: Gatew
       .where(eq(orders.id, orderId))
       .returning();
     await tx.insert(paymentEvents).values({ orderId, kind: "status_changed", providerStatus: status.status, detail: `${locked.status} → ${next} (${origin})` });
+    if (next === "paid") await recordContactPurchase(tx, updated);
     return updated;
   });
   // Deduplicated by order id, so a replay cannot count the sale twice.

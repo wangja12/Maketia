@@ -58,7 +58,7 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  if ((pathname.startsWith("/app") || pathname.startsWith("/preview")) && !request.cookies.has("session")) {
+  if ((pathname.startsWith("/app") || pathname.startsWith("/preview") || pathname.startsWith("/admin")) && !request.cookies.has("session")) {
     return NextResponse.redirect(new URL("/connexion", request.url));
   }
   // Tracking ids reach pages only through siteRewrite.

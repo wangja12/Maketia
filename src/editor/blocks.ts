@@ -63,6 +63,12 @@ export const BLOCKS: Block[] = [
     create: (id) => ({ id, type: "checkout", title: "Commander", productId: "", buttonLabel: "Payer maintenant" }),
   },
   {
+    type: "lead_form",
+    label: "Formulaire de contact",
+    description: "Le visiteur laisse ses coordonnées ; il apparaît dans vos contacts.",
+    create: (id) => ({ id, type: "lead_form", title: "Recevoir plus d’informations", phone: "optional", buttonLabel: "Envoyer", successMessage: "Merci ! Nous vous recontactons très vite." }),
+  },
+  {
     type: "image",
     label: "Image",
     description: "Une image par adresse https:// avec son texte alternatif.",
@@ -73,8 +79,10 @@ export const BLOCKS: Block[] = [
 /** First free `type`, `type-2`, … id in the page. */
 export function freeSectionId(content: PageContent, type: string) {
   const used = new Set(content.sections.map((s) => s.id));
-  if (!used.has(type)) return type;
-  for (let n = 2; ; n++) if (!used.has(`${type}-${n}`)) return `${type}-${n}`;
+  // Section ids allow lowercase letters, digits and dashes only.
+  const base = type.replace(/_/g, "-");
+  if (!used.has(base)) return base;
+  for (let n = 2; ; n++) if (!used.has(`${base}-${n}`)) return `${base}-${n}`;
 }
 
 export const SECTION_LABELS: Record<SectionType, string> = Object.fromEntries(BLOCKS.map((b) => [b.type, b.label])) as Record<SectionType, string>;

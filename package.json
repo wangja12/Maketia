@@ -11,6 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:test": "tsx scripts/migrate-test-db.mts",
+    "admin:grant": "tsx scripts/grant-admin.mts",
     "test": "vitest run",
     "test:e2e": "playwright test"
   },

@@ -1,6 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { and, eq } from "drizzle-orm";
 import type { Db } from "@/db";
 import { events, type Order } from "@/db/schema";
+import { withinQuota } from "../billing/plans";
 
 /*
  * First-party measurement, stored in Postgres. It stands in for PostHog, which could not be
@@ -101,6 +103,8 @@ export async function recordBrowserEvent(
   const ctx = verifyViewToken(String(input.token ?? ""));
   // The token is bound to the visitor it was issued for.
   if (!ctx || (input.visitorCookie && input.visitorCookie !== ctx.visitorId)) return false;
+  // Over the plan's monthly volume, browser events are no longer stored (sales always are).
+  if (!(await withinQuota(db, ctx.workspaceId, "analyticsEventsPerMonth"))) return false;
   const target = typeof input.target === "string" ? input.target.slice(0, 80) : "";
   return insertEvent(db, {
     workspaceId: ctx.workspaceId,
@@ -153,5 +157,30 @@ export async function recordOrderPaid(db: Db, order: OrderForEvent) {
     orderId: order.id,
     amount: order.amount,
     currency: order.currency,
+  });
+}
+
+/** Written by the server when a contact form is accepted (once per contact and page). */
+export async function recordLeadSubmitted(
+  db: Db,
+  lead: { workspaceId: string; funnelId: string; pageId: string; variantLabel: string; experimentId: string | null; visitorId: string | null; contactId: string },
+) {
+  const dedupKey = `${lead.pageId}:${lead.contactId}`;
+  // The same person may come back from another browser: still one sign-up for this page.
+  const [seen] = await db
+    .select({ id: events.id })
+    .from(events)
+    .where(and(eq(events.type, "lead_submitted"), eq(events.funnelId, lead.funnelId), eq(events.dedupKey, dedupKey)))
+    .limit(1);
+  if (seen) return false;
+  return insertEvent(db, {
+    workspaceId: lead.workspaceId,
+    funnelId: lead.funnelId,
+    pageId: lead.pageId,
+    variantLabel: lead.variantLabel,
+    experimentId: lead.experimentId,
+    type: "lead_submitted",
+    visitorId: lead.visitorId ?? `contact:${lead.contactId}`,
+    dedupKey,
   });
 }

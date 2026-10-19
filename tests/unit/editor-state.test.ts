@@ -76,7 +76,7 @@ describe("editor reducer", () => {
 describe("block library", () => {
   it("every block except the image placeholder is valid as inserted", () => {
     for (const b of BLOCKS) {
-      const page = { ...templateFor("other"), sections: [b.create(b.type)] };
+      const page = { ...templateFor("other"), sections: [b.create(freeSectionId(templateFor("other"), b.type))] };
       const ok = pageContentSchema.safeParse(page).success;
       // Image and order-form blocks start incomplete on purpose (URL, product) and must be filled in.
       expect(ok, b.type).toBe(b.type !== "image" && b.type !== "checkout");

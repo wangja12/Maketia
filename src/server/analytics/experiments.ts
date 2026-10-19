@@ -25,6 +25,7 @@ export const GOAL_LABELS = {
   order_paid: "Paiement confirmé",
   checkout_submitted: "Commande commencée",
   cta_click: "Clic sur un appel à l’action",
+  lead_submitted: "Inscription (formulaire de contact)",
 } as const;
 
 export const STATUS_LABELS = { draft: "Brouillon", running: "En cours", stopped: "Terminée" } as const;
@@ -43,7 +44,7 @@ const armsSchema = z
 
 const createSchema = z.object({
   name: z.string().trim().min(1, "Nommez l’expérience").max(80),
-  goal: z.enum(["order_paid", "checkout_submitted", "cta_click"]),
+  goal: z.enum(["order_paid", "checkout_submitted", "cta_click", "lead_submitted"]),
   arms: armsSchema,
 });
 
