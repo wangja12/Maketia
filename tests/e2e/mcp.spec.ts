@@ -67,7 +67,7 @@ test("manual work without AI, then an external agent edits through MCP over HTTP
   // 4. The agent reads the skill and the brief, then edits one section over real HTTP.
   const { client, call } = await mcpClient(mcpUrl, token);
   const skill = await call("get_design_engineering_skill");
-  expect(skill.version).toBe("1.0.0");
+  expect(skill.version).toBe("1.1.0");
   const funnelId = pageUrl.split("/tunnels/")[1].split("/")[0];
   const funnel = await call("get_funnel", { funnel_id: funnelId });
   expect(funnel.brief.audience).toBe("Commerçants qui débutent");
@@ -92,7 +92,25 @@ test("manual work without AI, then an external agent edits through MCP over HTTP
   await expect(page.getByRole("link", { name: "v3 · actuelle" })).toBeVisible();
   await expect(preview.getByRole("heading", { name: "Votre promesse principale, en une phrase" })).toBeVisible();
 
-  // 7. The audit log lists the agent's calls; revoking cuts access immediately.
+  // 7. The agent asks to publish: nothing happens until Awa approves it in the app, after review.
+  const agent = await mcpClient(mcpUrl, token);
+  const request = await agent.call("publish_page", { page_id: pageId, path: "", skill_version: "1.1.0", reason: "Version restaurée prête" });
+  expect(request.status).toBe("pending_human_confirmation");
+  await agent.client.close();
+  await expect(page.getByRole("region", { name: "Publication" }).getByText("Pas en ligne.")).toBeVisible();
+  await page.goto(`${workspaceUrl}/agents`);
+  await expect(page.getByRole("link", { name: "Agents IA (1 à approuver)" })).toBeVisible();
+  const asked = page.getByRole("listitem").filter({ hasText: "Publier une page" });
+  await expect(asked.getByText(/Motif donné par l’agent \(non vérifié\) : Version restaurée prête/)).toBeVisible();
+  const approve = asked.getByRole("button", { name: "Approuver et exécuter" });
+  await expect(approve).toBeDisabled();
+  for (const box of await asked.getByRole("checkbox").all()) await box.check();
+  await approve.click();
+  await expect(page.getByRole("heading", { name: "Demandes à approuver (0)" })).toBeVisible();
+  await page.goto(pageUrl);
+  await expect(page.getByRole("region", { name: "Publication" }).getByText("En ligne", { exact: true })).toBeVisible();
+
+  // 8. The audit log lists the agent's calls; revoking cuts access immediately.
   await page.goto(`${workspaceUrl}/agents`);
   await expect(page.getByRole("cell", { name: "update_page_section" })).toBeVisible();
   await page.getByRole("button", { name: "Révoquer Claude d’Awa" }).click();

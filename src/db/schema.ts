@@ -57,6 +57,8 @@ export type PlanLimits = {
   mcpWritesPerMonth: number | null;
   /** Browser-measured events (views, clicks) per calendar month (UTC). Sales are always recorded. */
   analyticsEventsPerMonth: number | null;
+  /** Total size of private product files, in megabytes. Absent on older plans = unlimited. */
+  storageMb?: number | null;
 };
 
 /**
@@ -368,6 +370,36 @@ export const products = pgTable(
   (t) => [index("products_workspace_idx").on(t.workspaceId)],
 );
 
+/**
+ * Private files sold with digital products. Stored outside any public directory under an
+ * unguessable key; only ever served through an authenticated route or a download grant.
+ */
+export const productFiles = pgTable(
+  "product_files",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    // Sanitized name used for the download (never a path).
+    fileName: text("file_name").notNull(),
+    mimeType: text("mime_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    sha256: text("sha256").notNull(),
+    // Replacing a file adds a version; previous versions stay archived (grants keep working).
+    version: integer("version").notNull().default(1),
+    storageKey: text("storage_key").notNull().unique(),
+    uploadedBy: uuid("uploaded_by").references(() => users.id, { onDelete: "set null" }),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("product_files_product_idx").on(t.productId), index("product_files_workspace_idx").on(t.workspaceId)],
+);
+
 export const contactStatus = pgEnum("contact_status", ["lead", "customer", "lost"]);
 
 /**
@@ -505,6 +537,35 @@ export const orders = pgTable(
     index("orders_workspace_idx").on(t.workspaceId, t.createdAt),
     index("orders_ip_idx").on(t.ipHash, t.createdAt),
   ],
+);
+
+/**
+ * A buyer's right to download one file of a paid order: a random token (only its hash is
+ * stored), an expiry and a download cap. Issued only for orders that are paid.
+ */
+export const downloadGrants = pgTable(
+  "download_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    fileId: uuid("file_id")
+      .notNull()
+      .references(() => productFiles.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    maxDownloads: integer("max_downloads").notNull(),
+    downloads: integer("downloads").notNull().default(0),
+    lastDownloadAt: timestamp("last_download_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("download_grants_order_idx").on(t.orderId)],
 );
 
 /** Append-only trail of everything that happened to an order's payment. */
@@ -677,6 +738,36 @@ export const saspayWebhookEvents = pgTable(
   ],
 );
 
+/**
+ * Sensitive actions asked by an external agent (publish, unpublish, stop a test, pick a
+ * winner). Nothing happens until a person of the workspace approves it in the app; the
+ * action then runs with that person's rights, through the usual services and checks.
+ */
+export const agentRequests = pgTable(
+  "agent_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    tokenId: uuid("token_id").references(() => mcpTokens.id, { onDelete: "set null" }),
+    requestedBy: uuid("requested_by").references(() => users.id, { onDelete: "set null" }),
+    // publish_page | unpublish_page | stop_ab_experiment | select_experiment_winner
+    kind: text("kind").notNull(),
+    resourceId: uuid("resource_id").notNull(),
+    params: jsonb("params").$type<Record<string, unknown>>().notNull(),
+    reason: text("reason"),
+    // pending | approved | rejected | failed | expired
+    status: text("status").notNull().default("pending"),
+    decidedBy: uuid("decided_by").references(() => users.id, { onDelete: "set null" }),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    result: text("result"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("agent_requests_workspace_idx").on(t.workspaceId, t.status, t.createdAt)],
+);
+
 /** Platform-wide settings, one row (id = 1), edited from the admin area. */
 export const platformSettings = pgTable("platform_settings", {
   id: integer("id").primaryKey().default(1),
@@ -716,4 +807,5 @@ export type ExperimentArm = typeof experimentArms.$inferSelect;
 export type Domain = typeof domains.$inferSelect;
 export type Plan = typeof plans.$inferSelect;
 export type Contact = typeof contacts.$inferSelect;
+export type ProductFile = typeof productFiles.$inferSelect;
 export type ContactStatus = (typeof contactStatus.enumValues)[number];

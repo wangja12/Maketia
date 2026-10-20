@@ -148,6 +148,7 @@ const planSchema = z
     customDomains: limit,
     mcpWritesPerMonth: limit,
     analyticsEventsPerMonth: limit,
+    storageMb: limit.optional(),
   })
   .refine((p) => p.priceMonthly === null || p.priceMonthly === 0 || p.currency !== "", { message: "Indiquez la devise du prix", path: ["currency"] });
 
@@ -161,6 +162,7 @@ function parsePlan(input: Record<string, unknown>) {
     customDomains: p.customDomains,
     mcpWritesPerMonth: p.mcpWritesPerMonth,
     analyticsEventsPerMonth: p.analyticsEventsPerMonth,
+    storageMb: p.storageMb ?? null,
   };
   return { code: p.code, name: p.name, priceMonthly: p.priceMonthly, currency: p.currency || null, limits };
 }

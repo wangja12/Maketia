@@ -114,6 +114,17 @@
 html {
   color-scheme: light dark;
   -webkit-tap-highlight-color: transparent;
+  /* No font inflation in landscape on iOS. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Controls (mobile-native): no 300 ms double-tap wait, no text selection on long-press. */
+button,
+[role="button"],
+.pressable {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 body {

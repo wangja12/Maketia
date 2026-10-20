@@ -101,4 +101,4 @@ function route(request: NextRequest, headers: Headers) {
   return NextResponse.next({ request: { headers } });
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|api/files/upload).*)"] };

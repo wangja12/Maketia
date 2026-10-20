@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 /** Must match `version` in skills/wang-design-engineering/SKILL.md (checked by tests). */
-export const DESIGN_SKILL_VERSION = "1.0.0";
+export const DESIGN_SKILL_VERSION = "1.1.0";
 export const DESIGN_SKILL_URI = "wang://skills/design-engineering";
 
 export type DesignSkill = { version: string; text: string };

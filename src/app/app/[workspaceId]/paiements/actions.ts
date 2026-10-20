@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { toActionState, type ActionState } from "@/lib/action-state";
 import { SecretsKeyMissingError } from "@/server/secrets";
 import { clearSigningSecret, ignoreWebhookEvent, reconcileWebhookEvent, rotateWebhookUrl, setSigningSecret } from "@/server/payments/saspay-webhooks";
+import { createDownloadLinks, deleteProductFile, revokeDownloadGrant } from "@/server/files/files";
 import { cancelOrder, confirmOrderPaidManually, createProduct, removeProductPaymentLink, setProductActive, setProductPaymentLink } from "@/server/payments/service";
 
 const path = (workspaceId: string) => `/app/${workspaceId}/paiements`;
@@ -73,4 +74,26 @@ export async function reconcileAction(workspaceId: string, eventId: number, _pre
 
 export async function ignoreEventAction(workspaceId: string, eventId: number, _prev: ActionState, form: FormData) {
   return run(workspaceId, (u) => ignoreWebhookEvent(getDb(), u, eventId, String(form.get("note") ?? "")));
+}
+
+export async function deleteFileAction(workspaceId: string, fileId: string, _prev: ActionState) {
+  return run(workspaceId, (u) => deleteProductFile(getDb(), u, fileId));
+}
+
+export async function revokeGrantAction(workspaceId: string, grantId: string, _prev: ActionState) {
+  return run(workspaceId, (u) => revokeDownloadGrant(getDb(), u, grantId));
+}
+
+export type LinksState = ActionState & { links?: { title: string; fileName: string; url: string }[]; days?: number; maxDownloads?: number };
+
+/** Returns the links once: only their hashes are stored. */
+export async function createLinksAction(workspaceId: string, orderId: string, _prev: LinksState): Promise<LinksState> {
+  const user = await requireUser();
+  try {
+    const result = await createDownloadLinks(getDb(), user.id, orderId);
+    revalidatePath(path(workspaceId));
+    return { ok: true, ...result };
+  } catch (e) {
+    return toActionState(e);
+  }
 }

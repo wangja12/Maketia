@@ -33,6 +33,7 @@ export function checkProductionConfig(env: Env): ConfigReport {
   if (!env.ANALYTICS_SECRET) warnings.push("ANALYTICS_SECRET absent : visites et clics ne seront pas mesurés.");
   else if (env.ANALYTICS_SECRET.length < 32) errors.push("ANALYTICS_SECRET doit faire au moins 32 caractères.");
 
+  if (!env.FILES_DIR) warnings.push("FILES_DIR absent : les fichiers des produits seront stockés dans .data/files, dans le dossier de l'application. Choisissez un disque persistant et sauvegardé.");
   if (!env.PUBLIC_ROOT_DOMAIN) warnings.push("PUBLIC_ROOT_DOMAIN absent : les pages seront servies sous /s/<sous-domaine> au lieu de sous-domaines.");
   if (!env.PUBLIC_DOMAIN_TARGET) warnings.push("PUBLIC_DOMAIN_TARGET absent : les domaines personnalisés ne pourront pas être vérifiés.");
   if (env.APP_URL && env.PUBLIC_ROOT_DOMAIN && URL.canParse(env.APP_URL)) {

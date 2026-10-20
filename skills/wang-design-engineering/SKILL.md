@@ -1,6 +1,6 @@
 ---
 name: wang-design-engineering
-version: 1.0.0
+version: 1.1.0
 description: Règles obligatoires de design engineering pour tout agent qui crée ou modifie une page, un composant, une interaction ou une animation de Tunnels IA, y compris via le serveur MCP. Fondée sur emilkowalski/skills (commit 2d22863).
 source: https://github.com/emilkowalski/skills
 source_commit: 2d228630ba1446365f614a108cb8252f1feda202
@@ -8,9 +8,9 @@ source_commit: 2d228630ba1446365f614a108cb8252f1feda202
 
 # wang-design-engineering
 
-Version **1.0.0**. Cette skill est obligatoire. Elle traduit en règles de travail les principes
+Version **1.1.0**. Cette skill est obligatoire. Elle traduit en règles de travail les principes
 des skills officielles de [emilkowalski/skills](https://github.com/emilkowalski/skills)
-(licence MIT, commit `2d22863`, consulté le 18/10/2026). Le détail de la source, des fichiers lus
+(licence MIT, commit `2d22863`, consulté le 18/10/2026 et revérifié le 20/10/2026). Le détail de la source, des fichiers lus
 et de la procédure de mise à jour est dans [SOURCE.md](SOURCE.md).
 
 Tunnels IA n'exécute aucun modèle d'IA. C'est vous, l'agent externe, qui lisez cette skill et
@@ -19,12 +19,13 @@ ce qui est dangereux. Il ne prétend pas juger le goût : une personne relit ava
 
 ## 1. Avant toute opération
 
-1. Lisez cette skill en entier. Les outils MCP qui écrivent exigent `skill_version: "1.0.0"`.
+1. Lisez cette skill en entier. Les outils MCP qui écrivent exigent `skill_version: "1.1.0"`.
    Ne transmettez cette valeur qu'après avoir lu le texte.
 2. Si votre client a accès aux skills officielles, lisez aussi `emil-design-eng`, et `animate`
    pour toute animation. Selon la tâche, lisez `review-animations`, `animation-performance`,
-   `mobile-native` ou `break-ui`. Si vous n'y avez pas accès, dites-le dans votre plan.
-3. Dans votre plan d'action, écrivez : « J'applique wang-design-engineering 1.0.0 », puis la
+   `mobile-native` ou `break-ui` (`pick-ui-library` seulement si l'utilisateur la demande).
+   Si vous n'y avez pas accès, dites-le dans votre plan : n'inventez pas leur contenu.
+3. Dans votre plan d'action, écrivez : « J'applique wang-design-engineering 1.1.0 », puis la
    liste des règles de cette skill qui concernent la tâche.
 4. Lisez la fiche de l'offre (`get_funnel`, champ `brief`) avant d'écrire un texte.
 
@@ -36,6 +37,9 @@ ce qui est dangereux. Il ne prétend pas juger le goût : une personne relit ava
   témoignages viennent mot pour mot de l'utilisateur.
 - S'il manque une information, demandez-la à l'utilisateur ou laissez un texte d'instruction
   explicite (« Indiquez ici votre garantie »), jamais une affirmation plausible inventée.
+- Paiement : un achat passe par une section `checkout` liée à un produit ; n'écrivez jamais un
+  lien de paiement dans un bouton. N'affirmez pas que la livraison est immédiate ou automatique :
+  la confirmation des paiements peut être manuelle (voir `get_integrations_status`).
 
 ## 3. Qualité de page (emil-design-eng)
 
@@ -74,6 +78,23 @@ Le format de page v1 ne contient aucune animation. N'en simulez pas avec du text
    retirer les déplacements) ; survols limités à `@media (hover: hover) and (pointer: fine)`.
 7. Jamais `transition: all`. Jamais bloquer une action en attendant la fin d'une animation.
 
+### Performance du mouvement (animation-performance)
+
+- Budget : 16,7 ms par image à 60 Hz, **8 ms à 120 Hz** (la plupart des téléphones) : visez le
+  plus petit. La référence est un téléphone milieu de gamme, pas votre ordinateur.
+- Propriétés par coût : `transform`/`opacity` (composition) avant `box-shadow`, `border-radius`,
+  `color` (repeinture) avant `width`, `height`, `padding`, `margin`, `top`, `left` (mise en page).
+  Remplacements : taille → `scale()`, position → `translate()`, `display` → `opacity`,
+  ombre animée → `filter: drop-shadow()`.
+- Pas d'état React mis à jour à chaque image (écrivez `ref.current.style.transform`). Pas de
+  variable CSS héritée animée sur un parent. `blur()` animé sous 20 px.
+- Une animation qui joue pendant une navigation ou un chargement : en CSS ou WAAPI, pas dans
+  une boucle `requestAnimationFrame`.
+- `will-change` seulement après avoir constaté un décalage ou des images perdues, sur l'élément
+  animé uniquement.
+- Nommez la cause avant toute correction, et dites ce qui est vérifié dans le code et ce qui
+  demande un enregistrement sur un vrai appareil.
+
 ## 5. Interface du produit (code)
 
 - États de chaque contrôle : normal, survol, appui (`scale(0.97)`), focus visible, chargement,
@@ -81,6 +102,33 @@ Le format de page v1 ne contient aucune animation. N'en simulez pas avec du text
 - Champs à 16 px sur mobile (pas de zoom iOS). Ne jamais désactiver le zoom.
 - Clavier : tout est atteignable, Escape ferme, le focus revient au déclencheur.
 - Réutilisez les jetons de `src/app/globals.css` ; n'ajoutez pas de système parallèle.
+
+### Mobile (mobile-native)
+
+- Survols uniquement sous `@media (hover: hover) and (pointer: fine)` ; retour d'appui sur
+  `:active`, pas au `click`. `touch-action: manipulation` sur les contrôles.
+- `100dvh` pour une interface plein écran, `100svh` pour un visuel d'accueil ; jamais `100vh`.
+- Champs à 16 px minimum ; jamais `user-scalable=no` ni `maximum-scale=1`.
+- `user-select: none` seulement sur les contrôles, jamais sur le texte.
+- `env(safe-area-inset-*)` seulement avec `viewport-fit=cover` ; une `theme-color` par thème.
+- Décidez selon les capacités (`hover`, `pointer`), jamais selon l'agent utilisateur.
+- L'émulation ne prouve rien pour l'appui, le défilement élastique ou le clavier : dites si le
+  rendu a été vu sur un vrai téléphone.
+
+## 5 bis. Données extrêmes (break-ui)
+
+Avant de déclarer une page ou un composant prêt, essayez-le avec des valeurs réalistes extrêmes,
+pas du charabia : un nom très long, un e-mail sans coupure possible, un nom d'une lettre, un
+champ facultatif vide, 0, 1 et beaucoup d'éléments, un prix à 7 chiffres, des accents et des
+émojis. Corrections habituelles :
+
+- `min-width: 0` sur la colonne de texte (`minmax(0, 1fr)` en grille), `flex-shrink: 0` sur
+  les icônes, badges et actions de fin de ligne ; `overflow-wrap: anywhere` pour e-mails et URL.
+- Chiffres en `tabular-nums`, formatés avec `Intl.NumberFormat` ; pluriels avec
+  `Intl.PluralRules` (jamais « 1 membres »).
+- Ne tronquez jamais un montant, une date ou ce que l'utilisateur compare. Tronquer un texte
+  impose un moyen de le lire en entier.
+- Un état vide explique la prochaine action ; un champ manquant n'affiche pas un « — » orphelin.
 
 ## 6. Avant de demander une publication
 

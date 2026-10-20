@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, ne } from "drizzle-orm";
 import type { Db } from "@/db";
 import { sessions, users } from "@/db/schema";
 
@@ -47,4 +47,16 @@ export async function validateSessionToken(
 
 export async function invalidateSessionToken(db: Db, token: string) {
   await db.delete(sessions).where(eq(sessions.id, hashToken(token)));
+}
+
+/** "Sign out everywhere else": every session of the user except the one presenting `keepToken`. */
+export async function invalidateOtherSessions(db: Db, userId: string, keepToken: string | null) {
+  const keep = keepToken ? hashToken(keepToken) : "";
+  const removed = await db.delete(sessions).where(and(eq(sessions.userId, userId), ne(sessions.id, keep))).returning({ id: sessions.id });
+  return removed.length;
+}
+
+export async function countSessions(db: Db, userId: string) {
+  const rows = await db.select({ id: sessions.id }).from(sessions).where(and(eq(sessions.userId, userId), gt(sessions.expiresAt, new Date())));
+  return rows.length;
 }

@@ -53,6 +53,8 @@ export function Editor({
   backHref,
   server,
   products,
+  review = [],
+  skillVersion,
 }: {
   initialContent: PageContent;
   initialVersion: number;
@@ -60,6 +62,9 @@ export function Editor({
   backHref: string;
   server: EditorServer;
   products: EditorContextValue["products"];
+  /** Manual review list (wang-design-engineering), ticked for real in the Publication panel. */
+  review?: string[];
+  skillVersion?: string;
 }) {
   const [state, dispatch] = useReducer(editorReducer, initialContent, initEditor);
   const [saved, setSaved] = useState({ content: initialContent, version: initialVersion });
@@ -267,6 +272,17 @@ export function Editor({
             <aside className="order-3 lg:order-1">
               <h2 className="mb-1 px-2 text-xs font-semibold tracking-wide text-muted uppercase">Structure</h2>
               <Outline sections={state.content.sections} />
+              {review.length > 0 && (
+                <details className="mt-4 px-2 text-xs">
+                  <summary className="cursor-pointer font-semibold text-muted">Revue avant publication</summary>
+                  <ul className="mt-2 flex list-disc flex-col gap-1 pl-4 text-muted">
+                    {review.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                  <p className="mt-2 text-muted">
+                    Points à vérifier vous-même : ils sont cochés au moment de publier.{skillVersion ? ` Règles : wang-design-engineering ${skillVersion}.` : ""}
+                  </p>
+                </details>
+              )}
             </aside>
           )}
 

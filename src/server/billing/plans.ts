@@ -1,6 +1,6 @@
 import { and, count, eq, gte, inArray, sql } from "drizzle-orm";
 import type { Db } from "@/db";
-import { domains, events, funnels, mcpAuditLog, plans, workspaces, type Plan, type PlanLimits } from "@/db/schema";
+import { domains, events, funnels, mcpAuditLog, plans, productFiles, workspaces, type Plan, type PlanLimits } from "@/db/schema";
 import { NotFoundError, ValidationError } from "../errors";
 import { requireMembership } from "../workspaces";
 
@@ -19,6 +19,7 @@ export const QUOTA_LABELS: Record<QuotaKey, string> = {
   customDomains: "Domaines personnalisés",
   mcpWritesPerMonth: "Modifications par agent IA (MCP) ce mois-ci",
   analyticsEventsPerMonth: "Événements mesurés ce mois-ci",
+  storageMb: "Stockage des fichiers (Mo)",
 };
 
 export class QuotaExceededError extends ValidationError {
@@ -49,7 +50,7 @@ const monthStart = sql`date_trunc('month', now() at time zone 'utc') at time zon
 
 /** Current consumption of every counted quota. */
 export async function usageOf(db: Executor, workspaceId: string): Promise<Record<CountedKey, number>> {
-  const [[f], [d], [m], [e]] = await Promise.all([
+  const [[f], [d], [m], [e], [st]] = await Promise.all([
     db.select({ n: count() }).from(funnels).where(eq(funnels.workspaceId, workspaceId)),
     db.select({ n: count() }).from(domains).where(eq(domains.workspaceId, workspaceId)),
     db
@@ -60,8 +61,9 @@ export async function usageOf(db: Executor, workspaceId: string): Promise<Record
       .select({ n: count() })
       .from(events)
       .where(and(eq(events.workspaceId, workspaceId), inArray(events.type, ["page_view", "cta_click"]), gte(events.createdAt, monthStart))),
+    db.select({ bytes: sql<number>`coalesce(sum(${productFiles.sizeBytes}), 0)::bigint` }).from(productFiles).where(eq(productFiles.workspaceId, workspaceId)),
   ]);
-  return { funnels: f.n, customDomains: d.n, mcpWritesPerMonth: m.n, analyticsEventsPerMonth: e.n };
+  return { funnels: f.n, customDomains: d.n, mcpWritesPerMonth: m.n, analyticsEventsPerMonth: e.n, storageMb: Math.ceil(Number(st.bytes) / (1024 * 1024)) };
 }
 
 async function usageFor(db: Executor, workspaceId: string, key: CountedKey) {

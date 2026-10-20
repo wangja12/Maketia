@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function NavLinks({ workspaceId }: { workspaceId: string }) {
+export function NavLinks({ workspaceId, pendingRequests = 0 }: { workspaceId: string; pendingRequests?: number }) {
   const pathname = usePathname();
   const base = `/app/${workspaceId}`;
   const links = [
     { href: base, label: "Tunnels", active: pathname === base || pathname.startsWith(`${base}/tunnels`) },
     { href: `${base}/contacts`, label: "Contacts", active: pathname.startsWith(`${base}/contacts`) },
     { href: `${base}/paiements`, label: "Paiements", active: pathname.startsWith(`${base}/paiements`) },
-    { href: `${base}/agents`, label: "Agents IA", active: pathname.startsWith(`${base}/agents`) },
+    { href: `${base}/agents`, label: pendingRequests ? `Agents IA (${pendingRequests} à approuver)` : "Agents IA", active: pathname.startsWith(`${base}/agents`) },
     { href: `${base}/abonnement`, label: "Abonnement", active: pathname.startsWith(`${base}/abonnement`) },
+    { href: `${base}/compte`, label: "Compte", active: pathname.startsWith(`${base}/compte`) },
   ];
   return (
     // Scrolls sideways on narrow screens instead of wrapping.

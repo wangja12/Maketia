@@ -95,7 +95,7 @@ test("an agent's version during editing is announced, never applied silently", a
   await client.connect(new StreamableHTTPClientTransport(new URL(`${baseURL}/api/mcp`), { requestInit: { headers: { Authorization: `Bearer ${token}` } } }));
   const r = (await client.callTool({
     name: "update_page_section",
-    arguments: { page_id: pageId, base_version: 1, section_id: "hero", changes: { headline: "Version de l’agent" }, skill_version: "1.0.0" },
+    arguments: { page_id: pageId, base_version: 1, section_id: "hero", changes: { headline: "Version de l’agent" }, skill_version: "1.1.0" },
   })) as CallToolResult;
   expect(r.isError).toBeFalsy();
   await client.close();

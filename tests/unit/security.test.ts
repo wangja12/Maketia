@@ -51,6 +51,7 @@ describe("production configuration check", () => {
     ANALYTICS_SECRET: "s".repeat(48),
     PUBLIC_ROOT_DOMAIN: "pages.exemple",
     PUBLIC_DOMAIN_TARGET: "cname.pages.exemple",
+    FILES_DIR: "/var/lib/tunnels/files",
   };
   it("accepts a complete configuration", () => {
     expect(checkProductionConfig(good)).toEqual({ errors: [], warnings: [] });
@@ -68,6 +69,6 @@ describe("production configuration check", () => {
   it("warns about optional integrations that are off", () => {
     const { errors, warnings } = checkProductionConfig({ DATABASE_URL: "x", APP_URL: "https://a.exemple" });
     expect(errors).toEqual([]);
-    expect(warnings).toHaveLength(4);
+    expect(warnings).toHaveLength(5);
   });
 });

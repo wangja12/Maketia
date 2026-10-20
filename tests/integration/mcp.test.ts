@@ -56,13 +56,15 @@ describe("MCP server", () => {
         "get_design_engineering_skill", "get_funnel", "get_integrations_status", "get_page", "get_page_schema", "get_publication_status", "preview_page", "list_products", "list_orders", "get_payment_status",
         "get_funnel_analytics", "get_page_analytics", "compare_page_variants", "list_ab_experiments", "get_ab_experiment_results", "create_ab_experiment", "update_ab_traffic_split",
         "list_leads", "get_lead", "get_usage_and_limits",
+        "publish_page", "unpublish_page", "stop_ab_experiment", "select_experiment_winner", "get_agent_request", "list_agent_requests",
+        "get_domains", "list_product_files", "get_payment_setup_status",
         "list_funnels", "list_page_variants", "list_page_versions", "list_pages", "list_workspaces",
         "remove_page_section", "reorder_page_sections", "restore_page_version", "update_funnel",
         "update_page_content", "update_page_section", "update_page_theme", "validate_page",
       ].sort(),
     );
     // Every tool that changes a page carries the design reminder and requires skill_version.
-    for (const t of tools.filter((t) => /page/.test(t.name) && !t.annotations?.readOnlyHint)) {
+    for (const t of tools.filter((t) => /page/.test(t.name) && !/unpublish/.test(t.name) && !t.annotations?.readOnlyHint)) {
       expect(t.description).toContain("get_design_engineering_skill");
       expect(t.inputSchema.required).toContain("skill_version");
     }
@@ -159,7 +161,7 @@ describe("MCP server", () => {
     expect((await call("list_page_variants", { page_id: page.id })).data.map((p: { variantLabel: string }) => p.variantLabel)).toEqual(["A", "B", "C", "D"]);
   });
 
-  it("reads publication state and preview links, but cannot publish", async () => {
+  it("reads publication state and preview links", async () => {
     const { call, client, funnel, userId } = await setupAgent();
     const { data: page } = await call("create_page", { funnel_id: funnel.id, name: "P", kind: "landing", skill_version: DESIGN_SKILL_VERSION });
     await publishPage(db, userId, page.id, { path: "", reviewConfirmed: true });
@@ -169,8 +171,9 @@ describe("MCP server", () => {
     const preview = await call("preview_page", { page_id: page.id });
     expect(preview.data).toMatchObject({ version: 1, requiresLogin: true });
     expect(preview.data.url).toContain(`/preview/${page.id}?v=1`);
+    // Publishing itself is only a request (see "MCP sensitive actions need a person's approval").
     const { tools } = await client.listTools();
-    expect(tools.some((t) => /publish/.test(t.name) && !t.annotations?.readOnlyHint)).toBe(false);
+    expect(tools.find((t) => t.name === "publish_page")?.description).toContain("n'est PAS exécutée");
   });
 
   it("validate_page returns blocking errors and a manual review list", async () => {
@@ -262,15 +265,22 @@ describe("MCP analytics and A/B tools", () => {
     const results = await call("get_ab_experiment_results", { experiment_id: created.data.id });
     expect(results.data.verdict.kind).toBe("insufficient");
 
-    // No MCP tool starts, stops or picks a winner.
+    // No MCP tool starts a test; stop/winner/publish tools only create requests (see below).
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).filter((n) => /start|stop|winner|publish_page/.test(n))).toEqual([]);
+    expect(tools.map((t) => t.name).filter((n) => /start/.test(n))).toEqual([]);
 
     // Once a person started it, the agent can no longer change the split.
     await startExperiment(db, userId, created.data.id, { reviewConfirmed: true });
     const refused = await call("update_ab_traffic_split", { experiment_id: created.data.id, weights: { [a.id]: 50 } });
     expect(refused.isError).toBe(true);
     expect(refused.text).toContain("Seul un brouillon");
+
+    // Stopping or picking a winner: only a request; the test keeps running until a person approves.
+    const stop = await call("stop_ab_experiment", { experiment_id: created.data.id });
+    expect(stop.data.status).toBe("pending_human_confirmation");
+    const winner = await call("select_experiment_winner", { experiment_id: created.data.id, page_id: b.id });
+    expect(winner.data.status).toBe("pending_human_confirmation");
+    expect((await call("get_ab_experiment_results", { experiment_id: created.data.id })).data.experiment.status).toBe("running");
   });
 
   it("keeps experiments of another workspace out of reach", async () => {
@@ -327,5 +337,54 @@ describe("MCP CRM and usage tools", () => {
     expect(refused.text).toContain("modifications par agent ia (mcp) ce mois-ci, 1 maximum");
     // Reads still work.
     expect((await agent.call("list_funnels")).isError).toBe(false);
+  });
+});
+
+describe("MCP sensitive actions need a person's approval", () => {
+  it("publish, stop and winner only create requests; a person approves and they run with the person's rights", async () => {
+    const { call, funnel, userId, workspaceId } = await setupAgent("write");
+    const { decideAgentRequest, listAgentRequests } = await import("@/server/agent-requests");
+    const { livePublicationOf } = await import("@/server/publishing");
+    const page = await createPage(db, { userId }, funnel.id, { name: "Accueil", kind: "landing" });
+
+    const asked = await call("publish_page", { page_id: page.id, path: "", reason: "Première version prête", skill_version: DESIGN_SKILL_VERSION });
+    expect(asked.data).toMatchObject({ status: "pending_human_confirmation", kind: "publish_page", alreadyPending: false });
+    expect(await livePublicationOf(db, userId, page.id)).toBeNull();
+    expect((await call("publish_page", { page_id: page.id, path: "", skill_version: DESIGN_SKILL_VERSION })).data).toMatchObject({ requestId: asked.data.requestId, alreadyPending: true });
+    expect((await call("get_agent_request", { request_id: asked.data.requestId })).data.status).toBe("pending");
+
+    // Approval needs the review checklist, then publishes.
+    await expect(decideAgentRequest(db, userId, asked.data.requestId, { approve: true })).rejects.toThrow("revue");
+    const done = await decideAgentRequest(db, userId, asked.data.requestId, { approve: true, reviewConfirmed: true });
+    expect(done).toMatchObject({ status: "approved", result: "Publiée : version 1 sur /" });
+    expect(await livePublicationOf(db, userId, page.id)).not.toBeNull();
+    await expect(decideAgentRequest(db, userId, asked.data.requestId, { approve: true, reviewConfirmed: true })).rejects.toThrow("déjà été traitée");
+
+    // Rejected requests do nothing.
+    const off = await call("unpublish_page", { page_id: page.id });
+    await decideAgentRequest(db, userId, off.data.requestId, { approve: false, note: "Pas maintenant" });
+    expect(await livePublicationOf(db, userId, page.id)).not.toBeNull();
+    expect((await listAgentRequests(db, userId, workspaceId)).map((r) => r.status).sort()).toEqual(["approved", "rejected"]);
+
+    // A request that cannot work is refused up front.
+    const draftOnly = await createPage(db, { userId }, funnel.id, { name: "Hors ligne", kind: "landing" });
+    expect((await call("unpublish_page", { page_id: draftOnly.id })).text).toContain("pas en ligne");
+  });
+
+  it("refuses read-only connections and other workspaces, and never lets a viewer approve", async () => {
+    const reader = await setupAgent("read");
+    const page = await createPage(db, { userId: reader.userId }, reader.funnel.id, { name: "P", kind: "landing" });
+    expect((await reader.call("publish_page", { page_id: page.id, path: "", skill_version: DESIGN_SKILL_VERSION })).text).toContain("lecture seule");
+
+    const writer = await setupAgent("write");
+    expect((await writer.call("publish_page", { page_id: page.id, path: "", skill_version: DESIGN_SKILL_VERSION })).isError).toBe(true);
+
+    const { decideAgentRequest } = await import("@/server/agent-requests");
+    const own = await createPage(db, { userId: writer.userId }, writer.funnel.id, { name: "Q", kind: "landing" });
+    const asked = await writer.call("publish_page", { page_id: own.id, path: "", skill_version: DESIGN_SKILL_VERSION });
+    const viewer = await makeUser("Lecteur");
+    await db.insert(workspaceMembers).values({ workspaceId: writer.workspaceId, userId: viewer.userId, role: "viewer" });
+    await expect(decideAgentRequest(db, viewer.userId, asked.data.requestId, { approve: true, reviewConfirmed: true })).rejects.toThrow();
+    await expect(decideAgentRequest(db, reader.userId, asked.data.requestId, { approve: true, reviewConfirmed: true })).rejects.toThrow();
   });
 });

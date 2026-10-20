@@ -97,3 +97,44 @@ describe("sign-in brute-force limits", () => {
     await expect(signIn(db, { email: "autre@exemple.test", password: "x", ip: "10.6.6.6" })).rejects.toThrow("Trop de tentatives");
   });
 });
+
+describe("account settings", () => {
+  it("changes profile and password (current one required) and signs out other sessions", async () => {
+    const { updateProfile, changePassword } = await import("@/server/account-settings");
+    const { createSession } = await import("@/server/sessions");
+    const { userId } = await signUp(db, { name: "Ali", email: "ali@exemple.test", password: "motdepasse-solide" });
+    await updateProfile(db, userId, { name: "  Ali Traoré " });
+    const keep = await createSession(db, userId);
+    const other = await createSession(db, userId);
+    await expect(changePassword(db, userId, { currentPassword: "faux", newPassword: "nouveau-mdp-solide" }, keep.token)).rejects.toThrow("incorrect");
+    await expect(changePassword(db, userId, { currentPassword: "motdepasse-solide", newPassword: "court" }, keep.token)).rejects.toThrow();
+    expect(await changePassword(db, userId, { currentPassword: "motdepasse-solide", newPassword: "nouveau-mdp-solide" }, keep.token)).toBe(1);
+    expect(await validateSessionToken(db, keep.token)).toMatchObject({ name: "Ali Traoré" });
+    expect(await validateSessionToken(db, other.token)).toBeNull();
+    expect(await verifyCredentials(db, "ali@exemple.test", "nouveau-mdp-solide")).toBe(userId);
+  });
+
+  it("deletes the account and its solo workspaces, but never leaves a shared workspace without owner", async () => {
+    const { deleteAccount, accountDeletionPlan } = await import("@/server/account-settings");
+    const { workspaceMembers, workspaces, funnels } = await import("@/db/schema");
+    const { createFunnel } = await import("@/server/funnels");
+    const { eq } = await import("drizzle-orm");
+    const a = await signUp(db, { name: "Awa", email: "awa-del@exemple.test", password: "motdepasse-solide" });
+    const b = await signUp(db, { name: "Bob", email: "bob-del@exemple.test", password: "motdepasse-solide" });
+    await createFunnel(db, a.userId, a.workspaceId, { name: "Solo" });
+    // Bob is an editor of Awa’s workspace: Awa is its only owner.
+    await db.insert(workspaceMembers).values({ workspaceId: a.workspaceId, userId: b.userId, role: "editor" });
+    expect((await accountDeletionPlan(db, a.userId)).blocking.map((w) => w.id)).toEqual([a.workspaceId]);
+    await expect(deleteAccount(db, a.userId, { password: "motdepasse-solide", confirmEmail: "awa-del@exemple.test" })).rejects.toThrow("seul propriétaire");
+
+    await db.delete(workspaceMembers).where(eq(workspaceMembers.userId, b.userId));
+    await expect(deleteAccount(db, a.userId, { password: "faux", confirmEmail: "awa-del@exemple.test" })).rejects.toThrow("incorrect");
+    await expect(deleteAccount(db, a.userId, { password: "motdepasse-solide", confirmEmail: "autre@exemple.test" })).rejects.toThrow();
+    expect(await deleteAccount(db, a.userId, { password: "motdepasse-solide", confirmEmail: "AWA-DEL@exemple.test" })).toEqual({ deletedWorkspaces: 1 });
+    expect(await db.select().from(workspaces).where(eq(workspaces.id, a.workspaceId))).toEqual([]);
+    expect(await db.select().from(funnels).where(eq(funnels.workspaceId, a.workspaceId))).toEqual([]);
+    expect(await verifyCredentials(db, "awa-del@exemple.test", "motdepasse-solide")).toBeNull();
+    // Bob's own workspace is untouched.
+    expect(await db.select().from(workspaces).where(eq(workspaces.id, b.workspaceId))).toHaveLength(1);
+  });
+});

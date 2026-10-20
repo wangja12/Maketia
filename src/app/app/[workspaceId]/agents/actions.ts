@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { toActionState, type ActionState } from "@/lib/action-state";
+import { decideAgentRequest } from "@/server/agent-requests";
 import { createMcpToken, revokeMcpToken } from "@/server/mcp-tokens";
 
 export type TokenState = ActionState & { token?: string };
@@ -29,5 +30,21 @@ export async function revokeTokenAction(workspaceId: string, tokenId: string, _p
     return toActionState(e);
   }
   revalidatePath(`/app/${workspaceId}/agents`);
+  return { ok: true };
+}
+
+export async function decideRequestAction(workspaceId: string, requestId: string, approve: boolean, reviewCount: number, _prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  try {
+    await decideAgentRequest(getDb(), user.id, requestId, {
+      approve,
+      reviewConfirmed: reviewCount > 0 && form.getAll("review").length === reviewCount,
+      note: String(form.get("note") ?? ""),
+    });
+  } catch (e) {
+    revalidatePath(`/app/${workspaceId}/agents`);
+    return toActionState(e);
+  }
+  revalidatePath(`/app/${workspaceId}`, "layout");
   return { ok: true };
 }

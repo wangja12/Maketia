@@ -3,6 +3,7 @@ import { getDb } from "@/db";
 import type { Order } from "@/db/schema";
 import { money } from "@/lib/format";
 import { allowedLinkHosts, linkStatus } from "@/server/payments/links";
+import { ACCEPTED_TYPES, listDownloadGrants, listProductFiles, MAX_FILE_BYTES } from "@/server/files/files";
 import { getWebhookSetup, listWebhookEvents } from "@/server/payments/saspay-webhooks";
 import { getOrderForUser, listOrders, listProducts, PRODUCT_KINDS } from "@/server/payments/service";
 import { can } from "@/server/workspaces";
@@ -21,6 +22,7 @@ import {
   SecretForm,
   ToggleProductButton,
 } from "./forms";
+import { DeleteFileButton, DownloadLinksButton, FileUploader, RevokeGrantButton } from "./files";
 
 export const metadata: Metadata = { title: "Paiements · Tunnels IA" };
 
@@ -76,6 +78,18 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
   const events = new Map(
     await Promise.all(orderList.slice(0, 30).map(async ({ order }) => [order.id, (await getOrderForUser(db, user.id, order.id)).events] as const)),
   );
+  const digital = productList.filter((p) => p.kind === "digital_file");
+  const filesByProduct = new Map(await Promise.all(digital.map(async (p) => [p.id, await listProductFiles(db, user.id, p.id)] as const)));
+  const digitalIds = new Set(digital.map((p) => p.id));
+  const PAID = ["paid", "delivery_queued", "delivered", "delivery_failed"];
+  const grants = new Map(
+    await Promise.all(
+      orderList
+        .filter(({ order }) => order.productId && digitalIds.has(order.productId) && PAID.includes(order.status))
+        .slice(0, 30)
+        .map(async ({ order }) => [order.id, await listDownloadGrants(db, user.id, order.id)] as const),
+    ),
+  );
   const pendingOrders = orderList
     .filter(({ order }) => order.paymentMethod === "saspay_link" && (order.status === "pending" || order.status === "payment_unmatched"))
     .map(({ order }) => ({
@@ -127,6 +141,26 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
                     {canEdit && <ToggleProductButton workspaceId={workspace.id} productId={p.id} active={p.active} />}
                   </div>
                   {p.saspayLinkUrl && <p className="font-mono text-xs break-all text-muted">{p.saspayLinkUrl}</p>}
+                  {p.kind === "digital_file" && (
+                    <div className="flex flex-col gap-2 rounded-control bg-surface-sunken p-3">
+                      <h3 className="text-xs font-semibold">Fichiers livrés à l’acheteur</h3>
+                      {(filesByProduct.get(p.id) ?? []).length === 0 ? (
+                        <p className="text-xs text-muted">Aucun fichier : ajoutez celui que l’acheteur doit recevoir.</p>
+                      ) : (
+                        <ul className="flex flex-col gap-1.5">
+                          {filesByProduct.get(p.id)!.map((f) => (
+                            <li key={f.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                              <span className="min-w-0 font-medium [overflow-wrap:anywhere]">{f.title}</span>
+                              <span className="text-xs text-muted tabular-nums">v{f.version} · {(f.sizeBytes / 1024 / 1024).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} Mo</span>
+                              <a href={`/api/files/${f.id}`} className="text-xs text-accent underline-offset-4 hover:underline">Télécharger</a>
+                              {isAdmin && <DeleteFileButton workspaceId={workspace.id} fileId={f.id} title={f.title} />}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {canEdit && <FileUploader productId={p.id} maxMb={MAX_FILE_BYTES / 1024 / 1024} accepted={ACCEPTED_TYPES} />}
+                    </div>
+                  )}
                   {canEdit && (
                     <details className="text-sm" open={!p.saspayLinkUrl && hosts.length > 0}>
                       <summary className="cursor-pointer text-accent">{p.saspayLinkUrl ? "Modifier le lien SasPay" : "Ajouter le lien SasPay"}</summary>
@@ -227,6 +261,21 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
                   {order.variantLabel ? ` (variante ${order.variantLabel})` : ""} · réf. <span className="font-mono">{order.merchantTransactionId}</span>
                   {order.paymentMethod === "cinetpay" ? " · ancienne intégration CinetPay" : ""}
                 </p>
+                {grants.has(order.id) && (
+                  <div className="flex flex-col gap-1 text-xs">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {isAdmin && <DownloadLinksButton workspaceId={workspace.id} orderId={order.id} />}
+                      <span className="text-muted">{grants.get(order.id)!.length === 0 ? "Aucun lien de téléchargement créé." : ""}</span>
+                    </div>
+                    {grants.get(order.id)!.map((g) => (
+                      <p key={g.id} className="text-muted">
+                        {g.title} · {g.downloads}/{g.maxDownloads} téléchargement{g.maxDownloads > 1 ? "s" : ""} ·{" "}
+                        {g.revokedAt ? "révoqué" : `expire le ${dateTime.format(g.expiresAt)} UTC`}
+                        {isAdmin && !g.revokedAt && <> · <RevokeGrantButton workspaceId={workspace.id} grantId={g.id} /></>}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 {events.get(order.id) && (
                   <details className="text-xs">
                     <summary className="cursor-pointer text-muted">Historique</summary>

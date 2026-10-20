@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { signOutAction } from "@/app/(auth)/actions";
 import { buttonClass } from "@/components/ui/button";
+import { getDb } from "@/db";
+import { listAgentRequests } from "@/server/agent-requests";
 import { NavLinks } from "./nav-links";
 import { loadWorkspace } from "./workspace";
 
 export default async function WorkspaceLayout({ children, params }: LayoutProps<"/app/[workspaceId]">) {
   const { workspaceId } = await params;
   const { user, workspace } = await loadWorkspace(workspaceId);
+  const pendingRequests = (await listAgentRequests(getDb(), user.id, workspace.id, true)).length;
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-sm">
@@ -17,13 +20,13 @@ export default async function WorkspaceLayout({ children, params }: LayoutProps<
           <span className="hidden text-border-strong md:inline" aria-hidden="true">/</span>
           <span className="hidden truncate text-sm text-muted md:inline">{workspace.name}</span>
           <div className="order-last w-full md:order-none md:w-auto md:min-w-0">
-            <NavLinks workspaceId={workspace.id} />
+            <NavLinks workspaceId={workspace.id} pendingRequests={pendingRequests} />
           </div>
           <div className="ml-auto flex min-w-0 items-center gap-2">
             {user.isPlatformAdmin && (
               <Link href="/admin" className="text-sm font-medium text-accent underline-offset-4 hover:underline">Administration</Link>
             )}
-            <span className="hidden truncate text-sm text-muted sm:inline">{user.name}</span>
+            <Link href={`/app/${workspace.id}/compte`} className="hidden truncate text-sm text-muted underline-offset-4 hover:underline sm:inline">{user.name}</Link>
             <form action={signOutAction}>
               <button type="submit" className={buttonClass("ghost")}>
                 Se déconnecter

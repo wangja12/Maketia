@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { getDb } from "@/db";
 import { DESIGN_SKILL_VERSION } from "@/server/design-skill";
+import { listAgentRequests, NEEDS_REVIEW, REQUEST_KINDS, type RequestKind } from "@/server/agent-requests";
+import { EXPERIMENT_REVIEW } from "@/server/analytics/experiments";
 import { listMcpAudit, listMcpTokens, RATE_LIMIT_PER_MINUTE } from "@/server/mcp-tokens";
+import { MANUAL_REVIEW } from "@/server/page-validation";
 import { can } from "@/server/workspaces";
 import { loadWorkspace } from "../workspace";
+import { DecideRequest } from "./request-forms";
 import { CreateTokenForm, RevokeButton } from "./token-forms";
 
 export const metadata: Metadata = { title: "Agents IA · Tunnels IA" };
@@ -15,7 +19,14 @@ export default async function AgentsPage({ params }: PageProps<"/app/[workspaceI
   const { workspaceId } = await params;
   const { user, workspace } = await loadWorkspace(workspaceId);
   const db = getDb();
-  const [tokens, audit] = await Promise.all([listMcpTokens(db, user.id, workspace.id), listMcpAudit(db, user.id, workspace.id)]);
+  const [tokens, audit, requests] = await Promise.all([
+    listMcpTokens(db, user.id, workspace.id),
+    listMcpAudit(db, user.id, workspace.id),
+    listAgentRequests(db, user.id, workspace.id),
+  ]);
+  const canDecide = can(workspace.role, "edit");
+  const pending = requests.filter((r) => r.status === "pending");
+  const decided = requests.filter((r) => r.status !== "pending").slice(0, 15);
   const h = await headers();
   const proto = h.get("x-forwarded-proto") ?? "http";
   const serverUrl = `${process.env.APP_URL ?? `${proto}://${h.get("host")}`}/api/mcp`;
@@ -30,12 +41,61 @@ export default async function AgentsPage({ params }: PageProps<"/app/[workspaceI
           Tunnels IA n’intègre aucune intelligence artificielle. Vous connectez la vôtre (Claude, ChatGPT ou tout client
           compatible MCP) : elle lit votre fiche d’offre et crée ou modifie des pages avec vos droits, en appliquant la
           skill de design obligatoire <span className="font-mono text-xs">wang-design-engineering {DESIGN_SKILL_VERSION}</span>.
-          Chaque action est enregistrée et versionnée ; rien n’est publié par un agent.
+          Chaque action est enregistrée et versionnée. Un agent peut demander une publication, un arrêt de test ou un choix
+          de gagnant : rien n’est exécuté tant qu’une personne de l’espace ne l’a pas approuvé ici.
         </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="flex min-w-0 flex-col gap-8">
+          <section aria-labelledby="requests-title" className="flex flex-col gap-3">
+            <h2 id="requests-title" className="text-lg font-semibold">Demandes à approuver ({pending.length})</h2>
+            {pending.length === 0 ? (
+              <p className="text-sm text-muted">Aucune demande en attente.</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {pending.map((r) => {
+                  const p = r.params as Record<string, string | number | undefined>;
+                  const kind = r.kind as RequestKind;
+                  const review = NEEDS_REVIEW.includes(kind) ? (kind === "select_experiment_winner" ? EXPERIMENT_REVIEW : MANUAL_REVIEW) : [];
+                  return (
+                    <li key={r.id} className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 shadow-raised">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium">{REQUEST_KINDS[kind]}</span>
+                        <span className="text-sm">
+                          {p.pageName ? `« ${p.pageName} » (variante ${p.variant})` : `« ${p.experimentName} »${p.variant ? `, variante ${p.variant}` : ""}`}
+                          {kind === "publish_page" ? ` · version ${p.version} sur /${p.path}` : ""}
+                        </span>
+                        {r.reason && <span className="text-xs text-muted">Motif donné par l’agent (non vérifié) : {r.reason}</span>}
+                        <span className="text-xs text-muted">Demandée le {dateTime.format(r.createdAt)} UTC · expire le {dateTime.format(r.expiresAt)} UTC</span>
+                        {kind === "publish_page" && (
+                          <a href={`/preview/${r.resourceId}?v=${p.version}`} target="_blank" rel="noreferrer" className="w-fit text-xs font-medium text-accent underline-offset-4 hover:underline">
+                            Voir l’aperçu de la version {p.version}
+                          </a>
+                        )}
+                      </div>
+                      {canDecide ? <DecideRequest workspaceId={workspace.id} requestId={r.id} review={review} /> : <p className="text-xs text-muted">Seul un membre pouvant modifier décide.</p>}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {decided.length > 0 && (
+              <details className="text-sm">
+                <summary className="cursor-pointer text-muted">Demandes traitées</summary>
+                <ul className="mt-2 flex flex-col gap-1 text-xs text-muted">
+                  {decided.map((r) => (
+                    <li key={r.id}>
+                      {dateTime.format(r.createdAt)} · {REQUEST_KINDS[r.kind as RequestKind]} ·{" "}
+                      {{ approved: "approuvée", rejected: "refusée", failed: "échec", expired: "expirée" }[r.status] ?? r.status}
+                      {r.result ? ` · ${r.result}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </section>
+
           <section aria-labelledby="tokens-title" className="flex flex-col gap-3">
             <h2 id="tokens-title" className="text-lg font-semibold">Connexions</h2>
             {active.length === 0 ? (

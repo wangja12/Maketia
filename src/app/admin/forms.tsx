@@ -71,6 +71,7 @@ const LIMIT_FIELDS = [
   ["customDomains", "Domaines personnalisés"],
   ["mcpWritesPerMonth", "Modifications MCP / mois"],
   ["analyticsEventsPerMonth", "Événements mesurés / mois"],
+  ["storageMb", "Stockage des fichiers (Mo)"],
 ] as const;
 
 /** Create (no plan) or edit a plan. Empty number = unlimited (limits) or not set (price). */

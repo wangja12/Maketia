@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // The software keyboard resizes the layout (Android Chrome), as on iOS; zoom stays enabled.
+  interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f7f6f3" },
     { media: "(prefers-color-scheme: dark)", color: "#141412" },

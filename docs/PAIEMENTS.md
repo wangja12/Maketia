@@ -54,3 +54,12 @@ les ajouter ; ne pas contourner par un appel API (interdit).
 Le domaine réel des liens SasPay n'a pas pu être confirmé. Aucun domaine n'est codé en dur :
 l'administrateur le renseigne dans **Administration → Paramètres** après avoir vérifié l'adresse
 d'un vrai lien. Tant qu'il est vide, aucun lien n'est accepté.
+
+## Livraison des fichiers (manuelle pour l'instant)
+
+Pour un produit de type « Fichier numérique », le vendeur joint un ou plusieurs fichiers (privés).
+Quand une commande est **payée** (aujourd'hui : confirmée par le vendeur), il crée les liens de
+téléchargement de l'acheteur (7 jours, 5 téléchargements par défaut) et les lui transmet. La
+plateforme ne les affiche qu'une fois et n'en garde que l'empreinte. L'envoi automatique par
+e-mail n'existe pas encore (pas de prestataire d'e-mails transactionnels, pas de rapprochement
+fiable des paiements).

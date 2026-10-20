@@ -30,6 +30,7 @@ partagent alors aucun cookie avec l'application.
 | `PAYMENT_SECRETS_KEY` | pour les paiements | `openssl rand -base64 32` — **à sauvegarder** : sans elle, les identifiants marchands enregistrés sont illisibles |
 | `ANALYTICS_SECRET` | pour la mesure | `openssl rand -base64 48` |
 | `NODE_ENV` | oui | `production` (active la CSP et HSTS) |
+| `FILES_DIR` | recommandé | Dossier des fichiers privés des produits, sur un disque **persistant** et sauvegardé, hors de tout dossier public |
 
 Interdit en production (le contrôle le refuse) : un `TEST_DATABASE_URL` égal à `DATABASE_URL`.
 
@@ -93,6 +94,7 @@ si des migrations manquent, ou s'il n'y a pas de plan par défaut. Au démarrage
 - Sauvegarde quotidienne de PostgreSQL au minimum, conservée hors de l'hébergeur ; tester une
   restauration avant le lancement.
 - Sauvegarder `PAYMENT_SECRETS_KEY` séparément de la base (coffre de secrets).
+- Sauvegarder `FILES_DIR` en même temps que la base (les lignes `product_files` y renvoient).
 - Retour arrière applicatif : redéployer la version précédente. Les migrations n'ont pas de
   script de retour : avant chaque migration, sauvegarde de la base ; en cas de problème,
   restauration de cette sauvegarde et redéploiement de la version précédente.

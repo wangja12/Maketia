@@ -135,6 +135,15 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 
 ### Terminées et vérifiées
 
+**Fichiers privés, comptes, demandes d'agents (20/10/2026)**
+
+- Fichiers des produits numériques : type décidé par le contenu (PDF, ZIP, Word, Excel, PowerPoint, EPUB, PNG, JPEG, MP3, MP4 ; refus de HTML, SVG, exécutables), 50 Mo maximum, empreinte SHA-256, versions, stockage privé hors de tout dossier public (`FILES_DIR`), quota de stockage par plan, téléchargement servi en pièce jointe avec `sandbox`.
+- Liens de téléchargement acheteur : seulement pour une commande payée, jeton aléatoire (empreinte seule stockée), expiration, plafond de téléchargements compté de façon atomique, révocation ; créés par le vendeur et transmis par lui (pas d'e-mail).
+- Compte : profil, changement de mot de passe (déconnecte les autres appareils), déconnexion des autres appareils, suppression du compte avec mot de passe et e-mail recopié (espaces dont on est seul membre supprimés avec leurs fichiers ; refus si l'on est seul propriétaire d'un espace partagé ou seul administrateur).
+- MCP : `publish_page`, `unpublish_page`, `stop_ab_experiment`, `select_experiment_winner` créent une **demande** ; une personne approuve dans Agents IA (revue cochée pour ce qui est publié), l'action s'exécute avec ses droits, une seule fois. Lecture : `get_agent_request`, `list_agent_requests`, `get_domains`, `list_product_files`, `get_payment_setup_status` (jamais de secret).
+- Skill `wang-design-engineering` 1.1.0 : performance du mouvement, mobile, données extrêmes ; checklist de revue visible dans l'éditeur ; base mobile appliquée (zoom autorisé, `touch-action`, clavier virtuel).
+- Vérifié par : 6 tests d'intégration fichiers, 2 tests compte, 3 tests MCP demandes, e2e : livraison par lien (`payments.spec`), approbation d'une demande d'agent via un vrai client MCP HTTP (`mcp.spec`), compte (`account.spec`).
+
 **Ventes par liens SasPay manuels (remplace CinetPay, cahier des charges §29)**
 
 - Lien SasPay collé par le vendeur, sans clé API ni appel à SasPay ; prix attendu confirmé ; publication bloquée sans lien prêt.
@@ -214,7 +223,7 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - Variantes indépendantes A–D, 4 maximum, message explicite à la 5e, sûr en concurrence.
 - Aperçu privé réel en bureau / tablette / mobile ; contrôles automatiques et revue humaine affichés.
 - Serveur MCP : 23 outils, ressource de skill, jetons hachés révocables, droits plafonnés par le rôle, un espace par jeton, limite de débit, journal consultable.
-- Skill `wang-design-engineering` 1.0.0 versionnée, exposée via MCP, exigée par les outils de conception ; absence de la skill signalée et bloquante.
+- Skill `wang-design-engineering` versionnée (1.1.0 depuis le 20/10/2026), exposée via MCP, exigée par les outils de conception ; absence de la skill signalée et bloquante.
 - Aucun SDK ni appel de fournisseur d'IA (test automatique), aucun module d'e-mail marketing.
 - Vérifié par : 41 tests d'intégration, 12 tests de bout en bout (dont un client MCP réel en HTTP), Claude Code CLI connecté (« √ Connected »).
 
@@ -247,7 +256,9 @@ Exclusion permanente : aucun e-mail marketing, aucune relance commerciale par e-
 - **HTTPS des domaines personnalisés** : délivré par l'hébergeur (ex. API Domains de Vercel). Non intégré tant que l'hébergeur n'est pas choisi ; l'interface ne le présente jamais comme actif.
 - **Vérification DNS automatique périodique** : aujourd'hui à la demande (bouton) ; une tâche planifiée est à prévoir avec l'hébergement.
 - **SasPay — vérification des notifications et rapprochement automatique** : documentation officielle inaccessible depuis l'environnement (`docs.saspay.me` refusé). Aucun traitement automatique tant que le format de signature et le payload `transaction.success` ne sont pas vérifiés.
-- **Livraison numérique (fichiers, e-mails transactionnels)** : non construite ; dépend du rapprochement fiable, d'un stockage objet privé et d'un prestataire d'e-mails transactionnels.
+- **Livraison automatique par e-mail** : non construite. Il manque un rapprochement fiable des paiements (documentation SasPay) et un prestataire d'e-mails transactionnels. En attendant, le vendeur crée les liens de téléchargement et les transmet lui-même.
+- **Stockage objet S3** : pas de bucket ni d'identifiants ; les fichiers sont sur le disque du serveur (`FILES_DIR`), qui doit être persistant et sauvegardé.
+- **Invitation de membres et transfert de propriété d'un espace** : non construits (bloquent la suppression d'un compte seul propriétaire d'un espace partagé, ce qui ne peut pas arriver tant que l'invitation n'existe pas).
 - **Meta Pixel / Conversions API** : non construits ; documentation Meta inaccessible depuis l'environnement (`developers.facebook.com` refusé).
 - **Remboursements** : à faire dans le compte SasPay du vendeur ; la plateforme ne peut ni les lancer ni les constater.
 - **PostHog** : non connecté (pas de compte, réseau fermé). La mesure interne suffit aux statistiques et tests A/B ; `forwardEvent` est l'endroit où brancher un envoi.

@@ -51,6 +51,12 @@ Seuls les outils réellement implémentés et testés sont exposés.
 | `update_ab_traffic_split` | écriture | Poids des variantes d'un brouillon |
 | `list_leads`, `get_lead` | lecture | Contacts du CRM (recherche, statut, tag, tunnel, acheteur) et fiche avec commandes et historique |
 | `get_usage_and_limits` | lecture | Plan de l'espace, limites et consommation |
+| `publish_page` | conception | **Demande** de publication (refusée d'emblée si la page a des erreurs bloquantes) ; exécutée seulement après approbation d'une personne, revue cochée |
+| `unpublish_page`, `stop_ab_experiment`, `select_experiment_winner` | écriture | **Demandes** soumises à l'approbation d'une personne |
+| `get_agent_request`, `list_agent_requests` | lecture | État des demandes (pending, approved, rejected, failed, expired) |
+| `get_domains` | lecture | Domaines d'un tunnel et statut DNS |
+| `list_product_files` | lecture | Fichiers d'un produit (métadonnées ; jamais le contenu ni un lien) |
+| `get_payment_setup_status` | lecture | État des notifications SasPay, sans le secret |
 | `get_integrations_status` | lecture | État réel des intégrations (rien n'est présenté comme actif sans l'être) |
 | `create_funnel`, `update_funnel` | écriture | Créer ou renommer un tunnel |
 | `create_page` | conception | Créer une page (modèle par type, ou contenu complet) |
@@ -62,13 +68,15 @@ Seuls les outils réellement implémentés et testés sont exposés.
 | `restore_page_version` | conception | Nouvelle version identique à une ancienne |
 
 Les outils **de conception** exigent `skill_version` égal à la version courante de la skill
-(`1.0.0`) et rappellent dans leur description de lire la skill. Les modifications exigent
+(`1.1.0`) et rappellent dans leur description de lire la skill. Les modifications exigent
 `base_version` : si la page a changé depuis la lecture, l'appel échoue
 (`current_version=N`) au lieu d'écraser.
 
-**Publication : volontairement absente du MCP.** Publier, dépublier et gérer les domaines se
-fait dans l'application, par une personne, après la revue humaine. L'agent prépare, valide et
-transmet le lien d'aperçu.
+**Publication : toujours confirmée par une personne.** Un agent peut demander une publication,
+une dépublication, l'arrêt d'un test ou le choix d'un gagnant : une demande est créée, visible
+dans Agents IA, et rien ne se passe avant qu'un membre pouvant modifier l'approuve (en cochant la
+revue pour ce qui est publié). L'action s'exécute alors une seule fois, avec les droits de cette
+personne. Les demandes expirent après 7 jours. Les domaines se gèrent dans l'application.
 
 Aucun outil MCP ne configure un prestataire, ne modifie un produit ou une commande.
 Démarrer, arrêter un test A/B ou choisir son gagnant : dans l'application uniquement. Un agent

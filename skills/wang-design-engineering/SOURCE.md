@@ -4,7 +4,7 @@
 | --- | --- |
 | Dépôt officiel | https://github.com/emilkowalski/skills (`emilkowalski/skill` pointe sur le même commit) |
 | Commit consulté | `2d228630ba1446365f614a108cb8252f1feda202` (11/10/2026) |
-| Date de consultation | 18/10/2026 |
+| Date de consultation | 18/10/2026 ; revérifié le 20/10/2026 (`git ls-remote` : HEAD toujours `2d22863`) |
 | Licence | MIT, © 2026 Emil Kowalski |
 | Installation vérifiée | `npx skills add emilkowalski/skill` : copie locale identique au commit ci-dessus |
 
@@ -15,8 +15,11 @@
 | `skills/emil-design-eng/SKILL.md` | Lu en entier. Sections 3 et 5 de notre skill. |
 | `skills/animate/SKILL.md` et `RECIPES.md` (recette « Modal ») | Lus en entier. Section 4. |
 | `skills/review-animations/SKILL.md` | « The Ten Non-Negotiable Standards » lus. Section 4. |
-| `skills/mobile-native/SKILL.md` | « Hard Rules » lues. Section 5. |
-| `skills/animation-performance/SKILL.md`, `skills/break-ui/SKILL.md` | Seulement la structure : cités comme lectures recommandées, aucune règle n'en est tirée. |
+| `skills/animation-performance/SKILL.md` | Lu en entier (v1.1.0). Section 4, « Performance du mouvement ». |
+| `skills/break-ui/SKILL.md` | Lu en entier (v1.1.0). Section 5 bis. `CATALOG.md` non lu. |
+| `skills/mobile-native/SKILL.md` | « Symptom Table », « Baseline » et « Never Ship » lus (v1.1.0). Section 5, « Mobile ». |
+| `skills/pick-ui-library/SKILL.md` | Lu en entier. Ne s'active que sur demande explicite ; mentionnée en section 1, aucune règle imposée. |
+| `skills/improve-animations`, `skills/find-animation-opportunities` | Règles « Hard Rules » lues : ce sont des audits en lecture seule ; non repris comme règles. |
 
 Aucun fichier du dépôt tiers n'est copié dans ce projet : notre skill reformule les principes
 et renvoie à la source. Les autres skills du dépôt (`animate-expo`, `write-swift`,

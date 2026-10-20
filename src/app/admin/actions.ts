@@ -19,7 +19,7 @@ async function run(path: string, fn: (adminId: string) => Promise<unknown>, valu
   return { ok: true };
 }
 
-const PLAN_FIELDS = ["code", "name", "priceMonthly", "currency", "funnels", "variantsPerPage", "customDomains", "mcpWritesPerMonth", "analyticsEventsPerMonth"];
+const PLAN_FIELDS = ["code", "name", "priceMonthly", "currency", "funnels", "variantsPerPage", "customDomains", "mcpWritesPerMonth", "analyticsEventsPerMonth", "storageMb"];
 const planValues = (form: FormData) => Object.fromEntries(PLAN_FIELDS.map((k) => [k, String(form.get(k) ?? "")]));
 
 export async function suspendUserAction(userId: string, _prev: ActionState, form: FormData) {

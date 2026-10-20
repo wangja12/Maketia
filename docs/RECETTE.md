@@ -30,6 +30,15 @@ Commandes : `pnpm test` (unitaires et intégration, PostgreSQL), `pnpm build && 
 | 19 | Animations et réduction des mouvements | Vérifié | `e2e/quality.spec` (mouvement supprimé avec `prefers-reduced-motion`) |
 | 20 | Aucune relance commerciale par e-mail | Vérifié | `integration/architecture.test` (aucune bibliothèque d'e-mail, aucun SDK d'IA) |
 
+## Cahier des charges SasPay / livraison (20/10/2026)
+
+| Critère | État | Preuve |
+| --- | --- | --- |
+| 18. Fichier non accessible par une URL durable ou devinable ; lien sécurisé pour l'acheteur autorisé | Vérifié | `integration/files.test`, `e2e/payments.spec` |
+| 19. E-mails de livraison envoyés une fois avec reprises | **Bloqué** : aucun prestataire d'e-mails ; le vendeur transmet le lien lui-même | — |
+| 25. Outils MCP soumis aux confirmations | Vérifié | `integration/mcp.test`, `e2e/mcp.spec` |
+| 26. Skill de design versionnée et lisible via MCP | Vérifié (1.1.0) | `integration/mcp.test`, `e2e/mcp.spec` |
+
 ## Sécurité (phase 8)
 
 | Contrôle | Preuve |

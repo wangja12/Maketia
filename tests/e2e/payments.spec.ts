@@ -127,4 +127,29 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
   await expect(order.getByText("Payée (confirmée par vous)")).toBeVisible();
   await order.getByText("Historique").click();
   await expect(order.getByText(/Paiement confirmé manuellement/)).toBeVisible();
+
+  // 7. Delivery by hand: attach the private file, create the buyer's link, check what it serves.
+  const products = page.getByRole("region", { name: "Produits et liens de paiement" });
+  const pdf = Buffer.from("%PDF-1.7\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n");
+  await products.getByLabel("Fichier à livrer").setInputFiles({ name: "piege.pdf", mimeType: "application/pdf", buffer: Buffer.from("<html><script>alert(1)</script>") });
+  await products.getByRole("button", { name: "Envoyer le fichier" }).click();
+  await expect(products.getByText(/Type de fichier non accepté/)).toBeVisible();
+  await products.getByLabel("Fichier à livrer").setInputFiles({ name: "Guide Excel.pdf", mimeType: "application/pdf", buffer: pdf });
+  await products.getByRole("button", { name: "Envoyer le fichier" }).click();
+  await expect(products.getByText("Fichier enregistré.")).toBeVisible();
+  await expect(products.getByText("Guide Excel.pdf", { exact: true })).toBeVisible();
+
+  await order.getByRole("button", { name: "Liens de téléchargement" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Créer les liens" }).click();
+  const link = await dialog.getByLabel("Guide Excel.pdf").inputValue();
+  expect(link).toMatch(/\/api\/telechargement\/[A-Za-z0-9_-]{43}$/);
+  const download = await page.request.get(link);
+  expect(download.status()).toBe(200);
+  expect(download.headers()["content-disposition"]).toContain("attachment");
+  expect((await download.body()).toString()).toBe(pdf.toString());
+  expect((await page.request.get(`${link.slice(0, -1)}x`)).status()).toBe(404);
+  await dialog.getByRole("button", { name: "Fermer" }).click();
+  await page.reload();
+  await expect(order.getByText(/Guide Excel.pdf · 1\/5 téléchargements/)).toBeVisible();
 });

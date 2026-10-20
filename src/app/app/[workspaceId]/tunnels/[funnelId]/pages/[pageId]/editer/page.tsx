@@ -8,6 +8,8 @@ import { listProducts } from "@/server/payments/service";
 import { can } from "@/server/workspaces";
 import { loadFunnel } from "../../../funnel";
 import { loadVersionAction, pageHeadAction, saveContentAction } from "./actions";
+import { DESIGN_SKILL_VERSION } from "@/server/design-skill";
+import { MANUAL_REVIEW } from "@/server/page-validation";
 
 export const metadata: Metadata = { title: "Éditeur · Tunnels IA" };
 
@@ -31,6 +33,8 @@ export default async function EditorPage({ params }: PageProps<"/app/[workspaceI
       title={`${data.page.name} · variante ${data.page.variantLabel}`}
       backHref={pageHref}
       products={products}
+      review={MANUAL_REVIEW}
+      skillVersion={DESIGN_SKILL_VERSION}
       server={{
         save: saveContentAction.bind(null, pageId),
         head: pageHeadAction.bind(null, pageId),
