@@ -6,6 +6,7 @@ import { PageRenderer, type FormTarget } from "@/components/page-renderer";
 import { ViewTracker } from "@/components/view-tracker";
 import { getDb } from "@/db";
 import { signViewToken } from "@/server/analytics/tracking";
+import { planOf } from "@/server/billing/plans";
 import { productsForContent } from "@/server/payments/checks";
 import { resolvePublishedPage, type PublicSite } from "@/server/publishing";
 
@@ -44,7 +45,7 @@ export async function PublishedPage({ site, path, search }: { site: PublicSite; 
   const pagePath = path?.[0] ?? "";
   const page = await resolve(JSON.stringify(site), pagePath);
   if (!page) notFound();
-  const products = await productsForContent(getDb(), page.workspaceId, page.content);
+  const [products, plan] = await Promise.all([productsForContent(getDb(), page.workspaceId, page.content), planOf(getDb(), page.workspaceId)]);
 
   const sectionId = typeof search.section === "string" ? search.section : "";
   const fields = typeof search.champs === "string" ? safeFields(search.champs) : undefined;
@@ -79,8 +80,25 @@ export async function PublishedPage({ site, path, search }: { site: PublicSite; 
   return (
     <>
       <PageRenderer content={page.content} products={products} forms={forms} />
+      {/* Free (or not yet priced) plans carry a small credit; paid plans do not. */}
+      {!plan.priceMonthly && <MadeWithMaketia />}
       {token && <ViewTracker token={token} />}
     </>
+  );
+}
+
+/** Discreet credit under the page, in fixed colours so it reads on any page theme. */
+function MadeWithMaketia() {
+  const origin = process.env.APP_URL?.replace(/\/$/, "") ?? "";
+  return (
+    <p className="flex justify-center bg-[#f7f6f3] py-4">
+      <a
+        href={`${origin}/?utm_source=badge&utm_medium=page`}
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#e3e0d9] bg-white px-4 text-[13px] text-[#55524c] no-underline"
+      >
+        Page créée avec <span className="font-semibold text-[#1c1b19]">maketia<span className="text-[#1d5bd8]">.</span></span>
+      </a>
+    </p>
   );
 }
 

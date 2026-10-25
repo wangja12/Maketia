@@ -44,6 +44,8 @@ test("publish on a subdomain, keep the snapshot, republish, unpublish", async ({
   await expect(v.getByRole("heading", { name: "Votre promesse principale, en une phrase" })).toBeVisible();
   await expect(v).toHaveTitle("Votre promesse principale, en une phrase");
   await expect(v.getByRole("textbox")).toHaveCount(0);
+  // Free (unpriced) plan: the page carries the discreet Maketia credit.
+  await expect(v.getByRole("link", { name: "Page créée avec maketia." })).toHaveAttribute("href", /utm_source=badge/);
 
   // Edit in the editor: what is live does not change until republished.
   await page.getByRole("link", { name: "Modifier la page" }).click();
