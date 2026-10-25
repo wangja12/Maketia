@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+// Italic accent words on the landing page only.
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
 });
 
 const geistMono = Geist_Mono({
@@ -31,7 +39,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   // Every page renders per request, so Next.js can stamp the CSP nonce on its scripts.
   await headers();
   return (
-    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}>
       <body className="min-h-dvh font-sans">{children}</body>
     </html>
   );
