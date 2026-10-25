@@ -10,9 +10,10 @@ export function NavLinks({ workspaceId, pendingRequests = 0, ordersToConfirm = 0
     { href: base, label: "Offres", active: pathname === base || pathname.startsWith(`${base}/tunnels`) },
     { href: `${base}/contacts`, label: "Contacts", active: pathname.startsWith(`${base}/contacts`) },
     { href: `${base}/paiements`, label: ordersToConfirm ? `Paiements (${ordersToConfirm} à confirmer)` : "Paiements", active: pathname.startsWith(`${base}/paiements`) },
-    { href: `${base}/agents`, label: pendingRequests ? `Agents IA (${pendingRequests} à approuver)` : "Agents IA", active: pathname.startsWith(`${base}/agents`) },
     { href: `${base}/abonnement`, label: "Abonnement", active: pathname.startsWith(`${base}/abonnement`) },
     { href: `${base}/compte`, label: "Compte", active: pathname.startsWith(`${base}/compte`) },
+    // Advanced: last, but a pending agent request is always announced.
+    { href: `${base}/agents`, label: pendingRequests ? `Agents IA (${pendingRequests} à approuver)` : "Agents IA", active: pathname.startsWith(`${base}/agents`) },
   ];
   return (
     // Scrolls sideways on narrow screens instead of wrapping.

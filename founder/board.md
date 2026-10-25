@@ -38,7 +38,7 @@ Le PASS de la lentille Monopoly redevient FUND IF « le jour où la livraison au
 - [ ] Faire confirmer par écrit à SasPay les pays, les devises (XOF et XAF) et les moyens de paiement couverts.
 - [ ] Mener un test réel : 5 à 20 créateurs de la cible, une vente de bout en bout, une pré-vente à un vrai prix.
 - [x] Badge « Page créée avec maketia. » sur les pages des plans gratuits, absent sur les plans payants. Parrainage : à faire.
-- [x] Dans l'espace créateur : tutoiement, « offre » au lieu de « tunnel » (les pages vues par l'acheteur restent au vouvoiement). Fonctions avancées en retrait : à faire.
+- [x] Dans l'espace créateur : tutoiement, « offre » au lieu de « tunnel » (les pages vues par l'acheteur restent au vouvoiement). Fonctions avancées en retrait : tests A/B et agent IA repliés dans « Outils avancés » sur la page d'une offre, « Agents IA » en dernier dans la navigation.
 
 ## La version la plus forte que le conseil voit
 

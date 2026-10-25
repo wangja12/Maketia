@@ -53,31 +53,9 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
             <h1 className="truncate text-2xl font-semibold tracking-tight">{funnel.name}</h1>
             <StatusBadge status={funnel.status} />
           </div>
-          <nav aria-label="Mesure" className="flex gap-4 text-sm font-medium">
-            <Link href={`${base}/statistiques`} className="text-accent underline-offset-4 hover:underline">Statistiques</Link>
-            <Link href={`${base}/experiences`} className="text-accent underline-offset-4 hover:underline">Tests A/B</Link>
-          </nav>
+          <Link href={`${base}/statistiques`} className="text-sm font-medium text-accent underline-offset-4 hover:underline">Statistiques</Link>
         </div>
       </div>
-
-      <section
-        aria-label="Agent IA"
-        className="flex flex-col gap-2 rounded-card border border-border bg-surface px-4 py-3 text-sm shadow-raised sm:flex-row sm:items-center sm:justify-between"
-      >
-        {agentActive ? (
-          <p>
-            <span className="font-medium">Agent IA actif</span> · « {lastAgent.name} », dernière action le {dateTime.format(lastAgent.lastUsedAt!)} (UTC).
-          </p>
-        ) : (
-          <p className="text-muted">
-            <span className="font-medium text-fg">Aucun agent IA actif.</span> Maketia n’intègre pas d’IA : connecte la tienne
-            (Claude, ChatGPT…) via MCP pour qu’elle prépare les pages à partir de la fiche. Tout reste faisable à la main.
-          </p>
-        )}
-        <Link href={`/app/${workspace.id}/agents`} className="shrink-0 font-medium text-accent underline-offset-4 hover:underline">
-          {agentActive ? "Gérer les connexions" : "Connecter un agent"}
-        </Link>
-      </section>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section aria-labelledby="pages-title" className="flex min-w-0 flex-col gap-4">
@@ -134,6 +112,35 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
           <BriefForm funnelId={funnel.id} brief={funnel.brief} readOnly={!canEdit} />
         </aside>
       </div>
+
+      {/* Tools for later: out of the way of a first sale (founder pack, Product lens). */}
+      <details className="group rounded-card border border-border bg-surface text-sm shadow-raised">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2.5 font-medium [&::-webkit-details-marker]:hidden">
+          Outils avancés : tests A/B et agent IA
+          <span aria-hidden="true" className="text-muted transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-90">›</span>
+        </summary>
+        <div className="flex flex-col gap-3 border-t border-border px-4 py-3">
+          <p>
+            <Link href={`${base}/experiences`} className="font-medium text-accent underline-offset-4 hover:underline">Tests A/B</Link>
+            <span className="text-muted"> · compare deux versions d’une page sur de vrais visiteurs.</span>
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            {agentActive ? (
+              <p>
+                <span className="font-medium">Agent IA actif</span> · « {lastAgent.name} », dernière action le {dateTime.format(lastAgent.lastUsedAt!)} (UTC).
+              </p>
+            ) : (
+              <p className="text-muted">
+                <span className="font-medium text-fg">Aucun agent IA actif.</span> Maketia n’intègre pas d’IA : connecte la tienne
+                (Claude, ChatGPT…) via MCP pour qu’elle prépare les pages à partir de la fiche. Tout reste faisable à la main.
+              </p>
+            )}
+            <Link href={`/app/${workspace.id}/agents`} className="shrink-0 font-medium text-accent underline-offset-4 hover:underline">
+              {agentActive ? "Gérer les connexions" : "Connecter un agent"}
+            </Link>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

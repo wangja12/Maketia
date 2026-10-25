@@ -31,6 +31,8 @@ async function mcpClient(url: string, token: string) {
 
 test("manual work without AI, then an external agent edits through MCP over HTTP", async ({ page, baseURL }) => {
   await signUpWithFunnel(page);
+  // Advanced tools stay folded away from a first sale.
+  await page.getByText("Outils avancés : tests A/B et agent IA").click();
   await expect(page.getByText("Aucun agent IA actif.")).toBeVisible();
 
   // 1. Describe the offer by hand; it persists.
