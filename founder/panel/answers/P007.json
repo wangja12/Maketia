@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "I lost a sale last month because I was slow sending the file, and with Maketia I still have to confirm each payment and send the link myself. My current platform already gives me a sales page, so switching for the same manual work makes no sense.",
+  "objection": "If I still have to confirm each payment by hand and send the download link myself, what do I gain over what I use today? Automatic confirmation is only 'planned'.",
+  "would_change_my_mind": "Automatic payment confirmation with the download link sent to the buyer instantly, without me touching my phone.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}

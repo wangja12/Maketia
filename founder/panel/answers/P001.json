@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "I have one product and I have not sold anything yet, so the free plan with 1 page and 1 product covers me. 9 900 FCFA a month is about 7% of what I earn, and I won't pay that before my first sales come in.",
+  "objection": "Paying every month while I'm not selling yet, and on top of that I still have to confirm each payment by hand and send the link myself in the evening after work.",
+  "would_change_my_mind": "Making 4 or 5 sales on the free page first, or a paid plan around 3 000 FCFA a month with automatic payment confirmation so I don't have to babysit my phone.",
+  "price_too_cheap": 1000,
+  "price_cheap": 2500,
+  "price_expensive": 5000,
+  "price_too_expensive": 8000
+}

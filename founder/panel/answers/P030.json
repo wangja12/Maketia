@@ -1,0 +1,13 @@
+{
+  "id": "P030",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "I already confirm every payment by hand on WhatsApp and mobile money, and with Maketia I would still confirm each one myself and send the link myself, plus open a new SasPay account. For 9 900 FCFA a month that is a nice page, not less work, and Chariow or Selar already deliver the file automatically.",
+  "objection": "The confirmation is still manual, so the thing that eats my evenings stays the same, and I have to move my buyers to SasPay, which they do not know, when they pay me with Orange Money or Wave without problem today.",
+  "would_change_my_mind": "Automatic payment confirmation with instant delivery of the download link, working with the mobile money my buyers already use.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7500,
+  "price_too_expensive": 15000
+}

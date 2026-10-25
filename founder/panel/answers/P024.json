@@ -1,0 +1,13 @@
+{
+  "id": "P024",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "My problem is I was slow to send the file, and with Maketia I still have to confirm each payment myself and send the link by hand, so it doesn't fix what cost me the sale. On top of that I'd need a SasPay account and to learn an editor, and I'm not at ease with these tools; at most I'd poke at the free plan, but 9 900 FCFA a month is too much for my first product.",
+  "objection": "Confirmation is still manual, so I'd still be the bottleneck, and I don't want to move my buyers off WhatsApp and mobile money to a SasPay account I don't have.",
+  "would_change_my_mind": "Automatic payment confirmation with the file sent to the buyer by itself, working with the mobile money my buyers already use, with someone to set it up for me on WhatsApp.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3500,
+  "price_too_expensive": 6000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "I would try the free page, but I am not paying 9 900 a month to confirm every payment by hand and send each link myself in the evening after work. That is what I already do on WhatsApp for free.",
+  "objection": "With regular sales, confirming each SasPay payment manually from my phone is the exact chore I want gone, and the automatic part is only promised, not there.",
+  "would_change_my_mind": "Automatic payment confirmation that sends the download link to the buyer by itself, working fully from my Android phone.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "I lost a sale last month because I was slow sending the file, and Maketia still makes me confirm each payment and send the link by hand. Chariow already delivers for me, so switching would be a step back, and I would also have to open a SasPay account I don't have.",
+  "objection": "I don't know SasPay and I don't have an account there, and manual confirmation is exactly the problem that already cost me a sale.",
+  "would_change_my_mind": "Automatic payment confirmation and delivery actually working, with SasPay account setup done in a few minutes from my phone.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 5000,
+  "price_too_expensive": 9900
+}

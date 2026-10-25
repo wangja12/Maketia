@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "I lost a sale because I was slow to send the file, and with Maketia I still have to confirm each payment myself and send the link by hand. That is the same work as WhatsApp, plus a new SasPay account and an editor to learn, so I would not pay 9 900 FCFA a month for it.",
+  "objection": "It doesn't fix my real problem, which is the delay in sending the file. Confirmation is manual, and I'm not comfortable opening a SasPay account and learning a new tool when my clients already pay me by mobile money on WhatsApp.",
+  "would_change_my_mind": "Automatic confirmation that sends the file to the buyer the moment the mobile-money payment arrives, without me touching anything.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}

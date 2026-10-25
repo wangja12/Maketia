@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "I would open the free plan for my one product and see, but 9 900 FCFA a month is a big part of what I earn and I have not made a sale yet. If I still confirm each payment and send the link myself, that is what I already do on WhatsApp, so I am not paying for it now.",
+  "objection": "If I still have to confirm every payment and send the download link by hand, what am I paying for? The automatic part is only promised.",
+  "would_change_my_mind": "Automatic payment confirmation and link delivery working for real, and my free page bringing me a few sales first so the subscription pays for itself.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3500,
+  "price_too_expensive": 6000
+}

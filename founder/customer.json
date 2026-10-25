@@ -1,0 +1,37 @@
+{
+  "business": "Maketia: SaaS to build a sales page for a digital product, sell it through your own SasPay link, and deliver the file by private link after the payment is confirmed",
+  "target": "French-speaking creators and solo entrepreneurs in West and Central Africa (Abidjan, Dakar, Douala, Cotonou, Lomé, Ouagadougou) who sell or want to sell e-books, courses, templates or packs online, mostly from a phone. Prices are in FCFA; incomes shown in US dollar equivalents (1 $ ≈ 600 FCFA), so answer the four price questions in FCFA per month.",
+  "where": "Online, francophone West and Central Africa",
+  "age": [19, 45],
+  "segments": [
+    {"name": "Beginner creator: first product, small audience (under 2,000 followers)", "share": 0.45, "income": [1200, 4800]},
+    {"name": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers", "share": 0.35, "income": [4800, 15000]},
+    {"name": "Trainer, coach or small agency with regular sales", "share": 0.20, "income": [15000, 40000]}
+  ],
+  "behaviours": [
+    {"name": "WhatsApp seller", "share": 0.22, "how": "Takes orders in WhatsApp, checks the mobile-money SMS, sends the PDF by hand."},
+    {"name": "Already on a platform", "share": 0.13, "how": "Uses Chariow, Selar or Systeme.io today and would only switch for a clear gain."},
+    {"name": "Free-plan hunter", "share": 0.18, "how": "Starts on free plans and only pays once money is coming in."},
+    {"name": "Scam-wary", "share": 0.15, "how": "Has been scammed before; checks who is behind a service before trusting it."},
+    {"name": "Phone-only", "share": 0.14, "how": "Has no computer; does everything from an Android phone on mobile data."},
+    {"name": "Trend follower", "share": 0.10, "how": "Tries tools that TikTok and YouTube creators recommend."},
+    {"name": "Careful reader", "share": 0.08, "how": "Reads the whole page, the FAQ and the prices before signing up."}
+  ],
+  "objections": [
+    "9 900 FCFA a month is a lot while I am not selling yet",
+    "WhatsApp and mobile money already work for me",
+    "I don't know SasPay and I don't have an account there",
+    "Another new platform: who is behind it, is it a scam?",
+    "If I still have to confirm each payment and send the link myself, what do I gain?",
+    "I'm not comfortable with technical tools",
+    "Chariow or Selar already do this"
+  ],
+  "habits": [
+    "you post your content on TikTok and Facebook every evening",
+    "your buyers message you on WhatsApp to ask how to pay",
+    "you work a day job and sell in the evening",
+    "your internet bundle runs out before the end of the month",
+    "you follow two or three big creators who sell trainings",
+    "you lost a sale last month because you were slow to send the file"
+  ]
+}

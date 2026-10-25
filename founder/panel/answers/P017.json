@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "My clients already pay me by mobile money and I send the file on WhatsApp in two minutes. With Maketia I still have to confirm each payment by hand and send the link myself, so it adds a step and a SasPay account without saving me any work.",
+  "objection": "If confirmation is still manual, what am I paying 9 900 FCFA a month for? A pretty page that sends people out of WhatsApp, where they trust me, to a link they don't know.",
+  "would_change_my_mind": "Automatic payment confirmation with instant delivery of the file, working with Orange Money / Wave directly, so sales happen while I sleep.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}

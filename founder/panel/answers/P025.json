@@ -1,0 +1,13 @@
+{
+  "id": "P025",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Je ne sais pas qui est derrière Maketia, et je ne mets pas mon produit ni mes clients sur une plateforme inconnue. Au mieux je testerais le plan Gratuit, mais payer 9 900 FCFA par mois alors que je ne vends presque rien encore, non.",
+  "objection": "Une nouvelle plateforme sans visage connu: qui la gère, est-ce qu'elle sera encore là dans trois mois? Et confirmer chaque paiement à la main puis envoyer le lien moi-même, le soir après le boulot, c'est du travail en plus.",
+  "would_change_my_mind": "Voir des créateurs d'Abidjan ou Dakar que je connais vendre vraiment avec, et avoir déjà des ventes qui rentrent sur le plan Gratuit.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 5000,
+  "price_too_expensive": 9900
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P023",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Mes clients me trouvent sur WhatsApp et paient par mobile money, ça marche déjà. Avec Maketia je dois quand même confirmer chaque paiement à la main et envoyer le lien moi-même, donc je paierais 9 900 FCFA par mois pour faire presque le même travail.",
+  "objection": "Il faut ouvrir encore un compte SasPay et la confirmation reste manuelle; mes clients ne vont pas quitter WhatsApp pour une page qu'ils ne connaissent pas.",
+  "would_change_my_mind": "La confirmation automatique du paiement mobile money avec envoi automatique du PDF au client, sans que je touche à rien.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 6000,
+  "price_too_expensive": 10000
+}

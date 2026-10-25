@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "My clients already order on WhatsApp and pay by mobile money, and I send the PDF myself. With Maketia I would still confirm each payment by hand and send the link, plus open a SasPay account and learn an editor, so for me it is more work, not less.",
+  "objection": "I'm not comfortable with technical tools, and I don't see what I gain if I still have to confirm every payment and send the link manually like I do now.",
+  "would_change_my_mind": "Automatic payment confirmation with the file delivered to the buyer without me, plus someone who sets up my first page with me in French on WhatsApp.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7500,
+  "price_too_expensive": 12000
+}

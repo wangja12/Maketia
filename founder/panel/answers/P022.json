@@ -1,0 +1,13 @@
+{
+  "id": "P022",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je vends déjà par WhatsApp et mobile money, et ici je dois encore confirmer chaque paiement à la main et envoyer le lien moi-même. Au mieux je teste le plan Gratuit, mais je ne paie pas 9 900 FCFA par mois tant que ça ne me ramène pas plus de ventes.",
+  "objection": "Une nouvelle plateforme dont je ne connais personne derrière, qui m'oblige à ouvrir un compte SasPay en plus, et qui ne fait même pas la confirmation automatique : c'est du travail en plus, pas en moins.",
+  "would_change_my_mind": "La confirmation automatique du paiement avec envoi du lien au client sans moi, plus des créatrices de ma ville que je connais qui vendent vraiment avec.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 6000,
+  "price_too_expensive": 10000
+}

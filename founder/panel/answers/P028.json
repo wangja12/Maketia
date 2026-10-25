@@ -1,0 +1,13 @@
+{
+  "id": "P028",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je prendrais la version Gratuit pour voir, une page et un produit me suffisent pour tester. Je ne paie pas 9 900 FCFA par mois tant que je n'ai pas vu des ventes arriver grâce à l'outil.",
+  "objection": "Je ne suis pas à l'aise avec les outils techniques: créer un compte SasPay, coller un lien, confirmer chaque paiement à la main puis envoyer le lien de téléchargement moi-même, ça fait beaucoup d'étapes où je peux me tromper.",
+  "would_change_my_mind": "Que la confirmation de paiement et l'envoi du lien se fassent automatiquement, et voir une créatrice que je suis vendre avec ça sans galérer.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}

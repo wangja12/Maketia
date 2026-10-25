@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I don't know SasPay and I don't have an account there, and my clients pay me by mobile money on WhatsApp. I'd still have to confirm each payment and send the link by hand, so for one e-book I'd stay with WhatsApp, and 9 900 FCFA a month is too much for me.",
+  "objection": "I have to open a SasPay account I don't know just to get paid, and I'm not sure my buyers will trust paying a name they've never seen instead of Orange Money or Wave.",
+  "would_change_my_mind": "If the buyer could pay directly with Orange Money or Wave without me opening a SasPay account, and the link went out automatically, I would try the free plan and maybe pay later.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 5000,
+  "price_too_expensive": 9900
+}

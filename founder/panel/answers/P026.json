@@ -1,0 +1,13 @@
+{
+  "id": "P026",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "I would start on the Gratuit plan for my one e-book, that is enough for me. I will not pay 9 900 FCFA a month while I have not made a single sale yet, that is about a tenth of what I earn in a month.",
+  "objection": "9 900 FCFA every month is a lot when I am not selling yet, and on top of that I must confirm each payment and send the link myself, so I still do the work by hand.",
+  "would_change_my_mind": "Making real sales from the free page first, or a small paid plan around 2 000 to 3 000 FCFA once the money starts coming in.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 4000,
+  "price_too_expensive": 7000
+}

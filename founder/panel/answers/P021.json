@@ -1,0 +1,13 @@
+{
+  "id": "P021",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "I have one product and my buyers already ask me on WhatsApp how to pay. If I still have to check each payment and send the link myself, the free plan is all I would use, and 9 900 FCFA a month is too big a part of what I earn.",
+  "objection": "I still confirm every payment and send the link by hand, so I do the same work as now, and I would also have to open a SasPay account.",
+  "would_change_my_mind": "Automatic confirmation that sends the download link to the buyer by itself, plus a plan around 2 000 FCFA a month.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3000,
+  "price_too_expensive": 5000
+}

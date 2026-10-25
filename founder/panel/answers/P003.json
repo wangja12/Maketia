@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je vends déjà sur Selar et ça marche : le client paie et reçoit son fichier tout seul, même quand je suis au boulot. Avec Maketia je devrais confirmer chaque paiement à la main et envoyer le lien moi-même, c'est un pas en arrière, pas un gain.",
+  "objection": "La confirmation manuelle : je travaille la journée, je ne peux pas valider chaque vente et renvoyer un lien, mes clients WhatsApp vont attendre et se plaindre. En plus il faut ouvrir un compte SasPay que je n'ai pas.",
+  "would_change_my_mind": "Que la confirmation et la livraison soient automatiques, et qu'on me prouve que 0 % de commission me fait vraiment économiser plus que les 9 900 FCFA par mois par rapport à Selar.",
+  "price_too_cheap": 1000,
+  "price_cheap": 3000,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}
