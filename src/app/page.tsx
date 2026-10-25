@@ -2,69 +2,89 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { getDb } from "@/db";
-import { count } from "@/lib/format";
-import { listActivePlans, planPrice, QUOTA_LABELS, type QuotaKey } from "@/server/billing/plans";
+import { listActivePlans, planPrice } from "@/server/billing/plans";
 
 export const metadata: Metadata = {
-  title: "Maketia — ta page de vente, montée en dix minutes",
+  title: "Maketia — vends tes e-books et formations en FCFA, sans courir après tes clients",
 };
 
 /*
- * Public landing page. Every claim matches what the product does today: delivery waits for a
- * confirmed payment, no AI model runs inside Maketia, prices come from the admin-edited plans.
- * Mock-ups are illustrations, labelled as such; their figures are not real data.
+ * Public landing page, reworked from the founder pack's reviews (founder/landing-review/,
+ * founder/board.md). Every claim matches what the product does today: the creator confirms
+ * each payment, then sends the private link (one tap to WhatsApp); no AI model runs inside
+ * Maketia; prices come from the admin-edited plans. Mock-ups are labelled as illustrations.
  */
 
 const STEPS = [
-  { title: "Produit", text: "Dépose le fichier, le prix et la devise." },
-  { title: "Page", text: "Assemble les sections dans l’éditeur." },
-  { title: "Publication", text: "La page est en ligne à son adresse, ou sur ton domaine." },
-  { title: "Paiement", text: "Ton lien SasPay encaisse, sans intermédiaire." },
-  { title: "Confirmation", text: "Le paiement est confirmé avant toute livraison." },
-  { title: "Livraison", text: "L’acheteur reçoit un lien de téléchargement privé et limité." },
+  { title: "Tu ajoutes ton produit", text: "Ton fichier (PDF, vidéo, pack, jusqu’à 50 Mo), ton prix en FCFA et ton lien de paiement SasPay." },
+  { title: "Tu montes ta page", text: "Choisis un modèle, remplis les sections, regarde le rendu sur téléphone, publie." },
+  { title: "Ton client paie", text: "Il appuie sur « Acheter » et paie avec ton lien SasPay. L’argent arrive sur ton compte, pas chez nous." },
+  { title: "Tu confirmes, il télécharge", text: "Tu vois l’argent arriver, tu confirmes la vente, et Maketia crée son lien privé. Un geste pour l’envoyer sur WhatsApp." },
 ];
 
-// Each feature gets its own tint, as in the reference designs; text stays in the ink colors.
-const FEATURES: { title: string; text: string; icon: keyof typeof ICONS; tint: string }[] = [
-  { title: "Éditeur par sections", text: "Accroche, bénéfices, contenu inclus, témoignages, prix, FAQ, appel à l’action. Tu réordonnes, tu modifies, tu publies.", icon: "blocks", tint: "bg-blue-500/10 text-blue-600 dark:text-blue-300" },
-  { title: "Aperçu mobile réel", text: "La page se regarde d’abord sur téléphone, parce que c’est là que tes acheteurs arrivent.", icon: "phone", tint: "bg-violet-500/10 text-violet-600 dark:text-violet-300" },
-  { title: "Paiement sur ton compte", text: "L’acheteur paie avec ton lien SasPay. Maketia ne touche jamais ton argent et ne demande jamais ta clé API.", icon: "card", tint: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" },
-  { title: "Livraison après contrôle", text: "Aucun fichier n’est envoyé avant une confirmation fiable du paiement. Les cas douteux restent à rapprocher.", icon: "file", tint: "bg-amber-500/10 text-amber-700 dark:text-amber-300" },
-  { title: "Tests A/B honnêtes", text: "Plusieurs variantes, répartition du trafic, et un avertissement clair quand l’échantillon est trop petit pour conclure.", icon: "flask", tint: "bg-rose-500/10 text-rose-600 dark:text-rose-300" },
-  { title: "Agents IA, sous ton contrôle", text: "Claude ou un autre agent peut modifier tes pages via MCP. Publier reste ta décision : rien n’est en ligne sans ton accord.", icon: "plug", tint: "bg-sky-500/10 text-sky-700 dark:text-sky-300" },
+const BEFORE_AFTER = [
+  ["Tu réexpliques ton produit à chaque « info ? » en message privé.", "Tu envoies un seul lien : ta page explique tout, même la nuit."],
+  ["Tu donnes ton numéro et tu attends la capture d’écran du paiement.", "Ton client paie avec ton lien SasPay, directement sur ton compte."],
+  ["Tu vérifies des captures, parfois fausses.", "Tu confirmes la vente dans ton espace, une fois l’argent vu sur ton compte."],
+  ["Ton PDF part en pièce jointe et circule partout.", "Ton client reçoit un lien privé, limité dans le temps et en téléchargements."],
+  ["Tes ventes se perdent dans 200 discussions.", "Tes commandes et tes contacts sont rangés au même endroit."],
 ];
 
-const SECTION_FAMILIES = ["Accroche", "Bénéfices", "Contenu inclus", "Témoignages", "Prix", "FAQ", "Paiement"];
+// Each card answers a creator's problem; the tint gives each its own colour, text stays in ink.
+const FEATURES: { title: string; text: string; icon: keyof typeof ICONS; tint: string; wide?: boolean }[] = [
+  { title: "Une page qui vend, sans coder", text: "Accroche, ce que contient ton produit, avis de tes vrais clients, prix, questions fréquentes. Tu remplis, tu déplaces, tu publies.", icon: "blocks", tint: "bg-blue-500/10 text-blue-700 dark:text-blue-300", wide: true },
+  { title: "Pensée pour le téléphone", text: "Tes clients arrivent depuis WhatsApp, TikTok ou Facebook. Tu vois ta page exactement comme eux.", icon: "phone", tint: "bg-violet-500/10 text-violet-700 dark:text-violet-300" },
+  { title: "Ton argent va chez toi", text: "Ton client paie avec ton lien SasPay, sur ton compte. Pas de portefeuille Maketia, pas de retrait à nous demander, aucune commission.", icon: "card", tint: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" },
+  { title: "Pas payé, pas de fichier", text: "Ton fichier n’est remis qu’après ta confirmation. Le lien expire et se télécharge un nombre limité de fois : il ne circule pas partout.", icon: "lock", tint: "bg-amber-500/10 text-amber-800 dark:text-amber-300", wide: true },
+  { title: "Ton nom de domaine, si tu veux", text: "Ta page a sa propre adresse Maketia, ou ton domaine à toi (tonnom.com).", icon: "globe", tint: "bg-sky-500/10 text-sky-800 dark:text-sky-300" },
+  { title: "Tes clients et tes ventes, rangés", text: "Chaque commande et chaque contact au même endroit, avec des statistiques simples sur ta page.", icon: "chart", tint: "bg-rose-500/10 text-rose-700 dark:text-rose-300", wide: true },
+];
 
-// What people sell with Maketia. Covers are drawn in CSS; titles are invented examples.
+// Example products, drawn in CSS; titles and prices are invented for the illustration.
 const SHOWCASE = [
-  { kind: "E-book", title: "Vendre en ligne sans y passer tes nuits", meta: "PDF · 68 pages", cover: "from-[#0c1630] to-[#1d5bd8]", ink: "text-white" },
-  { kind: "Formation", title: "Excel pour ton commerce, en 7 jours", meta: "12 vidéos", cover: "from-[#f6d7c3] to-[#f29d7a]", ink: "text-[#3b1d10]" },
-  { kind: "Pack de templates", title: "30 visuels pour tes réseaux", meta: "Canva · PNG", cover: "from-[#1f3b2d] to-[#4f8a6b]", ink: "text-white" },
-  { kind: "Guide gratuit", title: "La checklist du premier lancement", meta: "PDF · 6 pages", cover: "from-[#ece7ff] to-[#b9a8ff]", ink: "text-[#22164f]" },
-  { kind: "Pack audio", title: "Méditations du matin", meta: "MP3 · 10 pistes", cover: "from-[#2b1240] to-[#d9467a]", ink: "text-white" },
+  { kind: "E-book", title: "Vendre en ligne sans y passer tes nuits", meta: "PDF · 68 pages", price: "5 000 FCFA", cover: "from-[#0c1630] to-[#1d5bd8]", ink: "text-white", tilt: "lg:-rotate-2" },
+  { kind: "Formation", title: "Excel pour ton commerce, en 7 jours", meta: "12 vidéos", price: "15 000 FCFA", cover: "from-[#f6d7c3] to-[#f29d7a]", ink: "text-[#3b1d10]", tilt: "lg:rotate-[1.5deg]" },
+  { kind: "Pack de templates", title: "30 visuels pour tes réseaux", meta: "Canva · PNG", price: "7 500 FCFA", cover: "from-[#1f3b2d] to-[#4f8a6b]", ink: "text-white", tilt: "lg:-rotate-1" },
+  { kind: "Guide gratuit", title: "La checklist du premier lancement", meta: "PDF · 6 pages", price: "Gratuit", cover: "from-[#ece7ff] to-[#b9a8ff]", ink: "text-[#22164f]", tilt: "lg:rotate-2" },
+  { kind: "Pack audio", title: "Méditations du matin", meta: "MP3 · 10 pistes", price: "3 000 FCFA", cover: "from-[#2b1240] to-[#d9467a]", ink: "text-white", tilt: "lg:-rotate-[1.5deg]" },
 ];
 
 const FAQ = [
   {
-    q: "Maketia encaisse-t-il l’argent de mes ventes ?",
-    a: "Non. L’acheteur paie avec ton lien de paiement SasPay, directement sur ton compte. Maketia ne prend aucun pourcentage et ne te demande jamais ta clé API SasPay.",
+    q: "Combien ça coûte ?",
+    a: "Tu peux commencer gratuitement, sans carte bancaire : une page et un produit. Les plans payants servent à vendre plus de produits ; leurs prix sont affichés sur cette page dès qu’ils sont ouverts. Dans tous les cas, Maketia ne prend aucun pourcentage sur tes ventes.",
   },
   {
-    q: "Quand l’acheteur reçoit-il son fichier ?",
-    a: "Une fois le paiement confirmé, jamais avant. Aujourd’hui, tu confirmes le paiement reçu dans ton espace, et Maketia crée un lien de téléchargement privé, limité dans le temps et en nombre de téléchargements. Un retour sur une page de succès ne suffit pas à valider une vente.",
+    q: "Maketia encaisse-t-il l’argent de mes ventes ?",
+    a: "Non. Ton client paie avec ton lien de paiement SasPay, directement sur ton compte. Maketia ne voit pas passer ton argent et ne te demande jamais ta clé API SasPay.",
+  },
+  {
+    q: "Quand mon client reçoit-il son fichier ?",
+    a: "Dès que tu as confirmé son paiement. Tu vois l’argent arriver sur ton compte SasPay, tu confirmes la vente dans ton espace, Maketia crée un lien de téléchargement privé et tu l’envoies sur WhatsApp en un geste (ou par SMS, ou par e-mail). Aucun fichier ne part sur une simple capture d’écran ou un retour de page.",
+  },
+  {
+    q: "Pourquoi la confirmation n’est-elle pas automatique ?",
+    a: "Parce qu’on ne livre jamais un fichier sur une information qu’on ne peut pas vérifier. La confirmation automatique arrivera quand les notifications de paiement SasPay pourront être vérifiées de façon fiable. D’ici là, c’est toi qui gardes la main.",
+  },
+  {
+    q: "Ai-je besoin d’un compte SasPay ?",
+    a: "Oui : c’est sur ton compte SasPay que ton client paie. Tu crées ton lien de paiement chez SasPay, puis tu le colles dans Maketia pour ton produit.",
   },
   {
     q: "Faut-il savoir coder ?",
-    a: "Non. Tu choisis un modèle, tu remplis les sections, tu vérifies l’aperçu sur téléphone et tu publies.",
+    a: "Non. Tu choisis un modèle, tu remplis les sections, tu regardes l’aperçu sur téléphone et tu publies.",
   },
   {
-    q: "Les agents IA sont-ils intégrés au produit ?",
-    a: "Non, Maketia n’exécute aucun modèle d’IA. Tu peux connecter ton propre agent par MCP : il travaille avec tes droits, chaque modification devient une version que tu peux restaurer, et une publication demandée par un agent attend ton approbation.",
+    q: "Puis-je arrêter quand je veux ?",
+    a: "Oui. Tu peux exporter tes contacts et supprimer ton compte toi-même, depuis tes réglages.",
   },
   {
-    q: "Puis-je utiliser mon propre domaine ?",
+    q: "Puis-je utiliser mon propre nom de domaine ?",
     a: "Oui. Tu ajoutes ton domaine, tu prouves qu’il t’appartient avec un enregistrement DNS, puis tes pages y sont servies. Le nombre de domaines dépend de ton plan.",
+  },
+  {
+    q: "Et l’intelligence artificielle ?",
+    a: "Maketia n’intègre aucune IA. Si tu le souhaites, tu peux connecter ton propre assistant (Claude, par exemple) : il peut proposer des modifications de tes pages, et rien n’est publié sans ton accord.",
   },
 ];
 
@@ -81,22 +101,30 @@ export default async function Home() {
   const plans = await activePlans();
   return (
     <div className="overflow-x-clip bg-bg text-fg">
+      <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2">
+        Aller au contenu
+      </a>
       <Header />
-      <main>
+      <main id="contenu">
         <Hero />
         <Showcase />
+        <BeforeAfter />
         <Journey />
+        <BuyerView />
         <Features />
-        <EditorSection />
+        <ForWho />
         <Pricing plans={plans} />
         <Faq />
         <FinalCall />
       </main>
+      <MobileBar />
     </div>
   );
 }
 
-const hover = "[@media(hover:hover)_and_(pointer:fine)]:hover";
+// White call to action on the night panels (not the accent: it must stand out from the blue glow).
+const ctaOnNight = `pressable inline-flex h-12 select-none items-center justify-center gap-2 rounded-full bg-white px-6 text-[15px] font-medium whitespace-nowrap text-[#0c1630] [@media(hover:hover)_and_(pointer:fine)]:hover:bg-white/90`;
+const ctaPrimary = buttonClass("primary", "h-12 rounded-full px-6 text-[15px] shadow-[0_10px_24px_-10px_rgb(29_91_216/0.7)]");
 
 function Logo({ className = "" }: { className?: string }) {
   return (
@@ -108,24 +136,26 @@ function Logo({ className = "" }: { className?: string }) {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-bg/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border/60 bg-bg/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href="/" aria-label="Maketia, accueil">
+        <Link href="/" aria-label="Maketia, accueil" className="flex h-11 items-center">
           <Logo className="text-xl" />
         </Link>
         <nav aria-label="Sections de la page" className="hidden items-center gap-7 text-sm text-muted md:flex">
-          <a href="#parcours" className={`${hover}:text-fg`}>Le parcours</a>
-          <a href="#editeur" className={`${hover}:text-fg`}>L’éditeur</a>
-          <a href="#tarifs" className={`${hover}:text-fg`}>Tarifs</a>
-          <a href="#faq" className={`${hover}:text-fg`}>FAQ</a>
+          <a href="#comment" className={`[@media(hover:hover)_and_(pointer:fine)]:hover:text-fg`}>Comment ça marche</a>
+          <a href="#client" className={`[@media(hover:hover)_and_(pointer:fine)]:hover:text-fg`}>Ce que voit ton client</a>
+          <a href="#tarifs" className={`[@media(hover:hover)_and_(pointer:fine)]:hover:text-fg`}>Tarifs</a>
+          <a href="#faq" className={`[@media(hover:hover)_and_(pointer:fine)]:hover:text-fg`}>Questions</a>
         </nav>
         <div className="flex items-center gap-1">
-          <Link href="/connexion" className={buttonClass("ghost", "hidden sm:inline-flex")}>
+          <Link href="/connexion" className={buttonClass("ghost", "h-11 px-3")}>
             Connexion
           </Link>
-          <Link href="/inscription" className={buttonClass("primary", "h-10 rounded-full px-4")}>
-            Commencer <Arrow />
-          </Link>
+          <span className="hidden sm:contents">
+            <Link href="/inscription" className={buttonClass("primary", "h-11 rounded-full px-5")}>
+              Créer ma page
+            </Link>
+          </span>
         </div>
       </div>
     </header>
@@ -134,40 +164,35 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="relative">
-      {/* Soft color glow behind the mock-up (Enblox), plus a faint grid fading downward. */}
+    <section className="relative" aria-labelledby="hero-title">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)] opacity-50" />
-        <div className="absolute top-24 right-[-10%] size-[520px] rounded-full bg-blue-500/25 blur-[110px] lg:right-[2%]" />
-        <div className="absolute top-72 right-[20%] size-[300px] rounded-full bg-violet-400/20 blur-[100px]" />
+        {/* One soft glow, kept away from the text column (contrast) and cheap on low-end phones. */}
+        <div className="absolute top-40 right-[-20%] hidden size-[520px] rounded-full bg-blue-500/20 blur-[90px] lg:block" />
       </div>
-      <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pt-12 pb-20 sm:px-6 lg:grid-cols-[1fr_1.08fr] lg:pt-20 lg:pb-28">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pt-10 pb-16 sm:px-6 lg:grid-cols-[1.08fr_1fr] lg:pt-20 lg:pb-24">
         <div className="flex flex-col gap-6">
-          <p className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface/80 px-3 py-1 text-xs font-medium text-muted shadow-raised">
+          <p className="rise inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] font-medium text-fg shadow-raised">
             <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-            Pour les créateurs de produits numériques
+            Pour les créateurs d’Afrique francophone · paiement SasPay en FCFA
           </p>
-          <h1 className="text-[2.7rem] leading-[1.02] font-semibold tracking-[-0.03em] text-balance sm:text-[4rem]">
-            Ta page de vente, montée en{" "}
-            <span className="font-serif text-[1.08em] font-normal tracking-normal text-accent italic">dix minutes.</span>
+          <h1 id="hero-title" className="rise text-[2.6rem] leading-[1.02] font-semibold tracking-[-0.035em] text-balance [--d:60ms] sm:text-[4.25rem] lg:text-[4.6rem]">
+            Vends ton e‑book ou ta formation,{" "}
+            <span className="font-serif text-[1.06em] font-normal tracking-normal text-accent italic">sans y passer tes nuits.</span>
           </h1>
-          <p className="max-w-xl text-base text-muted text-pretty sm:text-lg">
-            E-books, formations, templates, packs : construis ta landing page, branche ton lien de paiement SasPay et
-            laisse Maketia livrer le fichier après confirmation du paiement. Sans code, sans développeur.
+          <p className="rise max-w-xl text-[17px] leading-relaxed text-fg/80 text-pretty [--d:120ms] sm:text-lg">
+            Une belle page pour ton produit, ton lien SasPay pour encaisser sur ton compte, et un lien de téléchargement privé
+            pour ton client dès que tu as vu l’argent arriver. Pas de code. <strong className="font-semibold text-fg">0 % de commission.</strong>
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/inscription" className={buttonClass("primary", "h-12 rounded-full px-6 text-[15px] shadow-[0_10px_24px_-10px_rgb(29_91_216/0.7)]")}>
-              Créer ma première page <Arrow />
+          <div className="rise flex flex-col gap-3 [--d:180ms] sm:flex-row sm:items-center">
+            <Link href="/inscription" className={ctaPrimary}>
+              Créer ma page gratuitement <Arrow />
             </Link>
-            <a href="#parcours" className={buttonClass("secondary", "h-12 rounded-full px-6 text-[15px]")}>
-              Voir comment ça marche
+            <a href="#comment" className={`inline-flex h-12 items-center gap-1 px-2 text-[15px] font-medium text-fg [@media(hover:hover)_and_(pointer:fine)]:hover:text-accent`}>
+              Voir comment ça marche <span aria-hidden="true">↓</span>
             </a>
           </div>
-          <ul className="mt-2 grid gap-3 text-sm text-muted sm:grid-cols-3">
-            <li className="flex items-start gap-2"><Mini icon="spark" /> Aucune compétence technique</li>
-            <li className="flex items-start gap-2"><Mini icon="shield" /> Paiement sur ton compte SasPay</li>
-            <li className="flex items-start gap-2"><Mini icon="file" /> Livraison après confirmation</li>
-          </ul>
+          <p className="rise -mt-2 text-[13px] text-muted [--d:220ms]">Plan gratuit · sans carte bancaire · tu publies quand tu es prêt(e)</p>
         </div>
         <HeroMock />
       </div>
@@ -175,63 +200,76 @@ function Hero() {
   );
 }
 
-/** Editor window with an overlapping phone preview (NIVO). Illustration only. */
+/** The buyer's phone on a blue block (PlutoPay), with the editor window behind on wide screens. */
 function HeroMock() {
   return (
-    <figure className="relative mx-auto w-full max-w-[600px] pb-10 lg:mx-0" aria-label="Illustration de l’éditeur Maketia, avec l’aperçu mobile">
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_40px_80px_-30px_rgb(12_22_48/0.45)]" aria-hidden="true">
-        <div className="flex items-center gap-3 border-b border-border px-4 py-2.5">
-          <span className="flex gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-            <span className="size-2.5 rounded-full bg-[#febc2e]" />
-            <span className="size-2.5 rounded-full bg-[#28c840]" />
-          </span>
-          <Logo className="text-sm" />
-          <span className="ml-auto rounded-full border border-border px-2 py-0.5 text-[10px] text-muted">Aperçu</span>
-          <span className="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium text-accent-fg">Publier</span>
-        </div>
-        <div className="grid grid-cols-[92px_1fr] sm:grid-cols-[118px_1fr]">
-          <ul className="flex flex-col gap-1 border-r border-border bg-surface-sunken p-2 text-[10.5px] text-muted">
-            <li className="px-2 pt-1 pb-1.5 text-[9.5px] font-semibold tracking-wider uppercase">Sections</li>
-            {["Accroche", "Bénéfices", "Contenu", "Avis", "Prix", "FAQ"].map((s, i) => (
-              <li key={s} className={`rounded-md px-2 py-1.5 ${i === 0 ? "bg-surface font-medium text-fg shadow-raised ring-1 ring-accent/40" : ""}`}>{s}</li>
-            ))}
-          </ul>
-          <div className="flex items-center gap-4 p-4 sm:p-6">
-            <div className="flex min-w-0 flex-1 flex-col gap-2.5 sm:pr-32">
-              <p className="text-[9.5px] font-semibold tracking-[0.14em] text-accent uppercase">Guide PDF · 68 pages</p>
-              <p className="text-[15px] leading-tight font-semibold tracking-tight sm:text-lg">Vendre en ligne sans y passer tes nuits.</p>
-              <p className="text-[11px] text-muted">La méthode complète pour lancer ta première offre.</p>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full bg-accent px-3 py-1.5 text-[10.5px] font-medium text-accent-fg">Obtenir le guide</span>
-                <span className="text-[11px] font-semibold">9 900 FCFA</span>
-              </div>
+    <figure className="rise relative mx-auto w-full max-w-[560px] [--d:240ms] lg:mx-0" aria-label="Illustration : une page de vente Maketia sur téléphone, et l’éditeur">
+      <div className="relative h-[430px] sm:h-[470px]" aria-hidden="true">
+        {/* Editor window, wide screens only. */}
+        <div className="absolute top-0 left-0 hidden w-[78%] overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_30px_70px_-30px_rgb(12_22_48/0.45)] sm:block">
+          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+            <span className="flex gap-1.5">
+              <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+              <span className="size-2.5 rounded-full bg-[#febc2e]" />
+              <span className="size-2.5 rounded-full bg-[#28c840]" />
+            </span>
+            <Logo className="text-xs" />
+            <span className="ml-auto rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-medium text-accent-fg">Publier</span>
+          </div>
+          <div className="grid grid-cols-[104px_1fr]">
+            <ul className="flex flex-col gap-1 border-r border-border bg-surface-sunken p-2 text-[11px] text-muted">
+              <li className="px-2 pt-1 pb-1 text-[10px] font-semibold tracking-wider uppercase">Sections</li>
+              {["Accroche", "Contenu", "Avis", "Prix", "Questions"].map((s, i) => (
+                <li key={s} className={`rounded-md px-2 py-1.5 ${i === 0 ? "bg-surface font-medium text-fg shadow-raised ring-1 ring-accent/40" : ""}`}>{s}</li>
+              ))}
+            </ul>
+            <div className="flex flex-col gap-2.5 p-4 pr-20">
+              <span className="h-2 w-16 rounded-full bg-accent/40" />
+              <span className="h-3 w-full rounded bg-fg/80" />
+              <span className="h-3 w-4/5 rounded bg-fg/80" />
+              <span className="mt-1 h-2 w-full rounded bg-border" />
+              <span className="h-2 w-11/12 rounded bg-border" />
+              <span className="h-2 w-3/4 rounded bg-border" />
+              <span className="mt-2 h-6 w-24 rounded-full bg-accent" />
             </div>
           </div>
         </div>
+        {/* Blue block + phone. */}
+        <div className="absolute right-[8%] bottom-0 h-[78%] w-[62%] rounded-[32px] bg-accent sm:right-0 sm:w-[48%]" />
+        <div className="absolute right-[16%] bottom-6 w-[220px] overflow-hidden rounded-[30px] border-[6px] border-[#0c1630] bg-white shadow-[0_30px_60px_-20px_rgb(12_22_48/0.6)] sm:right-[6%] dark:border-white/20">
+          <div className="flex flex-col gap-2 p-3 text-[#1c1b19]">
+            <div className="mx-auto h-1 w-12 rounded-full bg-[#e3e0d9]" />
+            <BookCover className="mx-auto mt-1 w-[92px]" />
+            <p className="text-center text-[10px] font-semibold tracking-wider text-[#1d5bd8] uppercase">E-book · 68 pages</p>
+            <p className="text-center text-[15px] leading-tight font-semibold">Vendre en ligne sans y passer tes nuits</p>
+            <ul className="flex flex-col gap-1 text-[11px] text-[#55524c]">
+              <li>✓ La méthode pas à pas</li>
+              <li>✓ 12 modèles de messages</li>
+            </ul>
+            <p className="text-center text-lg font-semibold tabular-nums">5 000 FCFA</p>
+            <span className="rounded-full bg-[#1d5bd8] py-2 text-center text-[12px] font-medium text-white">Acheter</span>
+            <p className="text-center text-[10px] text-[#6b6862]">Paiement via SasPay</p>
+          </div>
+        </div>
+        {/* A true event of the product: the creator confirms, the link goes out on WhatsApp. */}
+        <div className="absolute top-4 left-0 flex items-center gap-2 rounded-2xl sm:top-auto sm:bottom-10 border border-border bg-surface px-3 py-2.5 shadow-[0_16px_36px_-14px_rgb(12_22_48/0.4)]">
+          <span className="grid size-8 place-items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">{ICONS.check}</span>
+          <span className="flex flex-col">
+            <span className="text-[13px] font-semibold">Paiement confirmé</span>
+            <span className="text-[12px] text-muted">Lien envoyé sur WhatsApp</span>
+          </span>
+        </div>
       </div>
-      {/* Phone preview, overlapping the window's corner. */}
-      <div className="absolute right-[-6px] bottom-0 hidden w-[132px] sm:block rounded-[26px] border-[5px] border-[#0c1630] bg-surface p-2 shadow-[0_30px_60px_-20px_rgb(12_22_48/0.55)] sm:right-[-26px] sm:w-[150px]" aria-hidden="true">
-        <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
-        <BookCover className="mx-auto w-16" />
-        <p className="mt-2 text-center text-[10px] leading-tight font-semibold">Vendre en ligne sans y passer tes nuits.</p>
-        <span className="mt-2 block rounded-full bg-accent py-1 text-center text-[9px] font-medium text-accent-fg">Obtenir le guide</span>
-        <p className="mt-1.5 text-center text-[8.5px] text-muted">Paiement sécurisé SasPay</p>
-      </div>
-      <div className="absolute bottom-3 left-[-8px] rounded-xl border border-border bg-surface px-3 py-2 shadow-[0_16px_36px_-14px_rgb(12_22_48/0.4)] sm:left-[-28px]" aria-hidden="true">
-        <p className="text-[9.5px] tracking-wider text-muted uppercase">Conversion</p>
-        <p className="text-lg font-semibold tabular-nums">4,8 %</p>
-      </div>
-      <figcaption className="absolute -bottom-6 left-0 text-[11px] text-muted">Illustration — chiffres d’exemple.</figcaption>
+      <figcaption className="sr-only">Illustration, produit et prix inventés.</figcaption>
     </figure>
   );
 }
 
 function BookCover({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative aspect-[3/4] overflow-hidden rounded-[4px] bg-gradient-to-b from-[#0c1630] to-[#1d5bd8] shadow-[6px_8px_18px_-6px_rgb(12_22_48/0.6)] ${className}`}>
-      <span className="absolute top-2 left-2 text-[7px] font-semibold tracking-wider text-white/70 uppercase">Guide</span>
-      <span className="absolute top-5 left-2 right-2 text-[9px] leading-tight font-semibold text-white">Vendre en ligne</span>
+    <div className={`relative aspect-[3/4] overflow-hidden rounded-[5px] bg-gradient-to-b from-[#0c1630] to-[#1d5bd8] shadow-[6px_8px_18px_-6px_rgb(12_22_48/0.6)] ${className}`}>
+      <span className="absolute top-2 left-2 text-[8px] font-semibold tracking-wider text-white/75 uppercase">Guide</span>
+      <span className="absolute top-5 right-2 left-2 text-[11px] leading-tight font-semibold text-white">Vendre en ligne</span>
       <svg viewBox="0 0 60 30" className="absolute bottom-0 w-full text-white/85" fill="currentColor">
         <path d="M0 30 18 10l8 8 10-14 24 26z" />
       </svg>
@@ -240,29 +278,47 @@ function BookCover({ className = "" }: { className?: string }) {
 }
 
 function Eyebrow({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
-  return <p className={`text-xs font-semibold tracking-[0.16em] uppercase ${dark ? "text-sky-300" : "text-accent"}`}>{children}</p>;
+  return <p className={`text-[13px] font-semibold tracking-[0.14em] uppercase ${dark ? "text-sky-300" : "text-accent"}`}>{children}</p>;
 }
 
-/** What people sell with Maketia (Kit créateur's template strip). Scrolls sideways on phones. */
+function SectionTitle({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) {
+  return (
+    <h2 id={id} className={`reveal text-[2rem] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[2.9rem] ${className}`}>
+      {children}
+    </h2>
+  );
+}
+
+const serif = "font-serif font-normal tracking-normal italic";
+
+/** What people sell with Maketia: a tilted cover strip that scrolls sideways on phones. */
 function Showcase() {
   return (
     <section aria-labelledby="showcase-title" className="border-y border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[280px_1fr] lg:items-center">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[260px_1fr] lg:items-center">
         <div className="flex flex-col gap-2">
           <Eyebrow>Ce que tu peux vendre</Eyebrow>
           <h2 id="showcase-title" className="text-2xl font-semibold tracking-tight text-balance">
-            Un fichier, une page, <span className="font-serif text-[1.1em] font-normal italic">une vente.</span>
+            Un fichier, une page, <span className={`text-[1.1em] ${serif}`}>une vente.</span>
           </h2>
-          <p className="text-sm text-muted">Exemples de produits. Couvertures et titres inventés pour l’illustration.</p>
+          <p className="text-[15px] text-muted">Exemples : titres et prix inventés.</p>
         </div>
-        <ul className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-5 lg:overflow-visible">
+        <ul
+          tabIndex={0}
+          aria-label="Exemples de produits, à faire défiler"
+          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pt-2 pb-3 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-5 lg:overflow-visible"
+        >
           {SHOWCASE.map((p) => (
-            <li key={p.title} className="w-40 shrink-0 snap-start lg:w-auto">
+            <li key={p.title} className={`w-44 shrink-0 snap-start transition-transform duration-200 ease-[var(--ease-out)] lg:w-auto ${p.tilt} [@media(hover:hover)_and_(pointer:fine)]:hover:rotate-0 [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-1`}>
               <div className={`flex aspect-[3/4] flex-col justify-between rounded-xl bg-gradient-to-br p-3.5 shadow-[0_14px_30px_-16px_rgb(12_22_48/0.5)] ${p.cover} ${p.ink}`}>
-                <span className="text-[10px] font-semibold tracking-wider uppercase opacity-80">{p.kind}</span>
-                <span className="text-[15px] leading-tight font-semibold">{p.title}</span>
-                <span className="text-[10px] opacity-75">{p.meta}</span>
+                <span className="text-[12px] font-semibold tracking-wider uppercase">{p.kind}</span>
+                <span className="text-[16px] leading-tight font-semibold">{p.title}</span>
+                <span className="text-[12px]">{p.meta}</span>
               </div>
+              <p className="mt-2 flex items-center justify-between text-[13px]">
+                <span className="font-semibold tabular-nums">{p.price}</span>
+                <span className="text-accent">Acheter</span>
+              </p>
             </li>
           ))}
         </ul>
@@ -271,98 +327,202 @@ function Showcase() {
   );
 }
 
-/** The six steps, in a rounded night panel (PlutoPay). */
+function BeforeAfter() {
+  return (
+    <section aria-labelledby="avant-title" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+      <div className="flex max-w-3xl flex-col gap-3">
+        <Eyebrow>Avant / avec Maketia</Eyebrow>
+        <SectionTitle id="avant-title">
+          Vendre sur WhatsApp, tu connais. <span className={serif}>Voilà la différence.</span>
+        </SectionTitle>
+      </div>
+      <div className="reveal mt-10 grid overflow-hidden rounded-[24px] border border-border md:grid-cols-2">
+        <div className="bg-surface-sunken p-6 sm:p-8">
+          <h3 className="flex items-center gap-2 text-[15px] font-semibold text-muted">
+            <span className="grid size-6 place-items-center rounded-full bg-fg/10 text-[13px]" aria-hidden="true">✕</span>
+            Aujourd’hui, à la main
+          </h3>
+          <ul className="mt-5 flex flex-col gap-4 text-[15px] text-fg/75">
+            {BEFORE_AFTER.map(([before]) => <li key={before}>{before}</li>)}
+          </ul>
+        </div>
+        <div className="bg-night p-6 text-white sm:p-8">
+          <h3 className="flex items-center gap-2 text-[15px] font-semibold">
+            <span className="grid size-6 place-items-center rounded-full bg-sky-300 text-[13px] text-[#0c1630]" aria-hidden="true">✓</span>
+            Avec Maketia
+          </h3>
+          <ul className="mt-5 flex flex-col gap-4 text-[15px]">
+            {BEFORE_AFTER.map(([, after]) => <li key={after}>{after}</li>)}
+          </ul>
+        </div>
+      </div>
+      <p className="mt-5 text-[15px] text-muted">Tu gardes WhatsApp pour discuter. Maketia présente, encaisse sur ton compte et remet le fichier proprement.</p>
+    </section>
+  );
+}
+
+/** Four steps on a timeline inside the night panel, with the honest note about confirmation. */
 function Journey() {
   return (
-    <section id="parcours" aria-labelledby="parcours-title" className="scroll-mt-16 px-3 py-16 sm:px-6 lg:py-24">
-      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[28px] bg-night px-5 py-14 text-white sm:px-10 lg:px-14 lg:py-20">
-        <div aria-hidden="true" className="pointer-events-none absolute -top-40 right-[-10%] size-[520px] rounded-full bg-[#1d5bd8]/45 blur-[120px]" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/2 size-[640px] -translate-x-1/2 rounded-full border border-white/5" />
-        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex flex-col gap-3">
-            <Eyebrow dark>Le parcours</Eyebrow>
-            <h2 id="parcours-title" className="text-3xl font-semibold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.1]">
-              De l’idée au fichier livré, <span className="font-serif font-normal text-sky-300 italic">six étapes.</span>
-            </h2>
-          </div>
-          <p className="max-w-xs text-sm text-white/65">
-            Chaque étape est visible dans ton espace. Rien n’est présenté comme fait tant que ce n’est pas configuré.
-          </p>
+    <section id="comment" aria-labelledby="comment-title" className="scroll-mt-16 px-3 pb-16 sm:px-6 lg:pb-24">
+      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[28px] bg-night px-5 py-14 text-white ring-1 ring-white/10 sm:px-10 lg:px-14 lg:py-20">
+        <div aria-hidden="true" className="pointer-events-none absolute -top-40 right-[-10%] size-[460px] rounded-full bg-[#1d5bd8]/40 blur-[100px]" />
+        <div className="relative flex flex-col gap-3">
+          <Eyebrow dark>Comment ça marche</Eyebrow>
+          <SectionTitle id="comment-title">
+            De ton fichier à ta première vente, <span className={`text-sky-300 ${serif}`}>en 4 étapes.</span>
+          </SectionTitle>
         </div>
-        <ol className="relative mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="relative mt-12 grid gap-8 border-l border-white/15 pl-6 lg:grid-cols-4 lg:gap-6 lg:border-t lg:border-l-0 lg:pt-8 lg:pl-0">
           {STEPS.map((s, i) => (
-            <li key={s.title} className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <span className="font-mono text-xs text-sky-300 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+            <li key={s.title} className="reveal relative flex flex-col gap-2">
+              <span className="absolute top-0.5 -left-[37px] grid size-6 place-items-center rounded-full bg-sky-300 font-mono text-[12px] font-semibold text-[#0c1630] lg:-top-[45px] lg:left-0">
+                {i + 1}
+              </span>
               <h3 className="text-lg font-semibold">{s.title}</h3>
-              <p className="text-sm text-white/65">{s.text}</p>
+              <p className="text-[15px] text-white/75">{s.text}</p>
             </li>
           ))}
         </ol>
+        <div className="relative mt-12 rounded-2xl border border-white/15 bg-white/[0.05] p-5 text-[15px] text-white/85">
+          <strong className="font-semibold text-white">Aujourd’hui, c’est toi qui confirmes chaque paiement.</strong> C’est voulu : aucun fichier ne
+          part sur une simple capture d’écran ou un faux retour de paiement. La confirmation automatique arrivera quand les notifications SasPay
+          pourront être vérifiées de façon fiable.
+        </div>
+        <div className="relative mt-8">
+          <Link href="/inscription" className={ctaOnNight}>
+            Créer ma page gratuitement <Arrow />
+          </Link>
+        </div>
       </div>
+    </section>
+  );
+}
+
+/** The buyer's side, from the click to the download (illustrations). */
+function BuyerView() {
+  const phones = [
+    {
+      label: "1. Ta page",
+      body: (
+        <>
+          <BookCover className="mx-auto w-16" />
+          <p className="text-center text-[12px] leading-tight font-semibold">Vendre en ligne sans y passer tes nuits</p>
+          <p className="text-center text-[13px] font-semibold tabular-nums">5 000 FCFA</p>
+          <span className="rounded-full bg-[#1d5bd8] py-1.5 text-center text-[11px] font-medium text-white">Acheter</span>
+        </>
+      ),
+    },
+    {
+      label: "2. Le paiement SasPay",
+      body: (
+        <>
+          <p className="text-center text-[11px] text-[#6b6862]">Paiement par</p>
+          <p className="text-center text-[15px] font-semibold">SasPay</p>
+          <div className="flex flex-col gap-1.5 rounded-lg border border-[#e3e0d9] p-2">
+            <span className="h-2 w-2/3 rounded bg-[#e3e0d9]" />
+            <span className="h-6 rounded bg-[#f0eee9]" />
+            <span className="h-6 rounded bg-[#f0eee9]" />
+          </div>
+          <span className="rounded-full bg-[#1c1b19] py-1.5 text-center text-[11px] font-medium text-white">Payer 5 000 FCFA</span>
+        </>
+      ),
+    },
+    {
+      label: "3. Son lien, sur WhatsApp",
+      body: (
+        <div className="flex flex-col gap-1.5 rounded-xl bg-[#e7f6e7] p-2 text-[10.5px] leading-snug text-[#14301c]">
+          <p>Bonjour Awa,</p>
+          <p>merci pour votre achat. Voici votre lien de téléchargement (valable 7 jours) :</p>
+          <p className="break-all text-[#1d5bd8] underline">…/telechargement/aB3x…</p>
+        </div>
+      ),
+    },
+  ];
+  return (
+    <section id="client" aria-labelledby="client-title" className="mx-auto max-w-6xl scroll-mt-16 px-4 py-16 sm:px-6 lg:py-24">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
+        <Eyebrow>Ce que vit ton client</Eyebrow>
+        <SectionTitle id="client-title">
+          Du clic au téléchargement, <span className={serif}>tout est clair.</span>
+        </SectionTitle>
+      </div>
+      <ol className="mt-12 grid gap-6 sm:grid-cols-3">
+        {phones.map((p, i) => (
+          <li key={p.label} className="reveal flex flex-col items-center gap-4">
+            <div className={`w-[190px] rounded-[26px] border-[5px] border-[#0c1630] bg-white p-3 shadow-[0_24px_48px_-20px_rgb(12_22_48/0.5)] dark:border-white/20 ${i === 1 ? "sm:-translate-y-4" : ""}`} aria-hidden="true">
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#e3e0d9]" />
+              <div className="flex min-h-[200px] flex-col justify-center gap-2 text-[#1c1b19]">{p.body}</div>
+            </div>
+            <p className="text-[15px] font-semibold">{p.label}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-6 text-center text-[13px] text-muted">Illustrations. L’écran de paiement est celui de SasPay et peut différer.</p>
     </section>
   );
 }
 
 function Features() {
   return (
-    <section aria-labelledby="features-title" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:pb-28">
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
-        <Eyebrow>Tout ce dont tu as besoin</Eyebrow>
-        <h2 id="features-title" className="text-3xl font-semibold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.1]">
-          Tout ce qu’il faut pour vendre un fichier, <span className="font-serif font-normal italic">rien de plus.</span>
-        </h2>
+    <section aria-labelledby="features-title" className="border-y border-border bg-surface-sunken">
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+        <div className="flex max-w-2xl flex-col gap-3">
+          <Eyebrow>Tout ce qu’il faut</Eyebrow>
+          <SectionTitle id="features-title">
+            Pour vendre un fichier, <span className={serif}>rien de plus.</span>
+          </SectionTitle>
+        </div>
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f) => (
+            <li key={f.title} className={`reveal flex flex-col gap-3 rounded-[20px] border border-border bg-surface p-6 shadow-raised ${f.wide ? "lg:col-span-2" : ""}`}>
+              <span className={`grid size-11 place-items-center rounded-xl ${f.tint}`} aria-hidden="true">
+                {ICONS[f.icon]}
+              </span>
+              <h3 className="text-[17px] font-semibold">{f.title}</h3>
+              <p className="text-[15px] text-muted">{f.text}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-[15px] text-muted">
+          Pour aller plus loin : tests A/B entre deux versions de ta page, et connexion de ton propre assistant IA, avec ton accord avant toute
+          publication.
+        </p>
       </div>
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map((f) => (
-          <li key={f.title} className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6 shadow-raised">
-            <span className={`grid size-10 place-items-center rounded-xl ${f.tint}`} aria-hidden="true">
-              {ICONS[f.icon]}
-            </span>
-            <h3 className="font-semibold">{f.title}</h3>
-            <p className="text-sm text-muted">{f.text}</p>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
 
-function EditorSection() {
+function ForWho() {
+  const yes = [
+    "Tu vends, ou veux vendre, un e-book, une formation, des templates, un pack audio ou vidéo.",
+    "Tu encaisses en FCFA et tu as, ou peux ouvrir, un compte SasPay.",
+    "Tu en as assez de répéter les mêmes infos en message privé.",
+    "Tu veux une page qui inspire confiance sans payer un développeur.",
+  ];
+  const notYet = [
+    "Tu vends des produits physiques à livrer.",
+    "Tu veux que tout se fasse seul, sans jamais confirmer un paiement : la confirmation est manuelle pour l’instant.",
+    "Tu dois encaisser hors SasPay.",
+  ];
   return (
-    <section id="editeur" aria-labelledby="editeur-title" className="scroll-mt-16 border-y border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-24">
-        <div className="flex flex-col gap-4">
-          <Eyebrow>L’éditeur</Eyebrow>
-          <h2 id="editeur-title" className="text-3xl font-semibold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.1]">
-            Un éditeur manuel, <span className="font-serif font-normal italic">pas une boîte noire.</span>
-          </h2>
-          <p className="text-muted text-pretty">
-            Pas de génération automatique, pas de prompt à écrire. Tu ajoutes une section, tu la remplis, tu la déplaces.
-            Ce que tu vois est ce que l’acheteur verra.
-          </p>
-          <ul className="flex flex-col gap-2.5 text-sm">
-            {[
-              "Sections prêtes à remplir : bénéfices, produit, contenu, avis, FAQ, paiement",
-              "Aperçu ordinateur et mobile en un clic",
-              "Chaque modification crée une version que tu peux restaurer",
-              "Une revue avant publication : rien ne part en ligne par accident",
-            ].map((t) => (
-              <li key={t} className="flex gap-2.5"><Check className="mt-0.5 shrink-0" /> {t}</li>
-            ))}
+    <section aria-labelledby="pourqui-title" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+      <SectionTitle id="pourqui-title" className="max-w-2xl">
+        Maketia est fait pour toi <span className={serif}>si…</span>
+      </SectionTitle>
+      <div className="mt-10 grid gap-4 md:grid-cols-[1.4fr_1fr]">
+        <div className="reveal rounded-[20px] border border-border bg-surface p-6 shadow-raised sm:p-8">
+          <h3 className="text-[15px] font-semibold text-emerald-700 dark:text-emerald-300">Oui, si</h3>
+          <ul className="mt-4 flex flex-col gap-3 text-[15px]">
+            {yes.map((t) => <li key={t} className="flex gap-2.5"><Check className="mt-0.5 shrink-0" /> {t}</li>)}
           </ul>
-          <Link href="/inscription" className={`mt-2 w-fit text-sm font-medium text-accent ${hover}:underline`}>
-            Ouvrir mon espace <span aria-hidden="true">→</span>
-          </Link>
         </div>
-        <ol className="flex flex-col gap-2" aria-label="Exemple d’ordre des sections">
-          {SECTION_FAMILIES.map((s, i) => (
-            <li key={s} className={`flex items-center gap-3 rounded-xl border bg-bg px-4 py-3 text-sm ${i === 1 ? "border-accent/50 shadow-[0_10px_24px_-14px_rgb(29_91_216/0.6)] sm:translate-x-3" : "border-border"}`}>
-              <span className="font-mono text-xs text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-              <span className="font-medium">{s}</span>
-              <span className="ml-auto text-muted" aria-hidden="true">⋮⋮</span>
-            </li>
-          ))}
-        </ol>
+        <div className="reveal rounded-[20px] border border-dashed border-border-strong p-6 sm:p-8">
+          <h3 className="text-[15px] font-semibold text-muted">Pas encore, si</h3>
+          <ul className="mt-4 flex flex-col gap-3 text-[15px] text-fg/75">
+            {notYet.map((t) => <li key={t} className="flex gap-2.5"><span aria-hidden="true" className="text-muted">–</span> {t}</li>)}
+          </ul>
+        </div>
       </div>
     </section>
   );
@@ -370,72 +530,70 @@ function EditorSection() {
 
 type PlanRow = Awaited<ReturnType<typeof listActivePlans>>[number];
 
+/** "0 %" is the most selling true fact: it gets the page's big typographic moment (GAZU). */
 function Pricing({ plans }: { plans: PlanRow[] }) {
-  const highlighted = plans.length > 2 ? plans[1].id : null;
+  // Only plans whose price is set are shown; a "to be defined" card sells nothing.
+  const priced = plans.filter((p) => p.priceMonthly !== null);
   return (
-    <section id="tarifs" aria-labelledby="tarifs-title" className="mx-auto max-w-6xl scroll-mt-16 px-4 py-20 sm:px-6 lg:py-28">
-      <div className="flex max-w-2xl flex-col gap-3">
-        <Eyebrow>Tarifs</Eyebrow>
-        <h2 id="tarifs-title" className="text-3xl font-semibold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.1]">
-          Un abonnement pour l’outil. <span className="font-serif font-normal italic">Tes ventes restent à toi.</span>
-        </h2>
-        <p className="text-muted">
-          Maketia ne prend aucun pourcentage sur tes ventes : les paiements arrivent directement sur ton compte SasPay.
+    <section id="tarifs" aria-labelledby="tarifs-title" className="scroll-mt-16 px-3 pb-16 sm:px-6 lg:pb-24">
+      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[28px] bg-night px-5 py-14 text-white ring-1 ring-white/10 sm:px-10 lg:px-14 lg:py-20">
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 left-[-10%] size-[460px] rounded-full bg-[#1d5bd8]/40 blur-[100px]" />
+        <div className="relative grid items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-14">
+          <p className="reveal font-serif text-[7rem] leading-none text-sky-300 italic sm:text-[10rem]" aria-hidden="true">0 %</p>
+          <div className="flex flex-col gap-4">
+            <Eyebrow dark>Tarifs</Eyebrow>
+            <h2 id="tarifs-title" className="reveal text-[2rem] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[2.6rem]">
+              0 % de commission. <span className={`text-sky-300 ${serif}`}>Tes ventes restent à toi.</span>
+            </h2>
+            <p className="max-w-xl text-[15px] text-white/75">
+              Tu paies l’outil, jamais un pourcentage sur tes ventes. Que tu vendes 1 ou 1 000 e-books, Maketia ne prend rien dessus. Commence
+              gratuitement, sans carte bancaire.
+            </p>
+            <div>
+              <Link href="/inscription" className={ctaOnNight}>
+                Commencer gratuitement <Arrow />
+              </Link>
+            </div>
+          </div>
+        </div>
+        {priced.length > 0 && (
+          <ul className="relative mt-12 grid gap-3 md:grid-cols-3">
+            {priced.map((p) => (
+              <li key={p.id} className="flex flex-col gap-1 rounded-2xl border border-white/15 bg-white/[0.05] p-5">
+                <h3 className="font-semibold">{p.name}</h3>
+                <p className="text-2xl font-semibold tracking-tight tabular-nums">{planPrice(p)}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="relative mt-8 text-[13px] text-white/70">
+          {priced.length > 0
+            ? "Le paiement en ligne des abonnements n’est pas encore ouvert : les plans payants sont activés par l’équipe Maketia."
+            : "Les prix des plans payants seront affichés ici à leur ouverture."}
         </p>
       </div>
-      {plans.length === 0 ? (
-        <p className="mt-10 rounded-2xl border border-border bg-surface p-6 text-sm text-muted">Les tarifs seront publiés ici prochainement.</p>
-      ) : (
-        <ul className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {plans.map((p) => {
-            const top = p.id === highlighted;
-            return (
-              <li key={p.id} className={`relative flex flex-col gap-4 rounded-2xl border bg-surface p-6 ${top ? "border-accent shadow-[0_20px_50px_-24px_rgb(29_91_216/0.5)]" : "border-border shadow-raised"}`}>
-                {top && <span className="absolute -top-3 left-6 rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-semibold text-accent-fg">Le plus choisi</span>}
-                <h3 className="font-semibold">{p.name}</h3>
-                <p className="text-2xl font-semibold tracking-tight">{planPrice(p)}</p>
-                <ul className="flex flex-col gap-1.5 text-sm text-muted">
-                  {(Object.keys(QUOTA_LABELS) as QuotaKey[]).map((k) => (
-                    <li key={k} className="flex gap-2">
-                      <Check className="mt-0.5 shrink-0" />
-                      {QUOTA_LABELS[k]} : {p.limits[k] === null || p.limits[k] === undefined ? "illimité" : count(p.limits[k]!)}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/inscription" className={buttonClass(top ? "primary" : "secondary", "mt-auto rounded-full")}>
-                  Commencer
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      <p className="mt-6 text-xs text-muted">
-        Le paiement en ligne des abonnements n’est pas encore ouvert : les plans payants sont activés par l’équipe Maketia.
-      </p>
     </section>
   );
 }
 
-/** Heading on the left, questions on the right (Kit créateur). */
 function Faq() {
   return (
-    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-16 border-t border-border">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.5fr] lg:py-24">
+    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-16">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.5fr] lg:py-24">
         <div className="flex flex-col gap-3">
-          <Eyebrow>FAQ</Eyebrow>
-          <h2 id="faq-title" className="text-3xl font-semibold tracking-tight text-balance sm:text-[2.75rem] sm:leading-[1.1]">
-            Les questions qu’on nous pose <span className="font-serif font-normal italic">vraiment.</span>
-          </h2>
+          <Eyebrow>Questions fréquentes</Eyebrow>
+          <SectionTitle id="faq-title">
+            Ce que tu te demandes <span className={serif}>sûrement.</span>
+          </SectionTitle>
         </div>
         <div className="divide-y divide-border border-y border-border">
           {FAQ.map((item) => (
             <details key={item.q} className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-medium [&::-webkit-details-marker]:hidden">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 text-[16px] font-medium [&::-webkit-details-marker]:hidden">
                 {item.q}
-                <span className="grid size-7 shrink-0 place-items-center rounded-full border border-border text-muted transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-45" aria-hidden="true">+</span>
+                <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border text-muted transition-transform duration-200 ease-[var(--ease-out)] group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
-              <p className="pb-5 text-sm text-muted text-pretty">{item.a}</p>
+              <p className="pb-5 text-[15px] leading-relaxed text-fg/75 text-pretty">{item.a}</p>
             </details>
           ))}
         </div>
@@ -447,32 +605,43 @@ function Faq() {
 /** Closing call, with the oversized wordmark bleeding off the bottom (GAZU). */
 function FinalCall() {
   return (
-    <section aria-labelledby="final-title" className="relative overflow-hidden bg-night text-white">
-      <div aria-hidden="true" className="pointer-events-none absolute top-[-30%] left-1/2 size-[700px] -translate-x-1/2 rounded-full bg-[#1d5bd8]/35 blur-[140px]" />
-      <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-5 px-4 pt-24 pb-10 text-center sm:px-6">
-        <h2 id="final-title" className="text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
-          Ta première page est à <span className="font-serif font-normal text-sky-300 italic">dix minutes</span> d’ici.
+    <section aria-labelledby="final-title" className="relative overflow-hidden bg-night pb-20 text-white sm:pb-0">
+      <div aria-hidden="true" className="pointer-events-none absolute top-[-30%] left-1/2 size-[640px] -translate-x-1/2 rounded-full bg-[#1d5bd8]/35 blur-[110px]" />
+      <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-5 px-4 pt-24 pb-8 text-center sm:px-6">
+        <h2 id="final-title" className="reveal text-[2.4rem] leading-[1.05] font-semibold tracking-[-0.03em] text-balance sm:text-6xl">
+          Ton prochain client peut acheter <span className={`text-sky-300 ${serif}`}>ce soir.</span>
         </h2>
-        <p className="max-w-md text-white/65">Crée ton espace, ajoute ton produit et publie ta page quand elle te plaît.</p>
+        <p className="max-w-md text-[15px] text-white/75">Crée ta page gratuitement, ajoute ton produit et publie quand elle te plaît.</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/inscription" className={buttonClass("primary", "h-12 rounded-full px-6 text-[15px]")}>
-            Créer mon compte <Arrow />
+          <Link href="/inscription" className={ctaOnNight}>
+            Créer ma page gratuitement <Arrow />
           </Link>
-          <Link href="/connexion" className={`pressable inline-flex h-12 items-center rounded-full border border-white/20 px-6 text-[15px] font-medium text-white ${hover}:bg-white/10`}>
-            Connexion
+          <Link href="/connexion" className={`pressable inline-flex h-12 items-center rounded-full border border-white/25 px-6 text-[15px] font-medium text-white [@media(hover:hover)_and_(pointer:fine)]:hover:bg-white/10`}>
+            J’ai déjà un compte
           </Link>
         </div>
       </div>
-      <p aria-hidden="true" className="relative -mb-[0.22em] text-center text-[25vw] leading-none font-semibold tracking-[-0.06em] text-white/[0.06] select-none">
+      <p aria-hidden="true" className="relative -mb-[0.2em] bg-gradient-to-b from-white/[0.16] to-transparent bg-clip-text text-center text-[27vw] leading-none font-semibold tracking-[-0.06em] text-transparent select-none">
         maketia.
       </p>
       <footer className="relative border-t border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-[13px] text-white/70 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} Maketia — pages de vente pour produits numériques.</p>
-          <p>Paiements par lien SasPay, sur le compte du vendeur.</p>
+          <p>Paiements par lien SasPay, sur le compte du créateur.</p>
         </div>
       </footer>
     </section>
+  );
+}
+
+/** Thumb-reach call to action on phones, above the browser's bottom bar. */
+function MobileBar() {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden">
+      <Link href="/inscription" className={buttonClass("primary", "h-12 w-full rounded-full text-[15px]")}>
+        Créer ma page gratuitement <Arrow />
+      </Link>
+    </div>
   );
 }
 
@@ -488,12 +657,8 @@ function Check({ className = "" }: { className?: string }) {
   );
 }
 
-function Mini({ icon }: { icon: keyof typeof ICONS }) {
-  return <span className="mt-[-1px] shrink-0 text-accent [&_svg]:size-[17px]" aria-hidden="true">{ICONS[icon]}</span>;
-}
-
 const svg = (d: string) => (
-  <svg viewBox="0 0 24 24" className="size-[19px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d={d} />
   </svg>
 );
@@ -502,9 +667,8 @@ const ICONS = {
   blocks: svg("M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 16.5h7M16.5 13v7"),
   phone: svg("M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2"),
   card: svg("M3 6h18v12H3zM3 10h18M7 15h3"),
-  file: svg("M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7zM14 3v4h4M12 11v6M9.5 14.5 12 17l2.5-2.5"),
-  flask: svg("M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3M7.5 15h9"),
-  plug: svg("M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"),
-  shield: svg("M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6zM9 12l2 2 4-4"),
-  spark: svg("M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"),
+  lock: svg("M6 11h12v10H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3M12 15v2"),
+  globe: svg("M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z"),
+  chart: svg("M4 20V10M10 20V4M16 20v-7M22 20H2"),
+  check: svg("m5 12.5 4.5 4.5L19 7"),
 };

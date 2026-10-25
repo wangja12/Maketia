@@ -72,6 +72,7 @@ test.afterAll(async () => {
 });
 
 const publicScreens = [
+  { name: "accueil", url: "/" },
   { name: "connexion", url: "/connexion" },
   { name: "inscription", url: "/inscription" },
 ];
@@ -79,7 +80,8 @@ const publicScreens = [
 test("no WCAG 2.1 AA violation on the main screens", async ({ browser }) => {
   test.setTimeout(120_000);
   const page = await session.newPage();
-  const anonymousContext = await browser.newContext({ baseURL: test.info().project.use.baseURL });
+  // Reduced motion: axe must see the landing page at rest, not mid-entrance.
+  const anonymousContext = await browser.newContext({ baseURL: test.info().project.use.baseURL, reducedMotion: "reduce" });
   const anonymous = await anonymousContext.newPage();
   for (const s of [...publicScreens.map((p) => ({ ...p, page: anonymous })), ...screens.map((p) => ({ ...p, page }))]) {
     await s.page.goto(s.url);

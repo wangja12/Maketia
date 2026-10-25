@@ -264,7 +264,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
                 {grants.has(order.id) && (
                   <div className="flex flex-col gap-1 text-xs">
                     <div className="flex flex-wrap items-center gap-2">
-                      {isAdmin && <DownloadLinksButton workspaceId={workspace.id} orderId={order.id} />}
+                      {isAdmin && <DownloadLinksButton workspaceId={workspace.id} orderId={order.id} buyer={{ firstName: order.customerFirstName, phone: order.customerPhone }} />}
                       <span className="text-muted">{grants.get(order.id)!.length === 0 ? "Aucun lien de téléchargement créé." : ""}</span>
                     </div>
                     {grants.get(order.id)!.map((g) => (

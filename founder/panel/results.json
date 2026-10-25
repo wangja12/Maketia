@@ -1,0 +1,459 @@
+{
+ "business": "Maketia: SaaS to build a sales page for a digital product, sell it through your own SasPay link, and deliver the file by private link after the payment is confirmed",
+ "seed": 2026,
+ "dealt": 100,
+ "answered": 30,
+ "skipped": [
+  [
+   "P031",
+   "missing"
+  ],
+  [
+   "P032",
+   "missing"
+  ],
+  [
+   "P033",
+   "missing"
+  ],
+  [
+   "P034",
+   "missing"
+  ],
+  [
+   "P035",
+   "missing"
+  ],
+  [
+   "P036",
+   "missing"
+  ],
+  [
+   "P037",
+   "missing"
+  ],
+  [
+   "P038",
+   "missing"
+  ],
+  [
+   "P039",
+   "missing"
+  ],
+  [
+   "P040",
+   "missing"
+  ],
+  [
+   "P041",
+   "missing"
+  ],
+  [
+   "P042",
+   "missing"
+  ],
+  [
+   "P043",
+   "missing"
+  ],
+  [
+   "P044",
+   "missing"
+  ],
+  [
+   "P045",
+   "missing"
+  ],
+  [
+   "P046",
+   "missing"
+  ],
+  [
+   "P047",
+   "missing"
+  ],
+  [
+   "P048",
+   "missing"
+  ],
+  [
+   "P049",
+   "missing"
+  ],
+  [
+   "P050",
+   "missing"
+  ],
+  [
+   "P051",
+   "missing"
+  ],
+  [
+   "P052",
+   "missing"
+  ],
+  [
+   "P053",
+   "missing"
+  ],
+  [
+   "P054",
+   "missing"
+  ],
+  [
+   "P055",
+   "missing"
+  ],
+  [
+   "P056",
+   "missing"
+  ],
+  [
+   "P057",
+   "missing"
+  ],
+  [
+   "P058",
+   "missing"
+  ],
+  [
+   "P059",
+   "missing"
+  ],
+  [
+   "P060",
+   "missing"
+  ],
+  [
+   "P061",
+   "missing"
+  ],
+  [
+   "P062",
+   "missing"
+  ],
+  [
+   "P063",
+   "missing"
+  ],
+  [
+   "P064",
+   "missing"
+  ],
+  [
+   "P065",
+   "missing"
+  ],
+  [
+   "P066",
+   "missing"
+  ],
+  [
+   "P067",
+   "missing"
+  ],
+  [
+   "P068",
+   "missing"
+  ],
+  [
+   "P069",
+   "missing"
+  ],
+  [
+   "P070",
+   "missing"
+  ],
+  [
+   "P071",
+   "missing"
+  ],
+  [
+   "P072",
+   "missing"
+  ],
+  [
+   "P073",
+   "missing"
+  ],
+  [
+   "P074",
+   "missing"
+  ],
+  [
+   "P075",
+   "missing"
+  ],
+  [
+   "P076",
+   "missing"
+  ],
+  [
+   "P077",
+   "missing"
+  ],
+  [
+   "P078",
+   "missing"
+  ],
+  [
+   "P079",
+   "missing"
+  ],
+  [
+   "P080",
+   "missing"
+  ],
+  [
+   "P081",
+   "missing"
+  ],
+  [
+   "P082",
+   "missing"
+  ],
+  [
+   "P083",
+   "missing"
+  ],
+  [
+   "P084",
+   "missing"
+  ],
+  [
+   "P085",
+   "missing"
+  ],
+  [
+   "P086",
+   "missing"
+  ],
+  [
+   "P087",
+   "missing"
+  ],
+  [
+   "P088",
+   "missing"
+  ],
+  [
+   "P089",
+   "missing"
+  ],
+  [
+   "P090",
+   "missing"
+  ],
+  [
+   "P091",
+   "missing"
+  ],
+  [
+   "P092",
+   "missing"
+  ],
+  [
+   "P093",
+   "missing"
+  ],
+  [
+   "P094",
+   "missing"
+  ],
+  [
+   "P095",
+   "missing"
+  ],
+  [
+   "P096",
+   "missing"
+  ],
+  [
+   "P097",
+   "missing"
+  ],
+  [
+   "P098",
+   "missing"
+  ],
+  [
+   "P099",
+   "missing"
+  ],
+  [
+   "P100",
+   "missing"
+  ]
+ ],
+ "buys": 0,
+ "passes": 30,
+ "buy_rate": 0.0,
+ "by_segment": [
+  [
+   "Beginner creator: first product, small audience (under 2,000 followers)",
+   13,
+   0.0
+  ],
+  [
+   "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+   9,
+   0.0
+  ],
+  [
+   "Trainer, coach or small agency with regular sales",
+   8,
+   0.0
+  ]
+ ],
+ "by_behaviour": [
+  [
+   "Phone-only",
+   4,
+   0.0
+  ],
+  [
+   "WhatsApp seller",
+   8,
+   0.0
+  ],
+  [
+   "Already on a platform",
+   3,
+   0.0
+  ],
+  [
+   "Free-plan hunter",
+   9,
+   0.0
+  ],
+  [
+   "Trend follower",
+   3,
+   0.0
+  ],
+  [
+   "Careful reader",
+   2,
+   0.0
+  ],
+  [
+   "Scam-wary",
+   1,
+   0.0
+  ]
+ ],
+ "by_income": [
+  [
+   "under $4,000",
+   9,
+   0.0
+  ],
+  [
+   "$4,000 to $15,000",
+   10,
+   0.0
+  ],
+  [
+   "$15,000 and up",
+   11,
+   0.0
+  ]
+ ],
+ "why_not": [
+  [
+   "price",
+   8,
+   [
+    "I have one product and I have not sold anything yet, so the free plan with 1 page and 1 product covers me. 9 900 FCFA a month is about 7% of what I earn, and I won't pay that before my first sales come in.",
+    "I'd start on the free page with my best e-book and see if it brings more sales than my WhatsApp. I still confirm every payment by hand, same as now, so I won't pay 9 900 a month until the free page proves it earns that back."
+   ],
+   [
+    "P001",
+    "P004"
+   ]
+  ],
+  [
+   "habit",
+   8,
+   [
+    "Je vends déjà sur Selar et ça marche : le client paie et reçoit son fichier tout seul, même quand je suis au boulot. Avec Maketia je devrais confirmer chaque paiement à la main et envoyer le lien moi-même, c'est un pas en arrière, pas un gain.",
+    "My clients already order on WhatsApp and pay by mobile money, and I send the PDF myself. With Maketia I would still confirm each payment by hand and send the link, plus open a SasPay account and learn an editor, so for me it is more work, not less."
+   ],
+   [
+    "P003",
+    "P011"
+   ]
+  ],
+  [
+   "convenience",
+   8,
+   [
+    "I lost a sale last month because I was slow sending the file, and with Maketia I still have to confirm each payment and send the link myself. My current platform already gives me a sales page, so switching for the same manual work makes no sense.",
+    "My problem is sending the file fast, and here I still have to confirm each payment by hand and send the link myself, so it is the same delay as WhatsApp. I would try the free page for one product, but I will not pay 9 900 FCFA a month for that."
+   ],
+   [
+    "P007",
+    "P010"
+   ]
+  ],
+  [
+   "trust",
+   3,
+   [
+    "I don't know SasPay and I don't have an account there, and my clients pay me by mobile money on WhatsApp. I'd still have to confirm each payment and send the link by hand, so for one e-book I'd stay with WhatsApp, and 9 900 FCFA a month is too much for me.",
+    "Je ne sais pas qui est derrière Maketia, et je ne mets pas mon produit ni mes clients sur une plateforme inconnue. Au mieux je testerais le plan Gratuit, mais payer 9 900 FCFA par mois alors que je ne vends presque rien encore, non."
+   ],
+   [
+    "P002",
+    "P025"
+   ]
+  ],
+  [
+   "need",
+   3,
+   [
+    "I have one e-book and under 2,000 followers, so the free plan with 1 page and 1 product already covers me. 9 900 FCFA a month is real money for someone who has not made a sale yet, and Chariow or Selar already give me a page.",
+    "I have one product and under 2,000 followers, so the free plan with 1 page and 1 product covers me. I am not paying 9 900 FCFA a month when I still confirm each payment and send each link myself, and that is the same work I do on WhatsApp now."
+   ],
+   [
+    "P006",
+    "P009"
+   ]
+  ]
+ ],
+ "why_yes": [],
+ "flip": [
+  "Making 4 or 5 sales on the free page first, or a paid plan around 3 000 FCFA a month with automatic payment confirmation so I don't have to babysit my phone.",
+  "If the buyer could pay directly with Orange Money or Wave without me opening a SasPay account, and the link went out automatically, I would try the free plan and maybe pay later.",
+  "Que la confirmation et la livraison soient automatiques, et qu'on me prouve que 0 % de commission me fait vraiment économiser plus que les 9 900 FCFA par mois par rapport à Selar.",
+  "Automatic payment confirmation and delivery, so a sale happens while I sleep, or a Créateur plan around 5 000 FCFA.",
+  "Making real sales on the free page first, so the subscription pays for itself, or a much cheaper starter plan around 2 000-3 000 FCFA.",
+  "Automatic payment confirmation and delivery working, plus a TikTok or YouTube creator I follow showing they made real sales with it, and only once I have a second product to sell.",
+  "Automatic payment confirmation with the download link sent to the buyer instantly, without me touching my phone.",
+  "A small plan around 2 000 to 3 000 FCFA a month, or paying only after my first sales come in, with automatic payment confirmation so I stop checking SMS.",
+  "Automatic payment confirmation and automatic delivery of the download link, working for real, at under 5 000 FCFA a month.",
+  "Automatic confirmation that sends the download link the moment the payment lands, working with the mobile money my buyers already use.",
+  "Automatic payment confirmation with the file delivered to the buyer without me, plus someone who sets up my first page with me in French on WhatsApp.",
+  "Automatic payment confirmation and delivery actually working, so the buyer gets the file without me touching my phone.",
+  "Making real sales on the free plan, enough that I need more products, and seeing creators I follow in Abidjan or Dakar use it without problems.",
+  "Automatic payment confirmation and delivery actually working, with SasPay account setup done in a few minutes from my phone.",
+  "Automatic payment confirmation that sends the download link to the buyer by itself, working fully from my Android phone.",
+  "Automatic payment confirmation and link delivery working for real, and my free page bringing me a few sales first so the subscription pays for itself.",
+  "Automatic payment confirmation with instant delivery of the file, working with Orange Money / Wave directly, so sales happen while I sleep.",
+  "Automatic payment confirmation, plus a creator I follow showing it brought in extra sales, at around 5 000 FCFA a month.",
+  "Automatic payment confirmation that sends the download link without me, shown working by a creator I follow.",
+  "Automatic confirmation that sends the file to the buyer the moment the mobile-money payment arrives, without me touching anything.",
+  "Automatic confirmation that sends the download link to the buyer by itself, plus a plan around 2 000 FCFA a month.",
+  "La confirmation automatique du paiement avec envoi du lien au client sans moi, plus des créatrices de ma ville que je connais qui vendent vraiment avec.",
+  "La confirmation automatique du paiement mobile money avec envoi automatique du PDF au client, sans que je touche à rien.",
+  "Automatic payment confirmation with the file sent to the buyer by itself, working with the mobile money my buyers already use, with someone to set it up for me on WhatsApp.",
+  "Voir des créateurs d'Abidjan ou Dakar que je connais vendre vraiment avec, et avoir déjà des ventes qui rentrent sur le plan Gratuit.",
+  "Making real sales from the free page first, or a small paid plan around 2 000 to 3 000 FCFA once the money starts coming in.",
+  "Seeing creators I know in Abidjan or Dakar using it and getting paid for months, plus automatic payment confirmation so the buyer gets the file without me at night.",
+  "Que la confirmation de paiement et l'envoi du lien se fassent automatiquement, et voir une créatrice que je suis vendre avec ça sans galérer.",
+  "La confirmation automatique du paiement avec envoi du lien sans moi, plus des créateurs connus de ma ville qui l'utilisent vraiment.",
+  "Automatic payment confirmation with instant delivery of the download link, working with the mobile money my buyers already use."
+ ],
+ "purchases_first_month_per_buyer": null,
+ "price_answers": 30
+}

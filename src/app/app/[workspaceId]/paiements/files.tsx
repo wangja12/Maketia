@@ -8,6 +8,8 @@ import { FormError } from "@/components/ui/form-error";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { createLinksAction, deleteFileAction, revokeGrantAction, type LinksState } from "./actions";
 import { CopyField } from "./forms";
+import { deliveryMessage, whatsappShareUrl } from "@/lib/whatsapp";
+import { buttonClass } from "@/components/ui/button";
 
 /** Sends the file as the request body (no size-limited form encoding), then refreshes the list. */
 export function FileUploader({ productId, replace, maxMb, accepted }: { productId: string; replace?: { id: string; title: string }; maxMb: number; accepted: string }) {
@@ -84,17 +86,28 @@ export function DeleteFileButton({ workspaceId, fileId, title }: { workspaceId: 
 }
 
 /** Creates the buyer's download links and shows them once, to copy and send yourself. */
-export function DownloadLinksButton({ workspaceId, orderId }: { workspaceId: string; orderId: string }) {
+export function DownloadLinksButton({ workspaceId, orderId, buyer }: { workspaceId: string; orderId: string; buyer: { firstName: string | null; phone: string | null } }) {
   const [open, setOpen] = useState(false);
   const [state, action] = useActionState<LinksState, FormData>(createLinksAction.bind(null, workspaceId, orderId), {});
   return (
     <>
       <Button variant="secondary" className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>Liens de téléchargement</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title="Liens de téléchargement de l’acheteur"
-        description="Chaque lien est personnel, expire et a un nombre de téléchargements limité. Il ne s’affiche qu’une fois : copiez-le pour l’envoyer à l’acheteur. L’envoi automatique par e-mail n’est pas encore disponible.">
+        description="Chaque lien est personnel, expire et a un nombre de téléchargements limité. Il ne s’affiche qu’une fois : envoyez-le sur WhatsApp ou copiez-le. L’envoi automatique n’est pas encore disponible.">
         <div className="flex flex-col gap-4">
           {state.links ? (
             <>
+              <a
+                href={whatsappShareUrl(buyer.phone, deliveryMessage(buyer.firstName, state.links, state.days ?? 7))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClass("primary", "h-11 w-full")}
+              >
+                Envoyer sur WhatsApp
+              </a>
+              <p className="text-xs text-muted">
+                WhatsApp s’ouvre avec le message prêt{buyer.phone ? "" : " ; choisissez l’acheteur dans vos contacts"}. Rien n’est envoyé tant que vous n’appuyez pas sur « Envoyer » dans WhatsApp.
+              </p>
               {state.links.map((l) => <CopyField key={l.url} label={l.title} value={l.url} />)}
               <p className="text-xs text-muted">Valables {state.days} jours, {state.maxDownloads} téléchargements chacun.</p>
             </>

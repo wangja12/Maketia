@@ -144,6 +144,10 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
   await dialog.getByRole("button", { name: "Créer les liens" }).click();
   const link = await dialog.getByLabel("Guide Excel.pdf").inputValue();
   expect(link).toMatch(/\/api\/telechargement\/[A-Za-z0-9_-]{43}$/);
+  // One tap hands the message to WhatsApp; nothing is sent by the app itself.
+  const whatsapp = new URL((await dialog.getByRole("link", { name: "Envoyer sur WhatsApp" }).getAttribute("href"))!);
+  expect(whatsapp.origin).toBe("https://wa.me");
+  expect(whatsapp.searchParams.get("text")).toContain(link);
   const download = await page.request.get(link);
   expect(download.status()).toBe(200);
   expect(download.headers()["content-disposition"]).toContain("attachment");
