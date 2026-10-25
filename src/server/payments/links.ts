@@ -18,7 +18,7 @@ export type LinkCheck = { ok: true; url: string } | { ok: false; reason: string 
 /** HTTPS only, exact host from the allowlist, no credentials, no fragment tricks. */
 export function checkPaymentLink(raw: string, hosts: string[]): LinkCheck {
   const value = raw.trim();
-  if (!value) return { ok: false, reason: "Collez l’adresse publique de votre lien SasPay." };
+  if (!value) return { ok: false, reason: "Colle l’adresse publique de ton lien SasPay." };
   if (value.length > 500 || !URL.canParse(value)) return { ok: false, reason: "Adresse invalide." };
   const url = new URL(value);
   if (url.protocol !== "https:") return { ok: false, reason: "Le lien doit commencer par https://." };

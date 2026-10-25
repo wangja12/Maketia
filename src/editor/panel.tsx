@@ -208,7 +208,7 @@ function ProductSelect({ section, path, label }: { section: Section; path: Path;
           </option>
         ))}
       </select>
-      {products.length === 0 && <p className="text-xs text-muted">Aucun produit : créez-en un dans Paiements.</p>}
+      {products.length === 0 && <p className="text-xs text-muted">Aucun produit : crées-en un dans Paiements.</p>}
       <p className="text-xs text-muted">Le prix affiché et encaissé est toujours celui du produit.</p>
     </Field>
   );

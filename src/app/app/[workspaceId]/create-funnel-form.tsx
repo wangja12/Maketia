@@ -10,7 +10,7 @@ export function CreateFunnelForm({ workspaceId }: { workspaceId: string }) {
   return (
     <form action={action} className="flex flex-col gap-1.5" noValidate>
       <label htmlFor="new-funnel-name" className="text-sm font-medium">
-        Nouveau tunnel
+        Nouvelle offre
       </label>
       <div className="flex flex-col gap-2 sm:flex-row">
         <input
@@ -26,7 +26,7 @@ export function CreateFunnelForm({ workspaceId }: { workspaceId: string }) {
           aria-describedby={error ? "new-funnel-error" : undefined}
           className="h-10 w-full rounded-control border border-border-strong bg-surface px-3 text-[16px] shadow-raised transition-[border-color] duration-150 placeholder:text-muted aria-invalid:border-danger sm:h-9 sm:flex-1 sm:text-sm"
         />
-        <SubmitButton>Créer le tunnel</SubmitButton>
+        <SubmitButton>Créer l’offre</SubmitButton>
       </div>
       {error && (
         <p id="new-funnel-error" role="alert" className="text-xs text-danger">

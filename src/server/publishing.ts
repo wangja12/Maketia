@@ -87,7 +87,7 @@ export async function publishPage(
     throw new ValidationError(`Publication bloquée : ${paymentProblems.join(" ")}`);
   }
   if (input.reviewConfirmed !== true) {
-    throw new ValidationError("Confirmez la revue humaine avant de publier.", { review: "Cochez chaque point de la revue" });
+    throw new ValidationError("Confirme la revue humaine avant de publier.", { review: "Coche chaque point de la revue" });
   }
 
   await ensureSubdomain(db, page.funnelId);

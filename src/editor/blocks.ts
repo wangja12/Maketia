@@ -41,7 +41,7 @@ export const BLOCKS: Block[] = [
   {
     type: "testimonials",
     label: "Témoignages",
-    description: "Uniquement des témoignages réels que vous fournissez.",
+    description: "Uniquement des témoignages réels que tu fournis.",
     create: (id) => ({ id, type: "testimonials", title: "Ils en parlent", providedByUser: true, items: [{ quote: "Collez ici un témoignage réel.", author: "Nom du client" }] }),
   },
   {
@@ -59,13 +59,13 @@ export const BLOCKS: Block[] = [
   {
     type: "checkout",
     label: "Commande et paiement",
-    description: "Formulaire de commande d’un produit, payé chez votre prestataire.",
+    description: "Formulaire de commande d’un produit, payé chez ton prestataire.",
     create: (id) => ({ id, type: "checkout", title: "Commander", productId: "", buttonLabel: "Payer maintenant" }),
   },
   {
     type: "lead_form",
     label: "Formulaire de contact",
-    description: "Le visiteur laisse ses coordonnées ; il apparaît dans vos contacts.",
+    description: "Le visiteur laisse ses coordonnées ; il apparaît dans tes contacts.",
     create: (id) => ({ id, type: "lead_form", title: "Recevoir plus d’informations", phone: "optional", buttonLabel: "Envoyer", successMessage: "Merci ! Nous vous recontactons très vite." }),
   },
   {

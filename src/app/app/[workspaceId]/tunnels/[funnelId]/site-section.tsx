@@ -35,7 +35,7 @@ export async function SiteSection({
 
       <div className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 shadow-raised">
         {live.length === 0 ? (
-          <p className="text-sm text-muted">Aucune page en ligne. Publiez une page depuis sa fiche, après la revue.</p>
+          <p className="text-sm text-muted">Aucune page en ligne. Publie une page depuis sa fiche, après la revue.</p>
         ) : (
           <ul className="flex flex-col gap-1.5 text-sm">
             {live.map((h) => {
@@ -59,7 +59,7 @@ export async function SiteSection({
 
       <div className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 shadow-raised">
         <h3 className="text-sm font-semibold">Domaines personnalisés</h3>
-        {domainList.length === 0 && <p className="text-sm text-muted">Aucun domaine. Ajoutez le vôtre pour afficher ce tunnel à votre adresse.</p>}
+        {domainList.length === 0 && <p className="text-sm text-muted">Aucun domaine. Ajoute le tien pour afficher cette offre à ton adresse.</p>}
         <ul className="flex flex-col gap-4">
           {domainList.map((d) => (
             <li key={d.id} className="flex flex-col gap-2 border-t border-border pt-3 first:border-0 first:pt-0">
@@ -74,7 +74,7 @@ export async function SiteSection({
               </p>
               {d.status !== "verified" && (
                 <div tabIndex={0} className="overflow-x-auto rounded-control bg-surface-sunken p-3 text-xs">
-                  <p className="mb-2 font-medium">Chez votre registraire, créez :</p>
+                  <p className="mb-2 font-medium">Chez ton registraire, crée :</p>
                   <table className="w-full text-left font-mono">
                     <thead className="text-muted"><tr><th className="pr-3 font-normal">Type</th><th className="pr-3 font-normal">Nom</th><th className="font-normal">Valeur</th></tr></thead>
                     <tbody>

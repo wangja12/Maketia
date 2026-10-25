@@ -37,8 +37,8 @@ Le PASS de la lentille Monopoly redevient FUND IF « le jour où la livraison au
 - [ ] Fixer les prix, configurer le plan gratuit en base et ouvrir le paiement en ligne des abonnements.
 - [ ] Faire confirmer par écrit à SasPay les pays, les devises (XOF et XAF) et les moyens de paiement couverts.
 - [ ] Mener un test réel : 5 à 20 créateurs de la cible, une vente de bout en bout, une pré-vente à un vrai prix.
-- [ ] Mettre en place une boucle de distribution : badge « Créé avec Maketia » désactivable, parrainage.
-- [ ] Dans l'espace créateur : tutoiement, « page » au lieu de « tunnel », fonctions avancées en retrait.
+- [x] Badge « Page créée avec maketia. » sur les pages des plans gratuits, absent sur les plans payants. Parrainage : à faire.
+- [x] Dans l'espace créateur : tutoiement, « offre » au lieu de « tunnel » (les pages vues par l'acheteur restent au vouvoiement). Fonctions avancées en retrait : à faire.
 
 ## La version la plus forte que le conseil voit
 

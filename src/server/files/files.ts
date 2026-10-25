@@ -78,7 +78,7 @@ export async function uploadProductFile(
   input: { fileName: string; title?: string; body: ReadableStream<Uint8Array> | null; replaceFileId?: string },
 ): Promise<ProductFile> {
   const product = await requireProductForFiles(db, userId, productId, "edit");
-  if (product.kind !== "digital_file") throw new ValidationError("Ce produit n’est pas un fichier numérique : changez son type avant d’y joindre un fichier.");
+  if (product.kind !== "digital_file") throw new ValidationError("Ce produit n’est pas un fichier numérique : change son type avant d’y joindre un fichier.");
   if (!input.body) throw new ValidationError("Fichier vide.");
   const fileName = safeFileName(input.fileName || "fichier");
   const title = (input.title?.trim() || fileName).slice(0, 120);

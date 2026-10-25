@@ -38,12 +38,12 @@ export const EXPERIMENT_REVIEW = [
 
 const armsSchema = z
   .array(z.object({ pageId: z.string(), weight: z.coerce.number().int().min(1, "Poids : 1 à 100").max(100, "Poids : 1 à 100") }))
-  .min(MIN_ARMS, `Choisissez au moins ${MIN_ARMS} variantes.`)
+  .min(MIN_ARMS, `Choisis au moins ${MIN_ARMS} variantes.`)
   .max(MAX_ARMS, `${MAX_ARMS} variantes maximum par expérience.`)
   .refine((a) => new Set(a.map((x) => x.pageId)).size === a.length, "Une variante ne peut figurer qu’une fois.");
 
 const createSchema = z.object({
-  name: z.string().trim().min(1, "Nommez l’expérience").max(80),
+  name: z.string().trim().min(1, "Nomme l’expérience").max(80),
   goal: z.enum(["order_paid", "checkout_submitted", "cta_click", "lead_submitted"]),
   arms: armsSchema,
 });
@@ -60,7 +60,7 @@ async function requireExperiment(db: Db, userId: string, experimentId: string, p
 async function groupPages(db: Db, funnelId: string, pageIds: string[]) {
   if (!pageIds.every(isUuid)) throw new ValidationError("Variante introuvable.");
   const rows = await db.select().from(pages).where(and(eq(pages.funnelId, funnelId), inArray(pages.id, pageIds)));
-  if (rows.length !== pageIds.length) throw new ValidationError("Variante introuvable dans ce tunnel.");
+  if (rows.length !== pageIds.length) throw new ValidationError("Variante introuvable dans cette offre.");
   const groups = new Set(rows.map((r) => r.variantGroupId));
   if (groups.size !== 1) throw new ValidationError("Toutes les variantes doivent être des versions de la même page.");
   return rows;
@@ -135,9 +135,9 @@ export async function startExperiment(db: Db, userId: string, experimentId: stri
     .select({ path: publications.path })
     .from(publications)
     .where(and(inArray(publications.pageId, groupIds), isNull(publications.unpublishedAt)));
-  if (!live) throw new ValidationError("Publiez d’abord une des variantes : le test se déroule à son adresse.");
+  if (!live) throw new ValidationError("Publie d’abord une des variantes : le test se déroule à son adresse.");
   await assertPublishable(db, funnel.workspaceId, arms.map((a) => a.pageId));
-  if (input.reviewConfirmed !== true) throw new ValidationError("Confirmez la revue humaine de chaque variante avant de démarrer.");
+  if (input.reviewConfirmed !== true) throw new ValidationError("Confirme la revue humaine de chaque variante avant de démarrer.");
 
   try {
     return await db.transaction(async (tx) => {
@@ -171,7 +171,7 @@ export async function addArm(db: Db, userId: string, experimentId: string, input
   if (page.variantGroupId !== exp.variantGroupId) throw new ValidationError("Cette page n’est pas une variante de la page testée.");
   if (exp.status === "running") {
     await assertPublishable(db, funnel.workspaceId, [page.id]);
-    if (input.reviewConfirmed !== true) throw new ValidationError("Confirmez la revue humaine de la nouvelle variante.");
+    if (input.reviewConfirmed !== true) throw new ValidationError("Confirme la revue humaine de la nouvelle variante.");
   }
   await db.insert(experimentArms).values({
     experimentId: exp.id,

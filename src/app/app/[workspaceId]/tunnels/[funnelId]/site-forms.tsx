@@ -64,7 +64,7 @@ export function RemoveDomainButton({ domainId, hostname }: { domainId: string; h
   return (
     <>
       <Button variant="ghost" className="h-8 text-danger!" onClick={() => setOpen(true)}>Retirer</Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title={`Retirer ${hostname} ?`} description="Le domaine cessera immédiatement d’afficher vos pages. Les enregistrements DNS restent chez votre registraire.">
+      <Dialog open={open} onClose={() => setOpen(false)} title={`Retirer ${hostname} ?`} description="Le domaine cessera immédiatement d’afficher tes pages. Les enregistrements DNS restent chez ton registraire.">
         <form action={action} className="flex flex-col gap-4">
           <FormError message={state.error} />
           <div className="flex justify-end gap-2">

@@ -8,7 +8,7 @@ import { ForbiddenError, ValidationError } from "./errors";
 import { fieldErrorsOf } from "./validation";
 
 const signUpSchema = z.object({
-  name: z.string().trim().min(1, "Indiquez votre nom").max(80, "80 caractères maximum"),
+  name: z.string().trim().min(1, "Indique ton nom").max(80, "80 caractères maximum"),
   email: z.string().trim().toLowerCase().pipe(z.email("Adresse e-mail invalide")),
   password: z
     .string()
@@ -25,7 +25,7 @@ let dummyHash: Promise<string> | undefined;
 export async function signUp(db: Db, input: SignUpInput) {
   const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) {
-    throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
+    throw new ValidationError("Vérifie les champs", fieldErrorsOf(parsed.error));
   }
   const { name, email, password } = parsed.data;
   const [settings] = await db.select({ signupsOpen: platformSettings.signupsOpen }).from(platformSettings);
@@ -39,7 +39,7 @@ export async function signUp(db: Db, input: SignUpInput) {
       .onConflictDoNothing({ target: users.email })
       .returning({ id: users.id });
     if (!user) {
-      throw new ValidationError("Vérifiez les champs", {
+      throw new ValidationError("Vérifie les champs", {
         email: "Un compte existe déjà avec cette adresse",
       });
     }
@@ -73,7 +73,7 @@ export async function verifyCredentials(
     return null;
   }
   if (!(await verify(user.passwordHash, password))) return null;
-  if (user.suspendedAt) throw new ForbiddenError("Ce compte est suspendu. Contactez l’équipe de la plateforme.");
+  if (user.suspendedAt) throw new ForbiddenError("Ce compte est suspendu. Contacte l’équipe de la plateforme.");
   return user.id;
 }
 
@@ -97,7 +97,7 @@ export async function signIn(db: Db, input: { email: string; password: string; i
     ipHash ? failures(eq(loginAttempts.ipHash, ipHash)) : Promise.resolve([{ n: 0 }]),
   ]);
   if (byEmail.n >= LOGIN_LIMITS.perEmail || byIp.n >= LOGIN_LIMITS.perIp) {
-    throw new ValidationError(`Trop de tentatives de connexion. Réessayez dans ${LOGIN_LIMITS.windowMinutes} minutes.`);
+    throw new ValidationError(`Trop de tentatives de connexion. Réessaie dans ${LOGIN_LIMITS.windowMinutes} minutes.`);
   }
   let userId: string | null;
   try {

@@ -68,7 +68,7 @@ describe("seller payment links (no SasPay API, no seller key)", () => {
     const u = await makeUser();
     const p = await createProduct(db, u.userId, u.workspaceId, { name: "Coaching", price: "15000", currency: "xof" });
     expect(p).toMatchObject({ currency: "XOF", kind: "no_delivery", saspayLinkUrl: null });
-    await expect(setProductPaymentLink(db, u.userId, p.id, { url: LINK, price: "15000", currency: "XOF", confirmed: false })).rejects.toThrow("Confirmez");
+    await expect(setProductPaymentLink(db, u.userId, p.id, { url: LINK, price: "15000", currency: "XOF", confirmed: false })).rejects.toThrow("Confirme que");
     await expect(setProductPaymentLink(db, u.userId, p.id, { url: "https://evil.example/pay", price: "15000", currency: "XOF", confirmed: true })).rejects.toBeInstanceOf(ValidationError);
     const saved = await setProductPaymentLink(db, u.userId, p.id, { url: `${LINK}#frag`, price: "15000", currency: "XOF", confirmed: true });
     expect(saved.saspayLinkUrl).toBe(LINK);
@@ -152,7 +152,7 @@ describe("SasPay notifications (reception only until the signature scheme is con
 
     const other = await makeUser("Autre");
     await expect(reconcileWebhookEvent(db, other.userId, first.id, { orderId, attested: true })).rejects.toBeInstanceOf(NotFoundError);
-    await expect(reconcileWebhookEvent(db, s.userId, first.id, { orderId, attested: false })).rejects.toThrow("Cochez");
+    await expect(reconcileWebhookEvent(db, s.userId, first.id, { orderId, attested: false })).rejects.toThrow("Coche la confirmation");
 
     const paid = await reconcileWebhookEvent(db, s.userId, first.id, { orderId, attested: true, note: "Vu dans SasPay, réf. tx_1" });
     expect(paid).toMatchObject({ status: "paid", paidVia: "manual" });

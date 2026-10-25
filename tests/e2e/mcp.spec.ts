@@ -11,8 +11,8 @@ async function signUpWithFunnel(page: Page) {
   await page.getByLabel("E-mail").fill(`mcp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@exemple.test`);
   await page.getByLabel("Mot de passe").fill(password);
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await page.getByLabel("Nouveau tunnel").fill("Excel facile");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
+  await page.getByLabel("Nouvelle offre").fill("Excel facile");
+  await page.getByRole("button", { name: "Créer l’offre" }).click();
   await page.getByRole("link", { name: "Excel facile" }).click();
   await expect(page.getByRole("heading", { name: "Excel facile", level: 1 })).toBeVisible();
 }

@@ -19,7 +19,7 @@ export function SuspendButton({ userId, email }: { userId: string; email: string
     <>
       <Button variant="danger" onClick={() => setOpen(true)}>Suspendre le compte</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title={`Suspendre ${email} ?`}
-        description="Ses sessions sont fermées et ses connexions MCP cessent de fonctionner. Ses données et ses pages publiées sont conservées. Vous pourrez réactiver le compte.">
+        description="Ses sessions sont fermées et ses connexions MCP cessent de fonctionner. Ses données et ses pages publiées sont conservées. Tu pourras réactiver le compte.">
         <form action={action} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-1">
             <label htmlFor={id} className="text-sm font-medium">Motif (enregistré dans le journal)</label>
@@ -66,7 +66,7 @@ export function WorkspacePlanForm({ userId, workspaceId, planId, plans }: { user
 }
 
 const LIMIT_FIELDS = [
-  ["funnels", "Tunnels"],
+  ["funnels", "Offres"],
   ["variantsPerPage", "Variantes par page (1 à 4)"],
   ["customDomains", "Domaines personnalisés"],
   ["mcpWritesPerMonth", "Modifications MCP / mois"],
@@ -124,7 +124,7 @@ export function SettingsForm({ signupsOpen, saspayLinkHosts }: { signupsOpen: bo
         <input id={id} name="saspayLinkHosts" defaultValue={saspayLinkHosts.join(", ")} placeholder="ex. le domaine d’un vrai lien SasPay"
           aria-invalid={state.fieldErrors?.saspayLinkHosts ? true : undefined} className={control} />
         <p className="text-xs text-muted">
-          Seuls les liens sur ces domaines exacts sont acceptés comme liens de paiement des vendeurs. Renseignez-les après avoir vérifié l’adresse d’un vrai lien
+          Seuls les liens sur ces domaines exacts sont acceptés comme liens de paiement des vendeurs. Renseigne-les après avoir vérifié l’adresse d’un vrai lien
           créé dans SasPay (séparés par des virgules). Vide : aucun lien accepté.
         </p>
         {state.fieldErrors?.saspayLinkHosts && <p className="text-xs text-danger">{state.fieldErrors.saspayLinkHosts}</p>}

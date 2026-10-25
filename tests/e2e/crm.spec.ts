@@ -10,7 +10,7 @@ async function signUp(page: Page, name: string, email: string) {
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await expect(page.getByLabel("Nouveau tunnel")).toBeVisible();
+  await expect(page.getByLabel("Nouvelle offre")).toBeVisible();
   return page.url();
 }
 
@@ -23,8 +23,8 @@ async function newVisitor(browser: Browser) {
 test("a visitor's contact form lands in the CRM: tags, status, segment, export, erasure", async ({ page, browser }) => {
   test.setTimeout(90_000);
   const workspaceUrl = await signUp(page, "Mariam", `crm-${unique()}@exemple.test`);
-  await page.getByLabel("Nouveau tunnel").fill("Coaching");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
+  await page.getByLabel("Nouvelle offre").fill("Coaching");
+  await page.getByRole("button", { name: "Créer l’offre" }).click();
   await page.getByRole("link", { name: "Coaching", exact: true }).click();
   await page.getByLabel("Nom", { exact: true }).fill("Inscription");
   await page.getByLabel("Modèle").selectOption("landing");
@@ -130,7 +130,7 @@ test.describe("platform administration", () => {
     await create.getByLabel("Nom").fill(planName);
     await create.getByLabel("Code (unique)").fill(`essai-${unique()}`);
     await create.getByLabel(/Prix mensuel/).fill("0");
-    await create.getByLabel("Tunnels").fill("1");
+    await create.getByLabel("Offres").fill("1");
     await create.getByRole("button", { name: "Créer le plan" }).click();
     await expect(create.getByText("Plan créé.")).toBeVisible();
 
@@ -139,13 +139,13 @@ test.describe("platform administration", () => {
     await userPage.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Abonnement" }).click();
     await userPage.getByRole("button", { name: `Passer au plan ${planName}` }).click();
     await expect(userPage.getByRole("heading", { name: `Plan actuel : ${planName}` })).toBeVisible();
-    await userPage.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Tunnels" }).click();
-    await userPage.getByLabel("Nouveau tunnel").fill("Premier");
-    await userPage.getByRole("button", { name: "Créer le tunnel" }).click();
+    await userPage.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Offres" }).click();
+    await userPage.getByLabel("Nouvelle offre").fill("Premier");
+    await userPage.getByRole("button", { name: "Créer l’offre" }).click();
     await expect(userPage.getByRole("link", { name: "Premier", exact: true })).toBeVisible();
-    await userPage.getByLabel("Nouveau tunnel").fill("Second");
-    await userPage.getByRole("button", { name: "Créer le tunnel" }).click();
-    await expect(userPage.getByText(`Limite du plan « ${planName} » atteinte : tunnels, 1 maximum. Changez de plan ou libérez de la place.`)).toBeVisible();
+    await userPage.getByLabel("Nouvelle offre").fill("Second");
+    await userPage.getByRole("button", { name: "Créer l’offre" }).click();
+    await expect(userPage.getByText(`Limite du plan « ${planName} » atteinte : offres, 1 maximum. Change de plan ou libère de la place.`)).toBeVisible();
 
     // Admin suspends the user: their session ends and they cannot sign back in.
     await page.goto(`/admin/utilisateurs?q=${encodeURIComponent(userEmail)}`);
@@ -161,7 +161,7 @@ test.describe("platform administration", () => {
     await userPage.getByLabel("E-mail").fill(userEmail);
     await userPage.getByLabel("Mot de passe").fill("motdepasse-solide");
     await userPage.getByRole("button", { name: "Se connecter" }).click();
-    await expect(userPage.getByText("Ce compte est suspendu. Contactez l’équipe de la plateforme.")).toBeVisible();
+    await expect(userPage.getByText("Ce compte est suspendu. Contacte l’équipe de la plateforme.")).toBeVisible();
 
     await page.getByRole("navigation", { name: "Administration" }).getByRole("link", { name: "Journal" }).click();
     await expect(page.getByText("user.suspend").first()).toBeVisible();

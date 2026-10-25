@@ -67,7 +67,7 @@ export function validatePageContent(kind: PageKind, raw: unknown): PageReport {
   if (buttonContrast < 4.5) {
     report.errors.push({
       code: "contrast-button",
-      message: `Contraste insuffisant du texte des boutons (${buttonContrast.toFixed(2)}:1, minimum 4.5:1). Choisissez une couleur d’accent plus foncée ou plus claire.`,
+      message: `Contraste insuffisant du texte des boutons (${buttonContrast.toFixed(2)}:1, minimum 4.5:1). Choisis une couleur d’accent plus foncée ou plus claire.`,
     });
   }
   // Accent used for small text on the page background (AA large text minimum, 3:1).
@@ -85,16 +85,16 @@ export function validatePageContent(kind: PageKind, raw: unknown): PageReport {
   }
   const heroes = page.sections.filter((s) => s.type === "hero");
   if (heroes.length > 1) {
-    report.warnings.push({ code: "many-heroes", message: "Plusieurs sections d’en-tête : gardez une seule promesse principale." });
+    report.warnings.push({ code: "many-heroes", message: "Plusieurs sections d’en-tête : garde une seule promesse principale." });
   }
   for (const s of heroes) {
     if (s.headline.length > 90) {
-      report.warnings.push({ code: "long-headline", message: `Titre de « ${s.id} » long (${s.headline.length} caractères) : visez moins de 90.` });
+      report.warnings.push({ code: "long-headline", message: `Titre de « ${s.id} » long (${s.headline.length} caractères) : vise moins de 90.` });
     }
   }
   for (const s of page.sections) {
     if (s.type === "pricing" && s.price === 0) {
-      report.warnings.push({ code: "zero-price", message: `Prix à 0 dans « ${s.id} » : vérifiez le montant.` });
+      report.warnings.push({ code: "zero-price", message: `Prix à 0 dans « ${s.id} » : vérifie le montant.` });
     }
     if ("cta" in s && s.cta?.href === "#") {
       report.warnings.push({ code: "placeholder-link", message: `Lien « # » dans « ${s.id} » : il ne mène nulle part.` });

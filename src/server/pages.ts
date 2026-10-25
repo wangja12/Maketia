@@ -16,7 +16,7 @@ export type Actor = { userId: string; mcpTokenId?: string };
 export const MAX_VARIANTS = 4;
 const LABELS = ["A", "B", "C", "D"] as const;
 
-const pageNameSchema = z.string().trim().min(1, "Donnez un nom à la page").max(80, "80 caractères maximum");
+const pageNameSchema = z.string().trim().min(1, "Donne un nom à la page").max(80, "80 caractères maximum");
 
 function parseContent(raw: unknown): PageContent {
   const parsed = pageContentSchema.safeParse(raw);
@@ -301,7 +301,7 @@ export async function deletePage(db: Db, actor: Actor, pageId: string): Promise<
     .select({ id: publications.id })
     .from(publications)
     .where(and(eq(publications.pageId, page.id), isNull(publications.unpublishedAt)));
-  if (live) throw new ValidationError("Cette page est en ligne : dépubliez-la avant de la supprimer.");
+  if (live) throw new ValidationError("Cette page est en ligne : dépublie-la avant de la supprimer.");
   await db.delete(pages).where(eq(pages.id, page.id));
   return page;
 }

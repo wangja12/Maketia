@@ -20,7 +20,7 @@ const href = z
   .trim()
   .max(500)
   .refine((v) => /^(https?:\/\/[^\s]+|\/(?![/\\])[^\s\\]*|#[\w-]*)$/i.test(v), {
-    message: "Lien invalide : utilisez https://…, /chemin ou #ancre",
+    message: "Lien invalide : utilise https://…, /chemin ou #ancre",
   });
 
 const imageUrl = z
@@ -115,7 +115,7 @@ const checkout = z.object({
   layout,
   type: z.literal("checkout"),
   title: optionalText(120),
-  productId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, "Choisissez un produit"),
+  productId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, "Choisis un produit"),
   buttonLabel: text(40),
   note: optionalText(300),
 });

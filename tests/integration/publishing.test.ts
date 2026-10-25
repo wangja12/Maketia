@@ -106,7 +106,7 @@ describe("publishing", () => {
     await publishPage(db, a.userId, a.page.id, { path: "", reviewConfirmed: true });
     await expect(unpublishPage(db, intruder.userId, a.page.id)).rejects.toBeInstanceOf(NotFoundError);
     await expect(setSubdomain(db, intruder.userId, a.funnel.id, "vol")).rejects.toBeInstanceOf(NotFoundError);
-    await expect(deletePage(db, { userId: a.userId }, a.page.id)).rejects.toThrow("dépubliez");
+    await expect(deletePage(db, { userId: a.userId }, a.page.id)).rejects.toThrow("dépublie-la");
   });
 });
 

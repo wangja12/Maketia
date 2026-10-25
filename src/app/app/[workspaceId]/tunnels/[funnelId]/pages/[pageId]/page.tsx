@@ -91,7 +91,7 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
 
       {!isCurrent && (
         <p role="status" className="rounded-control bg-surface-sunken px-3 py-2 text-sm">
-          Vous consultez la version {version.version} (la version actuelle est la {page.currentVersion}).{" "}
+          Tu consultes la version {version.version} (la version actuelle est la {page.currentVersion}).{" "}
           <Link href={`${base}/${page.id}`} className="font-medium text-accent underline-offset-4 hover:underline">Revenir à la version actuelle</Link>
         </p>
       )}
@@ -100,7 +100,7 @@ export default async function PageDetail({ params, searchParams }: PageProps<"/a
         <section aria-label="Aperçu" className="min-w-0">
           <DevicePreview src={`/preview/${page.id}?v=${version.version}`} title={`Aperçu de ${page.name}, version ${version.version}`} />
           <p className="mt-2 text-xs text-muted">
-            Aperçu privé de la version {version.version}. Modifiez la page dans l’éditeur visuel, ou demandez-le à votre agent IA (MCP).
+            Aperçu privé de la version {version.version}. Modifie la page dans l’éditeur visuel, ou demande-le à ton agent IA (MCP).
           </p>
         </section>
 

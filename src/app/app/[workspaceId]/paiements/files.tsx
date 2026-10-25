@@ -27,13 +27,13 @@ export function FileUploader({ productId, replace, maxMb, accepted }: { productI
     try {
       const res = await fetch(`/api/files/upload?${params}`, { method: "POST", body: file, headers: { "x-file-name": encodeURIComponent(file.name), "content-type": "application/octet-stream" } });
       const json = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) return setStatus({ kind: "error", message: json.error ?? "Envoi impossible. Réessayez." });
+      if (!res.ok) return setStatus({ kind: "error", message: json.error ?? "Envoi impossible. Réessaie." });
       setStatus({ kind: "done", message: replace ? "Nouvelle version enregistrée." : "Fichier enregistré." });
       setFile(null);
       form.reset();
       router.refresh();
     } catch {
-      setStatus({ kind: "error", message: "Connexion interrompue. Réessayez." });
+      setStatus({ kind: "error", message: "Connexion interrompue. Réessaie." });
     }
   }
 
@@ -91,7 +91,7 @@ export function DownloadLinksButton({ workspaceId, orderId, buyer }: { workspace
     <>
       <Button variant="secondary" className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>Liens de téléchargement</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title="Liens de téléchargement de l’acheteur"
-        description="Chaque lien est personnel, expire et a un nombre de téléchargements limité. Il ne s’affiche qu’une fois : envoyez-le sur WhatsApp ou copiez-le. L’envoi automatique n’est pas encore disponible.">
+        description="Chaque lien est personnel, expire et a un nombre de téléchargements limité. Il ne s’affiche qu’une fois : envoie-le sur WhatsApp ou copie-le. L’envoi automatique n’est pas encore disponible.">
         <div className="flex flex-col gap-4">
           {state.links ? (
             <SendLinks links={state.links} days={state.days ?? 7} maxDownloads={state.maxDownloads} buyer={buyer} />

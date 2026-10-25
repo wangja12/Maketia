@@ -71,10 +71,10 @@ export async function getWebhookSetup(db: Db, userId: string, workspaceId: strin
 /** The webhook signing secret, pasted once by the seller; stored encrypted, never shown again. */
 export async function setSigningSecret(db: Db, userId: string, workspaceId: string, secret: unknown) {
   await getWebhookSetup(db, userId, workspaceId);
-  const parsed = z.string().trim().min(16, "Secret trop court : collez le secret de signature complet.").max(500).safeParse(secret);
+  const parsed = z.string().trim().min(16, "Secret trop court : colle le secret de signature complet.").max(500).safeParse(secret);
   if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message, { secret: parsed.error.issues[0].message });
   if (/^sk_(live|test)_/i.test(parsed.data)) {
-    const message = "Ceci ressemble à une clé API SasPay. Ne la donnez jamais : collez uniquement le secret de signature du webhook.";
+    const message = "Ceci ressemble à une clé API SasPay. Ne la donne jamais : colle uniquement le secret de signature du webhook.";
     throw new ValidationError(message, { secret: message });
   }
   await db

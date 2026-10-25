@@ -8,9 +8,9 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
   const { compte } = await searchParams;
   return (
     <>
-      {compte === "supprime" && <p role="status" className="mb-4 rounded-control bg-surface-sunken px-3 py-2 text-sm">Votre compte a été supprimé.</p>}
+      {compte === "supprime" && <p role="status" className="mb-4 rounded-control bg-surface-sunken px-3 py-2 text-sm">Ton compte a été supprimé.</p>}
       <h1 className="text-xl font-semibold tracking-tight">Connexion</h1>
-      <p className="mt-1 text-sm text-muted">Retrouvez vos tunnels de vente.</p>
+      <p className="mt-1 text-sm text-muted">Retrouve tes offres.</p>
       <SignInForm />
       <p className="mt-6 text-center text-sm text-muted">
         Pas encore de compte ?{" "}

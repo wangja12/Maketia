@@ -35,7 +35,7 @@ const hostnameSchema = z
   .toLowerCase()
   .transform((h) => h.replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/\.$/, ""))
   .refine((h) => h.length <= 253 && /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))+$/.test(h), "Nom de domaine invalide (ex. www.mon-site.com)")
-  .refine((h) => !/^\d+(\.\d+){3}$/.test(h), "Utilisez un nom de domaine, pas une adresse IP");
+  .refine((h) => !/^\d+(\.\d+){3}$/.test(h), "Utilise un nom de domaine, pas une adresse IP");
 
 export async function addDomain(db: Db, userId: string, funnelId: string, input: unknown, config: SiteConfig = siteConfig()) {
   const funnel = await requireFunnel(db, userId, funnelId, "edit");
@@ -81,7 +81,7 @@ export async function removeDomain(db: Db, userId: string, domainId: string) {
 function dnsErrorMessage(e: unknown, what: string) {
   const code = (e as { code?: string })?.code;
   if (code === "ENOTFOUND" || code === "ENODATA") return `${what} introuvable.`;
-  return `Requête DNS impossible (${code ?? "erreur inconnue"}). Réessayez plus tard.`;
+  return `Requête DNS impossible (${code ?? "erreur inconnue"}). Réessaie plus tard.`;
 }
 
 type Check = { ok: true } | { ok: false; status: "pending" | "misconfigured"; error: string };
@@ -106,9 +106,9 @@ async function checkDns(hostname: string, token: string, resolver: DnsResolver, 
     if (cnames.some((c) => c.toLowerCase().replace(/\.$/, "") === target)) return { ok: true };
     const [mine, theirs] = await Promise.all([resolver.resolve4(hostname), resolver.resolve4(target)]);
     if (mine.length > 0 && mine.every((ip) => theirs.includes(ip))) return { ok: true };
-    return { ok: false, status: "misconfigured", error: `Le domaine ne pointe pas vers la plateforme : ajoutez un CNAME vers ${target}.` };
+    return { ok: false, status: "misconfigured", error: `Le domaine ne pointe pas vers la plateforme : ajoute un CNAME vers ${target}.` };
   } catch (e) {
-    return { ok: false, status: "misconfigured", error: `Pointage du domaine : ${dnsErrorMessage(e, "aucun enregistrement CNAME ni A")} Ajoutez un CNAME vers ${target}.` };
+    return { ok: false, status: "misconfigured", error: `Pointage du domaine : ${dnsErrorMessage(e, "aucun enregistrement CNAME ni A")} Ajoute un CNAME vers ${target}.` };
   }
 }
 

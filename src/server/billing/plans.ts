@@ -15,7 +15,7 @@ export type QuotaKey = keyof PlanLimits;
 type CountedKey = Exclude<QuotaKey, "variantsPerPage">;
 
 export const QUOTA_LABELS: Record<QuotaKey, string> = {
-  funnels: "Tunnels",
+  funnels: "Offres",
   variantsPerPage: "Variantes par page",
   customDomains: "Domaines personnalisés",
   mcpWritesPerMonth: "Modifications par agent IA (MCP) ce mois-ci",
@@ -29,7 +29,7 @@ export class QuotaExceededError extends ValidationError {
     readonly limit: number,
     planName: string,
   ) {
-    super(`Limite du plan « ${planName} » atteinte : ${QUOTA_LABELS[key].toLowerCase()}, ${limit} maximum. Changez de plan ou libérez de la place.`);
+    super(`Limite du plan « ${planName} » atteinte : ${QUOTA_LABELS[key].toLowerCase()}, ${limit} maximum. Change de plan ou libère de la place.`);
     this.name = "QuotaExceededError";
   }
 }

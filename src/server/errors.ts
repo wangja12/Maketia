@@ -29,7 +29,7 @@ export class ValidationError extends Error {
 export class ConflictError extends Error {
   constructor(
     readonly currentVersion: number,
-    message = `La page a été modifiée entre-temps (version actuelle : ${currentVersion}). Rechargez-la avant de modifier.`,
+    message = `La page a été modifiée entre-temps (version actuelle : ${currentVersion}). Recharge-la avant de modifier.`,
   ) {
     super(message);
     this.name = "ConflictError";

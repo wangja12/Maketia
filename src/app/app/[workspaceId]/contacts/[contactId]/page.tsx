@@ -76,7 +76,7 @@ export default async function ContactPage({ params }: PageProps<"/app/[workspace
               <dt className="text-muted">E-mail</dt><dd className="[overflow-wrap:anywhere]">{c.email}</dd>
               <dt className="text-muted">Téléphone</dt><dd>{c.phone ?? "—"}</dd>
               <dt className="text-muted">Inscrit le</dt><dd>{dateTime.format(c.createdAt)}</dd>
-              <dt className="text-muted">Tunnel</dt><dd>{origin.funnelName ?? "—"}</dd>
+              <dt className="text-muted">Offre</dt><dd>{origin.funnelName ?? "—"}</dd>
               <dt className="text-muted">Page</dt><dd>{origin.pageName ?? "—"}{c.variantLabel ? ` · variante ${c.variantLabel}` : ""}</dd>
               <dt className="text-muted">Source</dt><dd>{c.source ?? "(direct ou inconnue)"}</dd>
               <dt className="text-muted">Consentement</dt><dd>{c.consentAt ? `Donné le ${dateTime.format(c.consentAt)}` : "Commande uniquement"}</dd>

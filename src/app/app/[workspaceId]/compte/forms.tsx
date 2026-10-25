@@ -56,10 +56,10 @@ export function DeleteAccountButton({ email, blocking, deleted }: { email: strin
   return (
     <>
       <Button variant="danger" onClick={() => setOpen(true)} disabled={blocking.length > 0}>Supprimer mon compte</Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Supprimer définitivement votre compte ?"
-        description={`Votre compte, vos sessions et vos connexions MCP sont supprimés.${deleted.length ? ` Ces espaces, dont vous êtes le seul membre, sont supprimés avec tout leur contenu (pages, contacts, commandes, fichiers) : ${deleted.join(", ")}.` : ""} Cette action est irréversible.`}>
+      <Dialog open={open} onClose={() => setOpen(false)} title="Supprimer définitivement ton compte ?"
+        description={`Ton compte, tes sessions et tes connexions MCP sont supprimés.${deleted.length ? ` Ces espaces, dont tu es le seul membre, sont supprimés avec tout leur contenu (pages, contacts, commandes, fichiers) : ${deleted.join(", ")}.` : ""} Cette action est irréversible.`}>
         <form action={action} className="flex flex-col gap-4" noValidate>
-          <TextField label={`Recopiez votre e-mail (${email})`} name="confirmEmail" autoComplete="off" defaultValue={state.values?.confirmEmail} key={state.values?.confirmEmail} error={fe.confirmEmail} />
+          <TextField label={`Recopie ton e-mail (${email})`} name="confirmEmail" autoComplete="off" defaultValue={state.values?.confirmEmail} key={state.values?.confirmEmail} error={fe.confirmEmail} />
           <TextField label="Mot de passe" name="password" type="password" autoComplete="current-password" error={fe.currentPassword} />
           <FormError message={state.fieldErrors ? undefined : state.error} />
           <div className="flex justify-end gap-2">

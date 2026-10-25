@@ -33,8 +33,8 @@ export async function getAccount(db: Db, userId: string) {
 }
 
 export async function updateProfile(db: Db, userId: string, input: { name: unknown }) {
-  const parsed = z.object({ name: z.string().trim().min(1, "Indiquez votre nom").max(80, "80 caractères maximum") }).safeParse(input);
-  if (!parsed.success) throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
+  const parsed = z.object({ name: z.string().trim().min(1, "Indique ton nom").max(80, "80 caractères maximum") }).safeParse(input);
+  if (!parsed.success) throw new ValidationError("Vérifie les champs", fieldErrorsOf(parsed.error));
   await db.update(users).set({ name: parsed.data.name }).where(eq(users.id, userId));
 }
 
@@ -42,8 +42,8 @@ export async function updateProfile(db: Db, userId: string, input: { name: unkno
 export async function changePassword(db: Db, userId: string, input: { currentPassword: unknown; newPassword: unknown }, currentSessionToken: string | null) {
   await checkPassword(db, userId, input.currentPassword);
   const next = z.string().min(10, "10 caractères minimum").max(200, "200 caractères maximum").safeParse(input.newPassword);
-  if (!next.success) throw new ValidationError("Vérifiez les champs", { newPassword: next.error.issues[0].message });
-  if (next.data === input.currentPassword) throw new ValidationError("Vérifiez les champs", { newPassword: "Choisissez un mot de passe différent de l’actuel" });
+  if (!next.success) throw new ValidationError("Vérifie les champs", { newPassword: next.error.issues[0].message });
+  if (next.data === input.currentPassword) throw new ValidationError("Vérifie les champs", { newPassword: "Choisis un mot de passe différent de l’actuel" });
   await db.update(users).set({ passwordHash: await hash(next.data) }).where(eq(users.id, userId));
   return invalidateOtherSessions(db, userId, currentSessionToken);
 }
@@ -82,15 +82,15 @@ export async function accountDeletionPlan(db: Db, userId: string) {
 export async function deleteAccount(db: Db, userId: string, input: { password: unknown; confirmEmail: unknown }) {
   const user = await checkPassword(db, userId, input.password);
   if (typeof input.confirmEmail !== "string" || input.confirmEmail.trim().toLowerCase() !== user.email) {
-    throw new ValidationError("Vérifiez les champs", { confirmEmail: "Recopiez exactement votre adresse e-mail" });
+    throw new ValidationError("Vérifie les champs", { confirmEmail: "Recopie exactement ton adresse e-mail" });
   }
   if (user.isPlatformAdmin) {
     const admins = await db.select({ id: users.id }).from(users).where(and(eq(users.isPlatformAdmin, true), ne(users.id, userId)));
-    if (admins.length === 0) throw new ValidationError("Vous êtes le seul administrateur de la plateforme : nommez-en un autre avant de supprimer votre compte.");
+    if (admins.length === 0) throw new ValidationError("Tu es le seul administrateur de la plateforme : nommes-en un autre avant de supprimer ton compte.");
   }
   const plan = await accountDeletionPlan(db, userId);
   if (plan.blocking.length) {
-    throw new ValidationError(`Vous êtes le seul propriétaire de : ${plan.blocking.map((w) => w.name).join(", ")}. Transmettez la propriété avant de supprimer votre compte.`);
+    throw new ValidationError(`Tu es le seul propriétaire de : ${plan.blocking.map((w) => w.name).join(", ")}. Transmets la propriété avant de supprimer ton compte.`);
   }
   const ids = plan.deleted.map((w) => w.id);
   const files = ids.length ? await db.select({ key: productFiles.storageKey }).from(productFiles).where(inArray(productFiles.workspaceId, ids)) : [];

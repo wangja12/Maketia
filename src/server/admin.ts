@@ -116,7 +116,7 @@ export async function suspendUser(db: Db, adminId: string, userId: string, reaso
   await requirePlatformAdmin(db, adminId);
   const parsed = reasonSchema.safeParse(reason);
   if (!parsed.success) throw new ValidationError(parsed.error.issues[0].message, { reason: parsed.error.issues[0].message });
-  if (userId === adminId) throw new ValidationError("Vous ne pouvez pas suspendre votre propre compte.");
+  if (userId === adminId) throw new ValidationError("Tu ne peux pas suspendre ton propre compte.");
   const { user } = await adminGetUser(db, adminId, userId);
   if (user.isPlatformAdmin) throw new ValidationError("Un compte administrateur ne se suspend pas depuis l’interface.");
   await db.transaction(async (tx) => {
@@ -150,7 +150,7 @@ const planSchema = z
     analyticsEventsPerMonth: limit,
     storageMb: limit.optional(),
   })
-  .refine((p) => p.priceMonthly === null || p.priceMonthly === 0 || p.currency !== "", { message: "Indiquez la devise du prix", path: ["currency"] });
+  .refine((p) => p.priceMonthly === null || p.priceMonthly === 0 || p.currency !== "", { message: "Indique la devise du prix", path: ["currency"] });
 
 function parsePlan(input: Record<string, unknown>) {
   const parsed = planSchema.safeParse(input);
@@ -193,7 +193,7 @@ export async function updatePlan(db: Db, adminId: string, planId: string, input:
   const active = input.active ?? current.active;
   const isDefault = input.isDefault ?? current.isDefault;
   if (isDefault && !active) throw new ValidationError("Le plan par défaut doit rester actif.");
-  if (current.isDefault && !isDefault) throw new ValidationError("Choisissez un autre plan par défaut plutôt que de retirer celui-ci.");
+  if (current.isDefault && !isDefault) throw new ValidationError("Choisis un autre plan par défaut plutôt que de retirer celui-ci.");
   if (values.code !== current.code) {
     const [clash] = await db.select({ id: plans.id }).from(plans).where(and(eq(plans.code, values.code), ne(plans.id, planId)));
     if (clash) throw new ValidationError("Ce code de plan existe déjà.", { code: "Code déjà utilisé" });

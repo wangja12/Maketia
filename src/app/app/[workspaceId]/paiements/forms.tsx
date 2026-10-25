@@ -73,20 +73,20 @@ export function LinkForm({
   return (
     <form action={action} className="flex flex-col gap-3" noValidate>
       <TextField label="Lien public SasPay du produit" name="url" type="url" placeholder="https://…" defaultValue={v.url ?? product.saspayLinkUrl ?? ""} error={fe.url}
-        hint="Copiez l’adresse du lien créé dans votre compte SasPay. Aucune clé API n’est demandée." />
+        hint="Copie l’adresse du lien créé dans ton compte SasPay. Aucune clé API n’est demandée." />
       <div className="grid gap-3 sm:grid-cols-2">
         <TextField label="Prix fixé sur le lien SasPay" name="price" inputMode="numeric" defaultValue={v.price ?? String(product.price)} error={fe.price} />
         <TextField label="Devise du lien SasPay" name="currency" maxLength={3} defaultValue={v.currency ?? product.currency} error={fe.currency} />
       </div>
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" name="phoneRequired" defaultChecked={product.phoneRequired} className="mt-0.5 accent-[var(--accent)]" />
-        <span>Demander le téléphone de l’acheteur<span className="block text-xs text-muted">Utile pour retrouver son paiement dans votre tableau de bord SasPay.</span></span>
+        <span>Demander le téléphone de l’acheteur<span className="block text-xs text-muted">Utile pour retrouver son paiement dans ton tableau de bord SasPay.</span></span>
       </label>
       <label htmlFor={`${id}-ok`} className="flex items-start gap-2 text-sm">
         <input id={`${id}-ok`} type="checkbox" name="confirmed" aria-invalid={fe.confirmed ? true : undefined} className="mt-0.5 accent-[var(--accent)]" />
         <span>
           Je confirme que ce lien SasPay est à montant fixe, avec exactement ce prix et cette devise.
-          <span className="block text-xs text-muted">La plateforme ne peut pas le vérifier : si vous changez le prix dans SasPay, changez-le aussi ici.</span>
+          <span className="block text-xs text-muted">La plateforme ne peut pas le vérifier : si tu changes le prix dans SasPay, change-le aussi ici.</span>
         </span>
       </label>
       {fe.confirmed && <p className="text-xs text-danger">{fe.confirmed}</p>}
@@ -142,7 +142,7 @@ export function SecretForm({ workspaceId, hasSecret }: { workspaceId: string; ha
         autoComplete="off"
         key={state.ok ? "done" : "edit"}
         error={state.fieldErrors?.secret ?? (state.fieldErrors ? undefined : state.error)}
-        hint="Le secret affiché par SasPay à la création du webhook. Ce n’est pas votre clé API : ne collez jamais une clé sk_live ou sk_test."
+        hint="Le secret affiché par SasPay à la création du webhook. Ce n’est pas ta clé API : ne colle jamais une clé sk_live ou sk_test."
       />
       <div className="flex items-center gap-3">
         <SubmitButton className="w-fit">Enregistrer le secret</SubmitButton>
@@ -168,7 +168,7 @@ export function RotateUrlButton({ workspaceId }: { workspaceId: string }) {
   return (
     <>
       <Button variant="ghost" className="h-8" onClick={() => setOpen(true)}>Changer d’adresse</Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Générer une nouvelle adresse ?" description="L’adresse actuelle cessera aussitôt de fonctionner. Vous devrez coller la nouvelle dans votre tableau de bord SasPay.">
+      <Dialog open={open} onClose={() => setOpen(false)} title="Générer une nouvelle adresse ?" description="L’adresse actuelle cessera aussitôt de fonctionner. Tu devras coller la nouvelle dans ton tableau de bord SasPay.">
         <form action={action} className="flex flex-col gap-4">
           <FormError message={state.error} />
           <div className="flex justify-end gap-2">
@@ -198,7 +198,7 @@ export function SendLinks({ links, days, maxDownloads, buyer }: { links: { title
         Envoyer sur WhatsApp
       </a>
       <p className="text-xs text-muted">
-        WhatsApp s’ouvre avec le message prêt{buyer.phone ? "" : " ; choisissez l’acheteur dans vos contacts"}. Rien n’est envoyé tant que vous n’appuyez pas sur « Envoyer » dans WhatsApp.
+        WhatsApp s’ouvre avec le message prêt{buyer.phone ? "" : " ; choisis l’acheteur dans tes contacts"}. Rien n’est envoyé tant que tu n’appuies pas sur « Envoyer » dans WhatsApp.
       </p>
       {links.map((l) => <CopyField key={l.url} label={l.title} value={l.url} />)}
       <p className="text-xs text-muted">Valables {days} jours{maxDownloads ? `, ${maxDownloads} téléchargements chacun` : ""}. Ils ne s’affichent qu’une fois.</p>
@@ -220,7 +220,7 @@ export function ConfirmPaidButton({ workspaceId, orderId, label, buyer }: { work
     <>
       <Button className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>Confirmer et envoyer</Button>
       <Dialog open={open} onClose={close} title={state.ok ? "Paiement confirmé" : `Confirmer le paiement de ${label} ?`}
-        description={state.ok ? undefined : "La commande passera à « payée (confirmée par vous) » et le lien de téléchargement de l’acheteur sera préparé. Cette action est enregistrée à votre nom. Aucun événement n’est envoyé à Meta."}>
+        description={state.ok ? undefined : "La commande passera à « payée (confirmée par toi) » et le lien de téléchargement de l’acheteur sera préparé. Cette action est enregistrée à ton nom. Aucun événement n’est envoyé à Meta."}>
         {state.ok ? (
           <div className="flex flex-col gap-4">
             {state.links ? (
@@ -282,7 +282,7 @@ export function ReconcileForm({ workspaceId, eventId, orders }: { workspaceId: s
         <SubmitButton variant="secondary" className="w-fit" disabled={orders.length === 0}>Rapprocher et confirmer</SubmitButton>
       </form>
       <form action={ignore} className="flex flex-wrap items-center gap-2">
-        <input name="note" placeholder="Pourquoi l’ignorer ? (ex. vente hors tunnel)" maxLength={300} className={`${select} max-w-sm`} />
+        <input name="note" placeholder="Pourquoi l’ignorer ? (ex. vente hors offre)" maxLength={300} className={`${select} max-w-sm`} />
         <SubmitButton variant="ghost" className="h-8">Ignorer</SubmitButton>
         <FormError message={ignoreState.error} />
       </form>

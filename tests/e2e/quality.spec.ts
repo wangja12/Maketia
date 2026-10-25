@@ -21,12 +21,12 @@ async function setup(page: Page) {
   await page.getByLabel("E-mail").fill(adminEmail);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await expect(page.getByLabel("Nouveau tunnel")).toBeVisible();
+  await expect(page.getByLabel("Nouvelle offre")).toBeVisible();
   const workspace = page.url();
   execFileSync("pnpm", ["-s", "admin:grant", adminEmail], { env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL } });
 
-  await page.getByLabel("Nouveau tunnel").fill("Boutique qualité");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
+  await page.getByLabel("Nouvelle offre").fill("Boutique qualité");
+  await page.getByRole("button", { name: "Créer l’offre" }).click();
   await page.getByRole("link", { name: "Boutique qualité", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Boutique qualité", level: 1 })).toBeVisible();
   const funnel = page.url();

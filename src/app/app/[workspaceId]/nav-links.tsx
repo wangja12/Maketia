@@ -7,7 +7,7 @@ export function NavLinks({ workspaceId, pendingRequests = 0, ordersToConfirm = 0
   const pathname = usePathname();
   const base = `/app/${workspaceId}`;
   const links = [
-    { href: base, label: "Tunnels", active: pathname === base || pathname.startsWith(`${base}/tunnels`) },
+    { href: base, label: "Offres", active: pathname === base || pathname.startsWith(`${base}/tunnels`) },
     { href: `${base}/contacts`, label: "Contacts", active: pathname.startsWith(`${base}/contacts`) },
     { href: `${base}/paiements`, label: ordersToConfirm ? `Paiements (${ordersToConfirm} à confirmer)` : "Paiements", active: pathname.startsWith(`${base}/paiements`) },
     { href: `${base}/agents`, label: pendingRequests ? `Agents IA (${pendingRequests} à approuver)` : "Agents IA", active: pathname.startsWith(`${base}/agents`) },

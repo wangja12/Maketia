@@ -70,7 +70,7 @@ export function CreateExperimentForm({ funnelId, variants, goals }: { funnelId: 
       </fieldset>
       {tooMany && <p className="text-xs text-danger">4 variantes maximum par expérience.</p>}
       <SubmitButton disabled={selected.length < 2 || tooMany}>Créer le brouillon</SubmitButton>
-      <p className="text-xs text-muted">Rien n’est montré aux visiteurs tant que vous ne démarrez pas l’expérience.</p>
+      <p className="text-xs text-muted">Rien n’est montré aux visiteurs tant que tu ne démarres pas l’expérience.</p>
     </form>
   );
 }
@@ -136,7 +136,7 @@ export function StopButton({ funnelId, experimentId }: { funnelId: string; exper
     <>
       <Button variant="secondary" onClick={() => setOpen(true)}>Arrêter l’expérience</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title="Arrêter l’expérience ?"
-        description="Les visiteurs verront de nouveau la page publiée à cette adresse. Les résultats restent consultables ; vous pourrez choisir un gagnant ensuite.">
+        description="Les visiteurs verront de nouveau la page publiée à cette adresse. Les résultats restent consultables ; tu pourras choisir un gagnant ensuite.">
         <form action={action} className="flex flex-col gap-4">
           <FormError message={state.error} />
           <div className="flex justify-end gap-2">

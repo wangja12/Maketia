@@ -3,8 +3,8 @@ import type { Funnel } from "@/db/schema";
 // Label always present: status is never conveyed by color alone.
 const styles: Record<Funnel["status"], { label: string; className: string }> = {
   draft: { label: "Brouillon", className: "bg-surface-sunken text-muted" },
-  published: { label: "Publié", className: "bg-success-soft text-success" },
-  archived: { label: "Archivé", className: "bg-surface-sunken text-muted line-through" },
+  published: { label: "Publiée", className: "bg-success-soft text-success" },
+  archived: { label: "Archivée", className: "bg-surface-sunken text-muted line-through" },
 };
 
 export function StatusBadge({ status }: { status: Funnel["status"] }) {

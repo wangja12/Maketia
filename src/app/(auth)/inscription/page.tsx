@@ -8,7 +8,7 @@ export default function SignUpPage() {
   return (
     <>
       <h1 className="text-xl font-semibold tracking-tight">Créer un compte</h1>
-      <p className="mt-1 text-sm text-muted">Votre espace de travail est créé automatiquement.</p>
+      <p className="mt-1 text-sm text-muted">Ton espace de travail est créé automatiquement.</p>
       <SignUpForm />
       <p className="mt-6 text-center text-sm text-muted">
         Déjà inscrit ?{" "}

@@ -7,7 +7,7 @@ test("profile, password and account deletion, with the password asked again", as
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await expect(page.getByLabel("Nouveau tunnel")).toBeVisible();
+  await expect(page.getByLabel("Nouvelle offre")).toBeVisible();
 
   // A second device, to be signed out by the password change.
   const other = await browser.newContext();
@@ -16,7 +16,7 @@ test("profile, password and account deletion, with the password asked again", as
   await otherPage.getByLabel("E-mail").fill(email);
   await otherPage.getByLabel("Mot de passe").fill("motdepasse-solide");
   await otherPage.getByRole("button", { name: "Se connecter" }).click();
-  await expect(otherPage.getByLabel("Nouveau tunnel")).toBeVisible();
+  await expect(otherPage.getByLabel("Nouvelle offre")).toBeVisible();
 
   await page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Compte" }).click();
   await expect(page.getByRole("heading", { name: "Compte et sécurité" })).toBeVisible();
@@ -38,13 +38,13 @@ test("profile, password and account deletion, with the password asked again", as
 
   await page.getByRole("button", { name: "Supprimer mon compte" }).click();
   const dialog = page.getByRole("dialog");
-  await dialog.getByLabel(/Recopiez votre e-mail/).fill(email);
+  await dialog.getByLabel(/Recopie ton e-mail/).fill(email);
   await dialog.getByLabel("Mot de passe").fill("motdepasse-solide");
   await dialog.getByRole("button", { name: "Supprimer définitivement" }).click();
   await expect(dialog.getByText("Mot de passe actuel incorrect", { exact: true })).toBeVisible();
   await dialog.getByLabel("Mot de passe").fill("nouveau-mdp-solide");
   await dialog.getByRole("button", { name: "Supprimer définitivement" }).click();
-  await expect(page.getByText("Votre compte a été supprimé.")).toBeVisible();
+  await expect(page.getByText("Ton compte a été supprimé.")).toBeVisible();
 
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Mot de passe").fill("nouveau-mdp-solide");

@@ -59,7 +59,7 @@ describe("experiment lifecycle (scenarios 26.6)", () => {
     const a = await createPage(db, { userId: u.userId }, funnel.id, { name: "P", kind: "landing" });
     const b = await createVariant(db, { userId: u.userId }, a.id);
     const exp = await createExperiment(db, u.userId, funnel.id, { name: "T", goal: "cta_click", arms: arms([a, b]) });
-    await expect(startExperiment(db, u.userId, exp.id, { reviewConfirmed: true })).rejects.toThrow("Publiez d’abord");
+    await expect(startExperiment(db, u.userId, exp.id, { reviewConfirmed: true })).rejects.toThrow("Publie d’abord");
     await publishPage(db, u.userId, a.id, { path: "", reviewConfirmed: true });
     await updateTheme(db, { userId: u.userId }, b.id, 1, { accent: "#777777" });
     await expect(startExperiment(db, u.userId, exp.id, { reviewConfirmed: true })).rejects.toThrow("B : Contraste");

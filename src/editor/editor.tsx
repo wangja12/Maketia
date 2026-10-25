@@ -117,7 +117,7 @@ export function Editor({
           setStatus({ kind: "error", message: result.error });
         }
       } catch {
-        setStatus({ kind: "error", message: "Connexion perdue. Vos modifications sont conservées ici." });
+        setStatus({ kind: "error", message: "Connexion perdue. Tes modifications sont conservées ici." });
       } finally {
         savingRef.current = false;
       }
@@ -241,9 +241,9 @@ export function Editor({
 
         {remote && status.kind !== "conflict" && (
           <div role="status" className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-control border border-border-strong bg-surface px-3 py-2 text-sm">
-            <span>La version {remote.currentVersion} a été enregistrée par {remote.author}. Votre écran n’a pas été modifié.</span>
+            <span>La version {remote.currentVersion} a été enregistrée par {remote.author}. Ton écran n’a pas été modifié.</span>
             {dirty ? (
-              <span className="text-muted">Votre prochaine sauvegarde vous demandera quelle version garder.</span>
+              <span className="text-muted">Ta prochaine sauvegarde te demandera quelle version garder.</span>
             ) : (
               <button type="button" onClick={() => void loadLatest()} className="font-medium text-accent underline-offset-4 hover:underline">Afficher la version {remote.currentVersion}</button>
             )}
@@ -253,7 +253,7 @@ export function Editor({
         {status.kind === "conflict" && (
           <div role="alert" className="flex flex-col gap-2 rounded-control border border-danger bg-danger-soft px-3 py-2.5 text-sm">
             <p>
-              <span className="font-semibold">Conflit :</span> la version {status.currentVersion} a été enregistrée pendant que vous modifiiez la page.
+              <span className="font-semibold">Conflit :</span> la version {status.currentVersion} a été enregistrée pendant que tu modifiais la page.
               Rien n’a été écrasé.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -279,7 +279,7 @@ export function Editor({
                     {review.map((item) => <li key={item}>{item}</li>)}
                   </ul>
                   <p className="mt-2 text-muted">
-                    Points à vérifier vous-même : ils sont cochés au moment de publier.{skillVersion ? ` Règles : wang-design-engineering ${skillVersion}.` : ""}
+                    Points à vérifier toi-même : ils sont cochés au moment de publier.{skillVersion ? ` Règles : wang-design-engineering ${skillVersion}.` : ""}
                   </p>
                 </details>
               )}

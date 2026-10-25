@@ -53,7 +53,7 @@ describe("plans and quotas", () => {
     const funnel = await createFunnel(db, u.userId, u.workspaceId, { name: "Un" });
     const err = await createFunnel(db, u.userId, u.workspaceId, { name: "Deux" }).catch((e) => e);
     expect(err).toBeInstanceOf(QuotaExceededError);
-    expect(err.message).toBe("Limite du plan « Essai » atteinte : tunnels, 1 maximum. Changez de plan ou libérez de la place.");
+    expect(err.message).toBe("Limite du plan « Essai » atteinte : offres, 1 maximum. Change de plan ou libère de la place.");
 
     const page = await createPage(db, { userId: u.userId }, funnel.id, { name: "P", kind: "landing" });
     await createVariant(db, { userId: u.userId }, page.id);

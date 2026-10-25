@@ -6,7 +6,7 @@ import { CreateFunnelForm } from "./create-funnel-form";
 import { FunnelRow } from "./funnel-row";
 import { loadWorkspace } from "./workspace";
 
-export const metadata: Metadata = { title: "Tunnels · Maketia" };
+export const metadata: Metadata = { title: "Offres · Maketia" };
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeZone: "UTC" });
 
@@ -20,11 +20,11 @@ export default async function WorkspacePage({ params }: PageProps<"/app/[workspa
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Tunnels de vente</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Mes offres</h1>
         <p className="text-sm text-muted">
           {funnels.length === 0
-            ? "Aucun tunnel pour l’instant."
-            : `${funnels.length} tunnel${funnels.length > 1 ? "s" : ""} dans cet espace.`}
+            ? "Aucune offre pour l’instant."
+            : `${funnels.length} offre${funnels.length > 1 ? "s" : ""} dans cet espace.`}
         </p>
       </div>
 
@@ -32,11 +32,11 @@ export default async function WorkspacePage({ params }: PageProps<"/app/[workspa
 
       {funnels.length === 0 ? (
         <section className="flex flex-col items-center gap-2 rounded-card border border-dashed border-border-strong px-6 py-14 text-center">
-          <h2 className="text-base font-medium">Créez votre premier tunnel</h2>
+          <h2 className="text-base font-medium">Crée ta première offre</h2>
           <p className="max-w-sm text-sm text-muted">
             {canEdit
-              ? "Donnez-lui un nom ci-dessus. Vous pourrez ensuite générer ses pages et les modifier."
-              : "Vous avez un accès en lecture seule à cet espace. Un membre éditeur peut créer des tunnels."}
+              ? "Donne-lui un nom ci-dessus. Tu pourras ensuite générer ses pages et les modifier."
+              : "Tu as un accès en lecture seule à cet espace. Un membre éditeur peut créer des offres."}
           </p>
         </section>
       ) : (

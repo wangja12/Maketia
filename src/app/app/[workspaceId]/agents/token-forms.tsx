@@ -25,7 +25,7 @@ export function CreateTokenForm({ workspaceId, serverUrl, canWrite }: { workspac
           </label>
           <label className="flex items-start gap-2 text-sm">
             <input type="radio" name="access" value="read" defaultChecked={!canWrite} className="mt-1 accent-[var(--accent)]" />
-            <span><span className="font-medium">Lecture seule</span> — consulte les tunnels, pages et contrôles.</span>
+            <span><span className="font-medium">Lecture seule</span> — consulte les offres, pages et contrôles.</span>
           </label>
           {state.fieldErrors?.access && <p className="text-xs text-danger">{state.fieldErrors.access}</p>}
         </fieldset>
@@ -47,7 +47,7 @@ function TokenReveal({ token, serverUrl }: { token: string; serverUrl: string })
   return (
     <section role="status" aria-label="Jeton créé" className="flex flex-col gap-3 rounded-card border border-accent p-4">
       <p className="text-sm">
-        <span className="font-semibold">Copiez ce jeton maintenant.</span> Il ne sera plus jamais affiché. Traitez-le comme un mot de passe.
+        <span className="font-semibold">Copie ce jeton maintenant.</span> Il ne sera plus jamais affiché. Traite-le comme un mot de passe.
       </p>
       <CopyBlock label="Jeton" value={token} />
       <CopyBlock label="Claude Code (testé)" value={claudeCode} />

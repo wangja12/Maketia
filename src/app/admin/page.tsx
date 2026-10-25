@@ -10,7 +10,7 @@ export default async function AdminHome() {
   const tiles = [
     { label: "Utilisateurs", value: count(o.users), hint: o.suspended ? `${count(o.suspended)} suspendu(s)` : undefined, href: "/admin/utilisateurs" },
     { label: "Espaces", value: count(o.workspaces) },
-    { label: "Tunnels", value: count(o.funnels) },
+    { label: "Offres", value: count(o.funnels) },
     { label: "Pages en ligne", value: count(o.livePages), href: "/admin/diagnostics" },
     { label: "Paiements confirmés (30 j)", value: count(o.paidOrders30d) },
     { label: "Appels MCP (24 h)", value: count(o.mcpCalls24h), hint: `${count(o.mcpErrors24h)} en erreur`, href: "/admin/mcp" },

@@ -81,7 +81,7 @@ export function Outline({ sections }: { sections: Section[] }) {
         })}
         {dropIndex === sections.length && dragId && <li aria-hidden="true" className="h-0.5 rounded-full bg-accent" />}
       </ol>
-      <p className="mt-2 px-2 text-xs text-muted">Glissez pour réordonner, ou Alt + ↑/↓.</p>
+      <p className="mt-2 px-2 text-xs text-muted">Glisse pour réordonner, ou Alt + ↑/↓.</p>
     </nav>
   );
 }

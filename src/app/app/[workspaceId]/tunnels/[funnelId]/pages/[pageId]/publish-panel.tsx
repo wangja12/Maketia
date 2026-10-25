@@ -50,7 +50,7 @@ export function PublishPanel({
           )}
         </p>
       ) : (
-        <p className="text-sm text-muted">Pas en ligne. Les visiteurs ne voient rien tant que vous ne publiez pas.</p>
+        <p className="text-sm text-muted">Pas en ligne. Les visiteurs ne voient rien tant que tu ne publies pas.</p>
       )}
 
       <form action={action} className="flex flex-col gap-3" noValidate>
@@ -80,7 +80,7 @@ export function PublishPanel({
             </label>
           ))}
         </fieldset>
-        {blocked && <p className="text-xs text-danger">Corrigez d’abord les contrôles bloquants ci-dessus.</p>}
+        {blocked && <p className="text-xs text-danger">Corrige d’abord les contrôles bloquants ci-dessus.</p>}
         <SubmitButton disabled={blocked || !allChecked} className="w-full">
           {live?.version === version ? `Republier la version ${version}` : `Publier la version ${version}`}
         </SubmitButton>
@@ -98,7 +98,7 @@ function UnpublishButton({ pageId, url }: { pageId: string; url: string }) {
   return (
     <>
       <Button variant="ghost" className="w-full text-danger!" onClick={() => setOpen(true)}>Dépublier</Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Dépublier cette page ?" description={`${url} ne sera plus accessible aux visiteurs. Vous pourrez republier à tout moment.`}>
+      <Dialog open={open} onClose={() => setOpen(false)} title="Dépublier cette page ?" description={`${url} ne sera plus accessible aux visiteurs. Tu pourras republier à tout moment.`}>
         <form action={action} className="flex flex-col gap-4">
           <FormError message={state.error} />
           <div className="flex justify-end gap-2">

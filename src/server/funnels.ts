@@ -9,13 +9,13 @@ import { fieldErrorsOf } from "./validation";
 import { isUuid, requireMembership, type Permission } from "./workspaces";
 
 const nameSchema = z.object({
-  name: z.string().trim().min(1, "Donnez un nom au tunnel").max(80, "80 caractères maximum"),
+  name: z.string().trim().min(1, "Donne un nom à l’offre").max(80, "80 caractères maximum"),
 });
 
 function parseName(input: { name: unknown }) {
   const parsed = nameSchema.safeParse(input);
   if (!parsed.success) {
-    throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
+    throw new ValidationError("Vérifie les champs", fieldErrorsOf(parsed.error));
   }
   return parsed.data.name;
 }
@@ -120,7 +120,7 @@ export async function updateFunnelBrief(db: Db, userId: string, funnelId: string
   const funnel = await requireFunnel(db, userId, funnelId, "edit");
   const parsed = briefSchema.safeParse(input);
   if (!parsed.success) {
-    throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
+    throw new ValidationError("Vérifie les champs", fieldErrorsOf(parsed.error));
   }
   const [updated] = await db
     .update(funnels)

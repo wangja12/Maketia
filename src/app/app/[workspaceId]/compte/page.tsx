@@ -27,7 +27,7 @@ export default async function AccountPage({ params }: PageProps<"/app/[workspace
       </section>
       <section aria-labelledby="password" className={card}>
         <h2 id="password" className="text-sm font-semibold">Mot de passe</h2>
-        <p className="text-xs text-muted">Changer le mot de passe déconnecte vos autres appareils.</p>
+        <p className="text-xs text-muted">Changer le mot de passe déconnecte tes autres appareils.</p>
         <PasswordForm />
       </section>
       <section aria-labelledby="sessions" className={card}>
@@ -39,13 +39,13 @@ export default async function AccountPage({ params }: PageProps<"/app/[workspace
         <h2 id="delete" className="text-sm font-semibold text-danger">Supprimer le compte</h2>
         {plan.blocking.length > 0 ? (
           <p className="text-sm">
-            Vous êtes le seul propriétaire de {plan.blocking.map((w) => `« ${w.name} »`).join(", ")}, qui a d’autres membres. Transmettez la propriété avant de supprimer votre compte.
+            Tu es le seul propriétaire de {plan.blocking.map((w) => `« ${w.name} »`).join(", ")}, qui a d’autres membres. Transmets la propriété avant de supprimer ton compte.
           </p>
         ) : (
           <p className="text-sm text-muted">
             {plan.deleted.length
-              ? `Les espaces dont vous êtes le seul membre seront supprimés avec tout leur contenu : ${plan.deleted.map((w) => w.name).join(", ")}.`
-              : "Votre compte sera supprimé ; les espaces partagés restent à leurs autres membres."}
+              ? `Les espaces dont tu es le seul membre seront supprimés avec tout leur contenu : ${plan.deleted.map((w) => w.name).join(", ")}.`
+              : "Ton compte sera supprimé ; les espaces partagés restent à leurs autres membres."}
           </p>
         )}
         <div><DeleteAccountButton email={account.email} blocking={plan.blocking.map((w) => w.name)} deleted={plan.deleted.map((w) => w.name)} /></div>

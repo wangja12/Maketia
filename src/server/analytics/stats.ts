@@ -73,7 +73,7 @@ export function analyse(arms: ArmInput[]): { arms: ArmResult[]; verdict: Verdict
   if (results.length < 2 || results.some((r) => !r.enoughData)) {
     verdict = {
       kind: "insufficient",
-      message: `Données insuffisantes : il faut au moins ${MIN_VISITORS} visiteurs et ${MIN_CONVERSIONS} conversions par variante avant de comparer. Ne choisissez pas de gagnant maintenant.`,
+      message: `Données insuffisantes : il faut au moins ${MIN_VISITORS} visiteurs et ${MIN_CONVERSIONS} conversions par variante avant de comparer. Ne choisis pas de gagnant maintenant.`,
     };
   } else {
     const better = results.filter((r) => r.vsControl?.significant && r.vsControl.difference > 0).map((r) => r.label);
@@ -85,7 +85,7 @@ export function analyse(arms: ArmInput[]): { arms: ArmResult[]; verdict: Verdict
         better.length ? `${better.join(", ")} convertit mieux que ${control.label}` : "",
         worse.length ? `${worse.join(", ")} convertit moins bien que ${control.label}` : "",
       ].filter(Boolean);
-      verdict = { kind: "difference", better, worse, message: `${parts.join(" ; ")} (p < ${threshold.toFixed(3)}). Résultat probable, pas une certitude : vérifiez la période et le volume avant de décider.` };
+      verdict = { kind: "difference", better, worse, message: `${parts.join(" ; ")} (p < ${threshold.toFixed(3)}). Résultat probable, pas une certitude : vérifie la période et le volume avant de décider.` };
     }
   }
   return { arms: results, verdict, threshold };

@@ -13,5 +13,5 @@ export function toActionState(e: unknown, values?: Record<string, string>): Acti
   if (e instanceof ValidationError) return { error: e.message, fieldErrors: e.fieldErrors, values };
   if (isDomainError(e)) return { error: e.message, values };
   console.error(e);
-  return { error: "Une erreur inattendue est survenue. Réessayez dans un instant.", values };
+  return { error: "Une erreur inattendue est survenue. Réessaie dans un instant.", values };
 }

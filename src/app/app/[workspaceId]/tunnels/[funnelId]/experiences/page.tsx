@@ -31,15 +31,15 @@ export default async function ExperimentsPage({ params }: PageProps<"/app/[works
         <Link href={base} className="w-fit text-sm text-muted underline-offset-4 hover:underline">← {funnel.name}</Link>
         <h1 className="text-2xl font-semibold tracking-tight">Tests A/B</h1>
         <p className="max-w-2xl text-sm text-muted">
-          Montrez 2 à 4 variantes d’une page à des visiteurs répartis au hasard, puis comparez-les sur un objectif fixé à l’avance.
-          Vous décidez du démarrage, de l’arrêt et du gagnant.
+          Montre 2 à 4 variantes d’une page à des visiteurs répartis au hasard, puis compare-les sur un objectif fixé à l’avance.
+          Tu décides du démarrage, de l’arrêt et du gagnant.
         </p>
       </div>
 
       <section aria-labelledby="list-title" className="flex flex-col gap-3">
         <h2 id="list-title" className="text-lg font-semibold">Expériences</h2>
         {list.length === 0 ? (
-          <p className="text-sm text-muted">Aucune expérience pour ce tunnel.</p>
+          <p className="text-sm text-muted">Aucune expérience pour cette offre.</p>
         ) : (
           <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-surface shadow-raised">
             {list.map((e) => (
@@ -59,7 +59,7 @@ export default async function ExperimentsPage({ params }: PageProps<"/app/[works
         <section aria-labelledby="new-title" className="flex flex-col gap-3">
           <h2 id="new-title" className="text-lg font-semibold">Nouvelle expérience</h2>
           {testable.length === 0 ? (
-            <p className="text-sm text-muted">Créez d’abord une variante d’une page (bouton « Créer une variante » sur la page) : il en faut au moins deux.</p>
+            <p className="text-sm text-muted">Crée d’abord une variante d’une page (bouton « Créer une variante » sur la page) : il en faut au moins deux.</p>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
               {testable.map((g) => (

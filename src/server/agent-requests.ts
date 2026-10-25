@@ -132,7 +132,7 @@ export async function decideAgentRequest(db: Db, userId: string, requestId: stri
   }
   const kind = request.kind as RequestKind;
   if (input.approve && NEEDS_REVIEW.includes(kind) && input.reviewConfirmed !== true) {
-    throw new ValidationError("Cochez chaque point de la revue avant d’approuver une publication.");
+    throw new ValidationError("Coche chaque point de la revue avant d’approuver une publication.");
   }
   const [claimed] = await db
     .update(agentRequests)

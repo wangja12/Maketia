@@ -276,10 +276,10 @@ export async function exportContactsCsv(db: Db, userId: string, workspaceId: str
 
 export async function createSegment(db: Db, userId: string, workspaceId: string, input: { name: unknown; filters: Record<string, unknown> }) {
   await requireMembership(db, userId, workspaceId, "edit");
-  const name = z.string().trim().min(1, "Nommez le segment").max(60).safeParse(input.name);
+  const name = z.string().trim().min(1, "Nomme le segment").max(60).safeParse(input.name);
   if (!name.success) throw new ValidationError(name.error.issues[0].message, fieldErrorsOf(name.error));
   const filters = normalizeFilters(input.filters);
-  if (Object.keys(filters).length === 0) throw new ValidationError("Choisissez au moins un filtre avant d’enregistrer un segment.");
+  if (Object.keys(filters).length === 0) throw new ValidationError("Choisis au moins un filtre avant d’enregistrer un segment.");
   const [row] = await db.insert(segments).values({ workspaceId, name: name.data, filters }).returning();
   return row;
 }

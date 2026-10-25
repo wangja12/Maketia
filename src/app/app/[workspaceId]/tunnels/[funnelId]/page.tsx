@@ -13,7 +13,7 @@ import { SiteSection } from "./site-section";
 import { listDomains } from "@/server/domains";
 import { listPublications } from "@/server/publishing";
 
-export const metadata: Metadata = { title: "Tunnel · Maketia" };
+export const metadata: Metadata = { title: "Offre · Maketia" };
 
 const ACTIVE_WINDOW_MS = 15 * 60 * 1000;
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" });
@@ -46,7 +46,7 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
         <Link href={`/app/${workspace.id}`} className="w-fit text-sm text-muted underline-offset-4 hover:underline">
-          ← Tous les tunnels
+          ← Toutes les offres
         </Link>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="flex min-w-0 items-center gap-2">
@@ -70,7 +70,7 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
           </p>
         ) : (
           <p className="text-muted">
-            <span className="font-medium text-fg">Aucun agent IA actif.</span> Maketia n’intègre pas d’IA : connectez la vôtre
+            <span className="font-medium text-fg">Aucun agent IA actif.</span> Maketia n’intègre pas d’IA : connecte la tienne
             (Claude, ChatGPT…) via MCP pour qu’elle prépare les pages à partir de la fiche. Tout reste faisable à la main.
           </p>
         )}
@@ -86,7 +86,7 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
             <div className="rounded-card border border-dashed border-border-strong px-6 py-10 text-center">
               <p className="font-medium">Aucune page</p>
               <p className="mx-auto mt-1 max-w-sm text-sm text-muted">
-                Créez une page à partir d’un modèle ci-dessous, ou demandez à votre agent IA de la préparer.
+                Crée une page à partir d’un modèle ci-dessous, ou demande à ton agent IA de la préparer.
               </p>
             </div>
           ) : (
@@ -129,7 +129,7 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
         <aside aria-labelledby="brief-title" className="flex flex-col gap-4">
           <div>
             <h2 id="brief-title" className="text-lg font-semibold">Fiche de l’offre</h2>
-            <p className="mt-1 text-sm text-muted">Votre agent IA la lit avant d’écrire. Rien n’y est inventé : ce que vous ne remplissez pas restera à compléter.</p>
+            <p className="mt-1 text-sm text-muted">Ton agent IA la lit avant d’écrire. Rien n’y est inventé : ce que tu ne remplis pas restera à compléter.</p>
           </div>
           <BriefForm funnelId={funnel.id} brief={funnel.brief} readOnly={!canEdit} />
         </aside>

@@ -38,8 +38,8 @@ export default async function AgentsPage({ params }: PageProps<"/app/[workspaceI
       <div className="flex max-w-2xl flex-col gap-2">
         <h1 className="text-2xl font-semibold tracking-tight">Agents IA (MCP)</h1>
         <p className="text-sm text-muted text-pretty">
-          Maketia n’intègre aucune intelligence artificielle. Vous connectez la vôtre (Claude, ChatGPT ou tout client
-          compatible MCP) : elle lit votre fiche d’offre et crée ou modifie des pages avec vos droits, en appliquant la
+          Maketia n’intègre aucune intelligence artificielle. Tu connectes la tienne (Claude, ChatGPT ou tout client
+          compatible MCP) : elle lit ta fiche d’offre et crée ou modifie des pages avec tes droits, en appliquant la
           skill de design obligatoire <span className="font-mono text-xs">wang-design-engineering {DESIGN_SKILL_VERSION}</span>.
           Chaque action est enregistrée et versionnée. Un agent peut demander une publication, un arrêt de test ou un choix
           de gagnant : rien n’est exécuté tant qu’une personne de l’espace ne l’a pas approuvé ici.
@@ -100,7 +100,7 @@ export default async function AgentsPage({ params }: PageProps<"/app/[workspaceI
             <h2 id="tokens-title" className="text-lg font-semibold">Connexions</h2>
             {active.length === 0 ? (
               <p className="rounded-card border border-dashed border-border-strong px-4 py-6 text-center text-sm text-muted">
-                Aucun agent connecté. Créez une connexion, puis ajoutez-la dans votre client IA.
+                Aucun agent connecté. Crée une connexion, puis ajoute-la dans ton client IA.
               </p>
             ) : (
               <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-surface shadow-raised">

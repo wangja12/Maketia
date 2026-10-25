@@ -27,7 +27,7 @@ export default async function AdminDiagnostics() {
       <section aria-labelledby="pubs" className="flex flex-col gap-3">
         <h2 id="pubs" className="text-lg font-semibold">Publications récentes</h2>
         {d.recentPublications.length === 0 ? <p className="text-sm text-muted">Aucune.</p> : (
-          <DataTable head={["Tunnel", "Adresse", "Version", "Publiée le", "État"]}
+          <DataTable head={["Offre", "Adresse", "Version", "Publiée le", "État"]}
             rows={d.recentPublications.map((p) => [p.funnel, `${p.subdomain ?? "(sans sous-domaine)"} /${p.path}`, `v${p.version}`, dateTime.format(p.createdAt), p.unpublishedAt ? "Retirée" : "En ligne"])} />
         )}
       </section>

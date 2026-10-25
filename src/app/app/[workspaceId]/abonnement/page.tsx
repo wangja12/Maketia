@@ -21,7 +21,7 @@ export default async function SubscriptionPage({ params }: PageProps<"/app/[work
         <h1 className="text-2xl font-semibold tracking-tight">Abonnement</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted">
           Plan de l’espace et consommation. Les limites s’appliquent à tout le monde, y compris aux agents IA connectés par MCP.
-          Elles sont distinctes des paiements que vous encaissez via vos tunnels.
+          Elles sont distinctes des paiements que tu encaisses via tes offres.
         </p>
       </div>
 
@@ -56,7 +56,7 @@ export default async function SubscriptionPage({ params }: PageProps<"/app/[work
       <section aria-labelledby="plans-title" className="flex flex-col gap-3">
         <h2 id="plans-title" className="text-lg font-semibold">Plans disponibles</h2>
         <p role="note" className="rounded-card bg-warning-soft px-4 py-3 text-sm text-warning">
-          Le paiement des abonnements n’est pas encore en service : les plans payants sont attribués par l’équipe de la plateforme. Vous pouvez passer vous-même à un plan gratuit.
+          Le paiement des abonnements n’est pas encore en service : les plans payants sont attribués par l’équipe de la plateforme. Tu peux passer toi-même à un plan gratuit.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map((p) => {

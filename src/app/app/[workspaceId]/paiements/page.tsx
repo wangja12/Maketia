@@ -42,10 +42,10 @@ const ORDER_STATUS: Record<Order["status"], { label: string; className: string }
   cancelled: { label: "Annulée", className: "bg-surface-sunken text-muted" },
 };
 
-const PAID_VIA: Record<string, string> = { manual: "confirmée par vous", webhook: "confirmée par notification" };
+const PAID_VIA: Record<string, string> = { manual: "confirmée par toi", webhook: "confirmée par notification" };
 
 const EVENT_LABELS: Record<string, string> = {
-  order_created: "Commande créée, acheteur envoyé vers votre lien SasPay",
+  order_created: "Commande créée, acheteur envoyé vers ton lien SasPay",
   manual_confirmation: "Paiement confirmé manuellement",
   cancelled: "Commande annulée",
   // Orders from the removed CinetPay integration.
@@ -103,24 +103,24 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
       <div className="flex max-w-2xl flex-col gap-2">
         <h1 className="text-2xl font-semibold tracking-tight">Paiements</h1>
         <p className="text-sm text-muted text-pretty">
-          Vos clients paient sur vos propres liens SasPay : l’argent arrive directement sur votre compte, jamais sur celui de la plateforme.
-          La plateforme ne se connecte pas à votre compte SasPay et ne vous demande aucune clé API.
+          Tes clients paient sur tes propres liens SasPay : l’argent arrive directement sur ton compte, jamais sur celui de la plateforme.
+          La plateforme ne se connecte pas à ton compte SasPay et ne te demande aucune clé API.
         </p>
       </div>
 
       <p role="note" className="max-w-3xl rounded-card bg-warning-soft px-4 py-3 text-sm text-warning">
         Confirmation automatique des paiements non disponible pour l’instant : le format de signature et le contenu exact des notifications SasPay
-        n’ont pas encore pu être vérifiés. Une commande passe « payée » seulement quand vous la confirmez, après avoir vérifié le paiement dans votre
+        n’ont pas encore pu être vérifiés. Une commande passe « payée » seulement quand tu la confirmes, après avoir vérifié le paiement dans ton
         tableau de bord SasPay. Aucune livraison automatique ni aucun achat Meta n’est déclenché.
       </p>
 
       <section aria-labelledby="products-title" className="flex flex-col gap-3">
         <h2 id="products-title" className="text-lg font-semibold">Produits et liens de paiement</h2>
         <ol className="flex max-w-3xl list-decimal flex-col gap-1 pl-5 text-sm text-muted">
-          <li>Dans votre compte SasPay, créez un lien de paiement pour ce produit, à <strong className="text-fg">montant fixe</strong>, dans votre devise.</li>
-          <li>Copiez l’adresse publique du lien (aucune clé API).</li>
-          <li>Collez-la ci-dessous, avec le même prix et la même devise, et confirmez qu’ils correspondent.</li>
-          <li>Dans l’éditeur, ajoutez une section « Commande et paiement » avec ce produit, puis publiez.</li>
+          <li>Dans ton compte SasPay, crée un lien de paiement pour ce produit, à <strong className="text-fg">montant fixe</strong>, dans ta devise.</li>
+          <li>Copie l’adresse publique du lien (aucune clé API).</li>
+          <li>Colle-la ci-dessous, avec le même prix et la même devise, et confirme qu’ils correspondent.</li>
+          <li>Dans l’éditeur, ajoute une section « Commande et paiement » avec ce produit, puis publie.</li>
         </ol>
         {hosts.length === 0 && (
           <p role="alert" className="rounded-control bg-surface-sunken px-3 py-2 text-sm">
@@ -145,7 +145,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
                     <div className="flex flex-col gap-2 rounded-control bg-surface-sunken p-3">
                       <h3 className="text-xs font-semibold">Fichiers livrés à l’acheteur</h3>
                       {(filesByProduct.get(p.id) ?? []).length === 0 ? (
-                        <p className="text-xs text-muted">Aucun fichier : ajoutez celui que l’acheteur doit recevoir.</p>
+                        <p className="text-xs text-muted">Aucun fichier : ajoute celui que l’acheteur doit recevoir.</p>
                       ) : (
                         <ul className="flex flex-col gap-1.5">
                           {filesByProduct.get(p.id)!.map((f) => (
@@ -177,7 +177,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
         )}
         {canEdit && <ProductForm workspaceId={workspace.id} kinds={Object.entries(PRODUCT_KINDS)} />}
         <p className="text-xs text-muted">
-          L’acheteur laisse son nom et son e-mail sur votre page, une commande « en attente » est créée, puis il est envoyé sur votre lien SasPay.
+          L’acheteur laisse son nom et son e-mail sur ta page, une commande « en attente » est créée, puis il est envoyé sur ton lien SasPay.
           Revenir sur une page de remerciement ne prouve pas qu’il a payé.
         </p>
       </section>
@@ -190,12 +190,12 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
           </div>
           <div className="flex max-w-3xl flex-col gap-4 rounded-card border border-border bg-surface p-4 shadow-raised">
             <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted">
-              <li>Dans votre tableau de bord SasPay, ajoutez un webhook avec l’adresse ci-dessous et l’événement de transaction réussie, si cette option est proposée sur votre compte.</li>
-              <li>Copiez le secret de signature affiché par SasPay (il n’est souvent montré qu’une fois) et collez-le ici.</li>
-              <li>Envoyez une notification de test depuis SasPay : elle apparaîtra dans la liste « à rapprocher ».</li>
+              <li>Dans ton tableau de bord SasPay, ajoute un webhook avec l’adresse ci-dessous et l’événement de transaction réussie, si cette option est proposée sur ton compte.</li>
+              <li>Copie le secret de signature affiché par SasPay (il n’est souvent montré qu’une fois) et colle-le ici.</li>
+              <li>Envoie une notification de test depuis SasPay : elle apparaîtra dans la liste « à rapprocher ».</li>
             </ol>
             {setup.url ? (
-              <CopyField label="Adresse de notification (propre à votre espace)" value={setup.url} />
+              <CopyField label="Adresse de notification (propre à ton espace)" value={setup.url} />
             ) : (
               <p role="alert" className="text-sm text-danger">Adresse indisponible : l’adresse publique de l’application (APP_URL) n’est pas configurée.</p>
             )}
@@ -207,7 +207,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
             </p>
             <SecretForm workspaceId={workspace.id} hasSecret={setup.hasSecret} />
             {setup.hasSecret && <div><ClearSecretButton workspaceId={workspace.id} /></div>}
-            <p className="text-xs text-muted">Secret perdu ? Régénérez-le dans votre tableau de bord SasPay puis collez le nouveau ici : il ne peut pas être relu.</p>
+            <p className="text-xs text-muted">Secret perdu ? Régénère-le dans ton tableau de bord SasPay puis colle le nouveau ici : il ne peut pas être relu.</p>
           </div>
 
           <h3 className="mt-2 text-base font-semibold">À rapprocher ({toReconcile.length})</h3>
@@ -222,7 +222,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
                     {e.eventType ? ` · type annoncé : ${e.eventType}` : ""}
                     {e.transactionRef ? ` · référence annoncée : ${e.transactionRef}` : ""}
                     <span className="block text-xs text-muted">
-                      {e.verification === "no_secret" ? "Reçue sans secret enregistré." : "Signature non vérifiable pour l’instant."} Contenu non vérifié : contrôlez-le dans SasPay avant de rapprocher.
+                      {e.verification === "no_secret" ? "Reçue sans secret enregistré." : "Signature non vérifiable pour l’instant."} Contenu non vérifié : contrôle-le dans SasPay avant de rapprocher.
                     </span>
                   </p>
                   <RawBody body={e.rawBody} />
@@ -293,7 +293,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
             ))}
           </ul>
         )}
-        <p className="text-xs text-muted">Remboursements : à faire depuis votre compte SasPay ; la plateforme ne peut ni les lancer ni les constater.</p>
+        <p className="text-xs text-muted">Remboursements : à faire depuis ton compte SasPay ; la plateforme ne peut ni les lancer ni les constater.</p>
       </section>
     </div>
   );

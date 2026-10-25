@@ -114,7 +114,7 @@ export default async function ExperimentPage({ params }: PageProps<"/app/[worksp
                 Les visiteurs de l’adresse où la page est en ligne seront répartis entre les variantes, dans la version actuelle de chacune (figée au démarrage).
               </p>
               <StartForm funnelId={funnel.id} experimentId={exp.id} review={EXPERIMENT_REVIEW}
-                blockedReason={groupLive ? null : "Publiez d’abord une des variantes : le test se déroule à son adresse."} />
+                blockedReason={groupLive ? null : "Publie d’abord une des variantes : le test se déroule à son adresse."} />
             </Panel>
           )}
           {exp.status !== "stopped" && candidates.length > 0 && active.length < MAX_ARMS && (

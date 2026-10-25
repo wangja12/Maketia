@@ -49,7 +49,7 @@ export function FunnelRow({
           <StatusBadge status={funnel.status} />
         </div>
         <span className="truncate font-mono text-xs text-muted">
-          /{funnel.slug} · modifié le {updatedLabel}
+          /{funnel.slug} · modifiée le {updatedLabel}
         </span>
       </div>
       {(canEdit || canDelete) && (
@@ -67,14 +67,14 @@ export function FunnelRow({
         </div>
       )}
 
-      <Dialog open={dialog === "rename"} onClose={close} title="Renommer le tunnel">
+      <Dialog open={dialog === "rename"} onClose={close} title="Renommer l’offre">
         <RenameForm key={opening} funnel={funnel} onDone={close} />
       </Dialog>
       <Dialog
         open={dialog === "delete"}
         onClose={close}
-        title="Supprimer ce tunnel ?"
-        description={`« ${funnel.name} » sera définitivement supprimé. Cette action est irréversible.`}
+        title="Supprimer cette offre ?"
+        description={`« ${funnel.name} » sera définitivement supprimée. Cette action est irréversible.`}
       >
         <DeleteForm key={opening} funnelId={funnel.id} onCancel={close} />
       </Dialog>

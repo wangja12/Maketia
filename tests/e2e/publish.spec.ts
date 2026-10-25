@@ -6,8 +6,8 @@ async function setup(page: Page) {
   await page.getByLabel("E-mail").fill(`pub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@exemple.test`);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await page.getByLabel("Nouveau tunnel").fill("Boutique Fatou");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
+  await page.getByLabel("Nouvelle offre").fill("Boutique Fatou");
+  await page.getByRole("button", { name: "Créer l’offre" }).click();
   await page.getByRole("link", { name: "Boutique Fatou" }).click();
   await page.getByLabel("Nom", { exact: true }).fill("Accueil");
   await page.getByLabel("Modèle").selectOption("landing");

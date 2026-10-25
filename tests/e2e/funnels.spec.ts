@@ -12,14 +12,14 @@ async function signUp(page: Page, name: string, email: string) {
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Mot de passe").fill(password);
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await expect(page.getByRole("heading", { name: "Tunnels de vente" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Mes offres" })).toBeVisible();
 }
 
 test("sign up, create, rename and delete a funnel; data persists across reloads", async ({ page }) => {
   await signUp(page, "Awa Diop", uniqueEmail("awa"));
-  await expect(page.getByText("Créez votre premier tunnel")).toBeVisible();
+  await expect(page.getByText("Crée ta première offre")).toBeVisible();
 
-  const input = page.getByLabel("Nouveau tunnel");
+  const input = page.getByLabel("Nouvelle offre");
   await input.fill("Formation Excel");
   await input.press("Enter");
   const row = page.getByRole("listitem").filter({ hasText: "Formation Excel" });
@@ -33,7 +33,7 @@ test("sign up, create, rename and delete a funnel; data persists across reloads"
 
   // Rename through the modal, keyboard only after opening.
   await row.getByRole("button", { name: /Renommer/ }).click();
-  const dialog = page.getByRole("dialog", { name: "Renommer le tunnel" });
+  const dialog = page.getByRole("dialog", { name: "Renommer l’offre" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel("Nom")).toBeFocused();
   await dialog.getByLabel("Nom").fill("Formation Excel avancée");
@@ -44,7 +44,7 @@ test("sign up, create, rename and delete a funnel; data persists across reloads"
   // Escape closes the delete confirmation without deleting.
   const renamed = page.getByRole("listitem").filter({ hasText: "Formation Excel avancée" });
   await renamed.getByRole("button", { name: /Supprimer/ }).click();
-  const confirm = page.getByRole("dialog", { name: "Supprimer ce tunnel ?" });
+  const confirm = page.getByRole("dialog", { name: "Supprimer cette offre ?" });
   await expect(confirm.getByRole("button", { name: "Annuler" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(confirm).toBeHidden();
@@ -52,9 +52,9 @@ test("sign up, create, rename and delete a funnel; data persists across reloads"
 
   await renamed.getByRole("button", { name: /Supprimer/ }).click();
   await confirm.getByRole("button", { name: "Supprimer", exact: true }).click();
-  await expect(page.getByText("Créez votre premier tunnel")).toBeVisible();
+  await expect(page.getByText("Crée ta première offre")).toBeVisible();
   await page.reload();
-  await expect(page.getByText("Créez votre premier tunnel")).toBeVisible();
+  await expect(page.getByText("Crée ta première offre")).toBeVisible();
 });
 
 test("shows validation errors inline and keeps typed values", async ({ page }) => {
@@ -85,15 +85,15 @@ test("sign out, wrong password, sign back in", async ({ page }) => {
 
   await page.getByLabel("Mot de passe").fill(password);
   await page.getByRole("button", { name: "Se connecter" }).click();
-  await expect(page.getByRole("heading", { name: "Tunnels de vente" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Mes offres" })).toBeVisible();
 });
 
 test("a user cannot open another user's workspace", async ({ browser }) => {
   const alice = await browser.newPage();
   await signUp(alice, "Alice", uniqueEmail("alice"));
   const aliceWorkspaceUrl = alice.url();
-  await alice.getByLabel("Nouveau tunnel").fill("Tunnel privé");
-  await alice.getByRole("button", { name: "Créer le tunnel" }).click();
+  await alice.getByLabel("Nouvelle offre").fill("Tunnel privé");
+  await alice.getByRole("button", { name: "Créer l’offre" }).click();
   await expect(alice.getByText("Tunnel privé", { exact: true })).toBeVisible();
 
   const bobContext = await browser.newContext();

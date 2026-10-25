@@ -20,7 +20,7 @@ async function owner(page: Page) {
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await expect(page.getByRole("heading", { name: "Tunnels de vente" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Mes offres" })).toBeVisible();
   return { workspaceUrl: page.url(), email };
 }
 
@@ -55,7 +55,7 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
   await expect(product.getByText("Lien configuré")).toBeVisible();
 
   // 2. Webhook: unique URL to paste in SasPay, signing secret stored encrypted.
-  const webhookUrl = await page.getByLabel("Adresse de notification (propre à votre espace)").inputValue();
+  const webhookUrl = await page.getByLabel("Adresse de notification (propre à ton espace)").inputValue();
   expect(webhookUrl).toMatch(/\/api\/webhooks\/saspay\/[A-Za-z0-9_-]{30,}$/);
   await page.getByLabel("Secret de signature du webhook").fill("whsec_test_0123456789abcdef");
   await page.getByRole("button", { name: "Enregistrer le secret" }).click();
@@ -64,8 +64,8 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
 
   // 3. Order form on a page, published.
   await page.goto(workspaceUrl);
-  await page.getByLabel("Nouveau tunnel").fill("Excel");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
+  await page.getByLabel("Nouvelle offre").fill("Excel");
+  await page.getByRole("button", { name: "Créer l’offre" }).click();
   await page.getByRole("link", { name: "Excel", exact: true }).click();
   await page.getByLabel("Nom", { exact: true }).fill("Vente");
   await page.getByLabel("Modèle").selectOption("landing");
@@ -121,11 +121,11 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
 
   const queue = page.getByRole("listitem").filter({ hasText: "tx_e2e" });
   await queue.getByRole("button", { name: "Rapprocher et confirmer" }).click();
-  await expect(queue.getByText(/Cochez la confirmation/)).toBeVisible();
+  await expect(queue.getByText(/Coche la confirmation/)).toBeVisible();
   await queue.getByRole("checkbox").check();
   await queue.getByRole("button", { name: "Rapprocher et confirmer" }).click();
   await expect(page.getByRole("heading", { name: "À rapprocher (0)" })).toBeVisible();
-  await expect(order.getByText("Payée (confirmée par vous)")).toBeVisible();
+  await expect(order.getByText("Payée (confirmée par toi)")).toBeVisible();
   await order.getByText("Historique").click();
   await expect(order.getByText(/Paiement confirmé manuellement/)).toBeVisible();
 
@@ -175,13 +175,13 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
   await next.getByRole("button", { name: "Confirmer et envoyer" }).click();
   const confirm = page.getByRole("dialog");
   await confirm.getByRole("button", { name: "Confirmer et préparer l’envoi" }).click();
-  await expect(confirm.getByText(/Cochez la confirmation/)).toBeVisible();
+  await expect(confirm.getByText(/Coche la confirmation/)).toBeVisible();
   await confirm.getByRole("checkbox").check();
   await confirm.getByRole("button", { name: "Confirmer et préparer l’envoi" }).click();
   const share = new URL((await confirm.getByRole("link", { name: "Envoyer sur WhatsApp" }).getAttribute("href"))!);
   expect(share.origin).toBe("https://wa.me");
   expect(share.searchParams.get("text")).toMatch(/^Bonjour Moussa,\n[\s\S]*\/api\/telechargement\/[A-Za-z0-9_-]{43}$/);
   await confirm.getByRole("button", { name: "Fermer" }).click();
-  await expect(next.getByText("Payée (confirmée par vous)")).toBeVisible();
+  await expect(next.getByText("Payée (confirmée par toi)")).toBeVisible();
   await expect(page.getByRole("link", { name: "Paiements", exact: true })).toBeVisible();
 });

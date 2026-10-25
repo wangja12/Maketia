@@ -49,7 +49,7 @@ const productSchema = z.object({
 export async function createProduct(db: Db, userId: string, workspaceId: string, input: unknown) {
   await requireMembership(db, userId, workspaceId, "edit");
   const parsed = productSchema.safeParse(input);
-  if (!parsed.success) throw new ValidationError("Vérifiez les champs", fieldErrorsOf(parsed.error));
+  if (!parsed.success) throw new ValidationError("Vérifie les champs", fieldErrorsOf(parsed.error));
   const [row] = await db.insert(products).values({ workspaceId, ...parsed.data }).returning();
   return row;
 }
@@ -86,11 +86,11 @@ export async function setProductPaymentLink(
 ) {
   const row = await requireProduct(db, userId, productId);
   const fields = productSchema.pick({ price: true, currency: true }).safeParse({ price: input.price, currency: input.currency });
-  if (!fields.success) throw new ValidationError("Vérifiez les champs", fieldErrorsOf(fields.error));
+  if (!fields.success) throw new ValidationError("Vérifie les champs", fieldErrorsOf(fields.error));
   const link = checkPaymentLink(String(input.url ?? ""), await allowedLinkHosts(db));
   if (!link.ok) throw new ValidationError(link.reason, { url: link.reason });
   if (input.confirmed !== true) {
-    const message = "Confirmez que le prix et la devise sont exactement ceux de votre lien SasPay.";
+    const message = "Confirme que le prix et la devise sont exactement ceux de ton lien SasPay.";
     throw new ValidationError(message, { confirmed: message });
   }
   const [updated] = await db
@@ -236,7 +236,7 @@ export async function startCheckout(
 export async function confirmOrderPaidManually(db: Db, userId: string, orderId: string, input: { attested: unknown; note?: unknown; webhookEventId?: number | null }) {
   const { order } = await getOrderForUser(db, userId, orderId);
   await requireMembership(db, userId, order.workspaceId, "delete");
-  if (input.attested !== true) throw new ValidationError("Cochez la confirmation : vous avez vérifié ce paiement dans votre tableau de bord SasPay.");
+  if (input.attested !== true) throw new ValidationError("Coche la confirmation : tu as vérifié ce paiement dans ton tableau de bord SasPay.");
   if (order.paymentMethod !== "saspay_link") throw new ValidationError("Seules les commandes par lien SasPay se confirment ici.");
   if (!["pending", "payment_unmatched"].includes(order.status)) throw new ValidationError("Cette commande n’est plus en attente de paiement.");
   const note = typeof input.note === "string" ? input.note.trim().slice(0, 300) : "";

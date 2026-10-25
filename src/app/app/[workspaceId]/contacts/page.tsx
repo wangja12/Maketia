@@ -41,7 +41,7 @@ export default async function ContactsPage({ params, searchParams }: PageProps<"
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Contacts</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted">
-            Les personnes qui ont laissé leurs coordonnées sur vos pages (formulaire de contact ou de commande). Rien n’est importé ni deviné, et aucun e-mail n’est envoyé depuis la plateforme.
+            Les personnes qui ont laissé leurs coordonnées sur tes pages (formulaire de contact ou de commande). Rien n’est importé ni deviné, et aucun e-mail n’est envoyé depuis la plateforme.
           </p>
         </div>
         {can(workspace.role, "delete") && result.total > 0 && (
@@ -72,7 +72,7 @@ export default async function ContactsPage({ params, searchParams }: PageProps<"
         </label>
         <Filter label="Statut" name="status" value={f.status} options={Object.entries(STATUS_LABELS)} />
         <Filter label="Tag" name="tag" value={f.tag} options={facets.tags.map((t) => [t, t])} />
-        <Filter label="Tunnel" name="funnelId" value={f.funnelId} options={funnelList.map((x) => [x.id, x.name])} />
+        <Filter label="Offre" name="funnelId" value={f.funnelId} options={funnelList.map((x) => [x.id, x.name])} />
         <Filter label="Source" name="source" value={f.source} options={[["(direct)", "(direct)"], ...facets.sources.map((s): [string, string] => [s, s])]} />
         <Filter label="Achat" name="buyer" value={f.buyer} options={[["yes", "A payé"], ["no", "N’a pas payé"]]} />
         <button type="submit" className={`${control} pressable font-medium [@media(hover:hover)_and_(pointer:fine)]:hover:bg-surface-sunken`}>Filtrer</button>
@@ -85,7 +85,7 @@ export default async function ContactsPage({ params, searchParams }: PageProps<"
         <div className="rounded-card border border-dashed border-border-strong px-6 py-10 text-center">
           <p className="font-medium">{Object.keys(active).length ? "Aucun contact ne correspond" : "Aucun contact pour l’instant"}</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted">
-            Ajoutez une section « Formulaire de contact » ou « Commande et paiement » à une page publiée : chaque envoi crée ou met à jour un contact ici.
+            Ajoute une section « Formulaire de contact » ou « Commande et paiement » à une page publiée : chaque envoi crée ou met à jour un contact ici.
           </p>
         </div>
       ) : (

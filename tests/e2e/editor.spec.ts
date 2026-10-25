@@ -11,8 +11,8 @@ async function openEditor(page: Page) {
   await page.getByLabel("E-mail").fill(`ed-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@exemple.test`);
   await page.getByLabel("Mot de passe").fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
-  await page.getByLabel("Nouveau tunnel").fill("Coaching");
-  await page.getByRole("button", { name: "Créer le tunnel" }).click();
+  await page.getByLabel("Nouvelle offre").fill("Coaching");
+  await page.getByRole("button", { name: "Créer l’offre" }).click();
   await page.getByRole("link", { name: "Coaching" }).click();
   await page.getByLabel("Nom", { exact: true }).fill("Landing");
   await page.getByLabel("Modèle").selectOption("landing");

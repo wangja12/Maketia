@@ -17,9 +17,9 @@ const FIELDS: Field[] = [
   { name: "problem", label: "Problème principal du client", rows: 2 },
   { name: "promise", label: "Promesse commerciale", rows: 2 },
   { name: "benefits", label: "Bénéfices", placeholder: "Un par ligne", rows: 3 },
-  { name: "goal", label: "Objectif du tunnel", placeholder: "Ex. vendre l’e-book, récolter des contacts" },
+  { name: "goal", label: "Objectif de l’offre", placeholder: "Ex. vendre l’e-book, récolter des contacts" },
   { name: "style", label: "Style visuel souhaité", placeholder: "Ex. sobre, couleurs chaudes" },
-  { name: "notes", label: "Description libre et témoignages réels", placeholder: "Collez ici les vrais témoignages que vous autorisez à utiliser.", rows: 4 },
+  { name: "notes", label: "Description libre et témoignages réels", placeholder: "Colle ici les vrais témoignages que tu autorises à utiliser.", rows: 4 },
 ];
 
 export function BriefForm({ funnelId, brief, readOnly }: { funnelId: string; brief: FunnelBrief | null; readOnly: boolean }) {
