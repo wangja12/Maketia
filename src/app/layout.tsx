@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tunnels IA",
-  description: "Créez, publiez et optimisez vos tunnels de vente avec l’IA.",
+  title: "Maketia",
+  description: "Pages de vente pour produits numériques : éditeur par sections, paiement par lien SasPay, livraison privée des fichiers.",
 };
 
 export const viewport: Viewport = {

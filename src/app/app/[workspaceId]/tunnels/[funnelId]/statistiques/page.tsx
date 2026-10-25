@@ -8,7 +8,7 @@ import { trackingEnabled } from "@/server/analytics/tracking";
 import { listPages } from "@/server/pages";
 import { loadFunnel } from "../funnel";
 
-export const metadata: Metadata = { title: "Statistiques · Tunnels IA" };
+export const metadata: Metadata = { title: "Statistiques · Maketia" };
 
 const control = "h-9 rounded-control border border-border-strong bg-surface px-2.5 text-[16px] shadow-raised sm:h-8 sm:text-sm";
 const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);

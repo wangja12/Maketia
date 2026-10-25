@@ -12,7 +12,7 @@ import { can } from "@/server/workspaces";
 import { loadFunnel } from "../../funnel";
 import { AddArmForm, SplitForm, StartForm, StopButton, WinnerForm } from "../experiment-forms";
 
-export const metadata: Metadata = { title: "Test A/B · Tunnels IA" };
+export const metadata: Metadata = { title: "Test A/B · Maketia" };
 
 const date = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" });
 const points = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });

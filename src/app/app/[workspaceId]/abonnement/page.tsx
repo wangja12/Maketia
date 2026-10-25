@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import { getDb } from "@/db";
-import { count, money } from "@/lib/format";
-import { getUsageAndLimits, listActivePlans, QUOTA_LABELS, type QuotaKey } from "@/server/billing/plans";
+import { count } from "@/lib/format";
+import { getUsageAndLimits, listActivePlans, planPrice, QUOTA_LABELS, type QuotaKey } from "@/server/billing/plans";
 import { loadWorkspace } from "../workspace";
 import { ChoosePlanButton } from "./choose-plan";
 
-export const metadata: Metadata = { title: "Abonnement · Tunnels IA" };
+export const metadata: Metadata = { title: "Abonnement · Maketia" };
 
-const price = (p: { priceMonthly: number | null; currency: string | null }) =>
-  p.priceMonthly === null ? "Tarif à définir" : p.priceMonthly === 0 ? "Gratuit" : `${money(p.priceMonthly, p.currency ?? "XOF")} / mois`;
 
 export default async function SubscriptionPage({ params }: PageProps<"/app/[workspaceId]/abonnement">) {
   const { workspaceId } = await params;
@@ -30,7 +28,7 @@ export default async function SubscriptionPage({ params }: PageProps<"/app/[work
       <section aria-labelledby="current-title" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="current-title" className="text-lg font-semibold">Plan actuel : {usage.plan.name}</h2>
-          <span className="text-sm text-muted">{price(usage.plan)}</span>
+          <span className="text-sm text-muted">{planPrice(usage.plan)}</span>
         </div>
         <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-surface shadow-raised">
           {usage.quotas.map((q) => (
@@ -69,7 +67,7 @@ export default async function SubscriptionPage({ params }: PageProps<"/app/[work
                   <h3 className="font-semibold">{p.name}</h3>
                   {current && <span className="text-xs font-medium text-success">Plan actuel</span>}
                 </div>
-                <p className="text-sm">{price(p)}</p>
+                <p className="text-sm">{planPrice(p)}</p>
                 <ul className="flex flex-col gap-1 text-xs text-muted">
                   {(Object.keys(QUOTA_LABELS) as QuotaKey[]).map((k) => (
                     <li key={k}>{QUOTA_LABELS[k]} : {p.limits[k] === null || p.limits[k] === undefined ? "illimité" : count(p.limits[k]!)}</li>

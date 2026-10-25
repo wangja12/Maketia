@@ -11,7 +11,7 @@ import { loadWorkspace } from "../../workspace";
 import { DeleteContactButton, StatusForm, TagsEditor } from "../contact-forms";
 import { ContactStatusBadge } from "../status-badge";
 
-export const metadata: Metadata = { title: "Contact · Tunnels IA" };
+export const metadata: Metadata = { title: "Contact · Maketia" };
 
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" });
 const ORDER_STATUS: Record<string, string> = { started: "Commencée", pending: "En attente", paid: "Payée", failed: "Échouée", expired: "Expirée" };

@@ -11,7 +11,7 @@ import { loadWorkspace } from "../workspace";
 import { DecideRequest } from "./request-forms";
 import { CreateTokenForm, RevokeButton } from "./token-forms";
 
-export const metadata: Metadata = { title: "Agents IA · Tunnels IA" };
+export const metadata: Metadata = { title: "Agents IA · Maketia" };
 
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" });
 
@@ -38,7 +38,7 @@ export default async function AgentsPage({ params }: PageProps<"/app/[workspaceI
       <div className="flex max-w-2xl flex-col gap-2">
         <h1 className="text-2xl font-semibold tracking-tight">Agents IA (MCP)</h1>
         <p className="text-sm text-muted text-pretty">
-          Tunnels IA n’intègre aucune intelligence artificielle. Vous connectez la vôtre (Claude, ChatGPT ou tout client
+          Maketia n’intègre aucune intelligence artificielle. Vous connectez la vôtre (Claude, ChatGPT ou tout client
           compatible MCP) : elle lit votre fiche d’offre et crée ou modifie des pages avec vos droits, en appliquant la
           skill de design obligatoire <span className="font-mono text-xs">wang-design-engineering {DESIGN_SKILL_VERSION}</span>.
           Chaque action est enregistrée et versionnée. Un agent peut demander une publication, un arrêt de test ou un choix

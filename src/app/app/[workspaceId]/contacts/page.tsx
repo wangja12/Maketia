@@ -10,7 +10,7 @@ import { loadWorkspace } from "../workspace";
 import { DeleteSegmentButton, SaveSegmentForm } from "./contact-forms";
 import { ContactStatusBadge } from "./status-badge";
 
-export const metadata: Metadata = { title: "Contacts · Tunnels IA" };
+export const metadata: Metadata = { title: "Contacts · Maketia" };
 
 const PAGE_SIZE = 50;
 const control = "h-9 rounded-control border border-border-strong bg-surface px-2.5 text-[16px] shadow-raised sm:h-8 sm:text-sm";

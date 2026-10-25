@@ -6,7 +6,7 @@ import { CreateFunnelForm } from "./create-funnel-form";
 import { FunnelRow } from "./funnel-row";
 import { loadWorkspace } from "./workspace";
 
-export const metadata: Metadata = { title: "Tunnels · Tunnels IA" };
+export const metadata: Metadata = { title: "Tunnels · Maketia" };
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeZone: "UTC" });
 

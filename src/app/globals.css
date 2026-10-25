@@ -13,8 +13,8 @@
   --muted: #6b6862;
   --border: #e3e0d9;
   --border-strong: #cfcbc2;
-  --accent: #1f5f4a;
-  --accent-hover: #184c3b;
+  --accent: #1d5bd8;
+  --accent-hover: #1749b0;
   --accent-fg: #ffffff;
   --danger: #b42318;
   --danger-hover: #912018;
@@ -24,6 +24,9 @@
   --warning: #8a5300;
   --warning-soft: #fdf3e1;
   --focus: #2563eb;
+  /* Night blue for the brand's dark bands (same in both schemes). */
+  --night: #0c1630;
+  --night-2: #13295c;
 
   /* Shadows: one for raised surfaces, one for overlays. */
   --shadow-raised: 0 1px 2px rgb(28 27 25 / 0.06);
@@ -47,9 +50,9 @@
     --muted: #a3a09a;
     --border: #2e2d2a;
     --border-strong: #42403c;
-    --accent: #5fb592;
-    --accent-hover: #74c4a3;
-    --accent-fg: #0c1a14;
+    --accent: #7aa2ff;
+    --accent-hover: #94b5ff;
+    --accent-fg: #0a1430;
     --danger: #f0786c;
     --danger-hover: #f49488;
     --danger-soft: #3a1a17;
@@ -74,6 +77,8 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-fg: var(--accent-fg);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
   --color-danger: var(--danger);
   --color-danger-hover: var(--danger-hover);
   --color-danger-soft: var(--danger-soft);

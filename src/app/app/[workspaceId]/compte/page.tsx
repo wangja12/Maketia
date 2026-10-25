@@ -5,7 +5,7 @@ import { countSessions } from "@/server/sessions";
 import { loadWorkspace } from "../workspace";
 import { DeleteAccountButton, PasswordForm, ProfileForm, SignOutOthersButton } from "./forms";
 
-export const metadata: Metadata = { title: "Compte et sécurité · Tunnels IA" };
+export const metadata: Metadata = { title: "Compte et sécurité · Maketia" };
 
 const date = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
 

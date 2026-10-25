@@ -24,7 +24,7 @@ import {
 } from "./forms";
 import { DeleteFileButton, DownloadLinksButton, FileUploader, RevokeGrantButton } from "./files";
 
-export const metadata: Metadata = { title: "Paiements · Tunnels IA" };
+export const metadata: Metadata = { title: "Paiements · Maketia" };
 
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" });
 

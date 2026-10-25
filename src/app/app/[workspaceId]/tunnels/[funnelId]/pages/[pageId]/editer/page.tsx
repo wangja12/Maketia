@@ -11,7 +11,7 @@ import { loadVersionAction, pageHeadAction, saveContentAction } from "./actions"
 import { DESIGN_SKILL_VERSION } from "@/server/design-skill";
 import { MANUAL_REVIEW } from "@/server/page-validation";
 
-export const metadata: Metadata = { title: "Éditeur · Tunnels IA" };
+export const metadata: Metadata = { title: "Éditeur · Maketia" };
 
 export default async function EditorPage({ params }: PageProps<"/app/[workspaceId]/tunnels/[funnelId]/pages/[pageId]/editer">) {
   const { workspaceId, funnelId, pageId } = await params;

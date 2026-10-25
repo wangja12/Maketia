@@ -15,7 +15,7 @@ export default async function WorkspaceLayout({ children, params }: LayoutProps<
       <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 md:h-14 md:flex-nowrap md:py-0">
           <Link href={`/app/${workspace.id}`} className="text-sm font-semibold tracking-tight">
-            Tunnels IA
+            Maketia
           </Link>
           <span className="hidden text-border-strong md:inline" aria-hidden="true">/</span>
           <span className="hidden truncate text-sm text-muted md:inline">{workspace.name}</span>

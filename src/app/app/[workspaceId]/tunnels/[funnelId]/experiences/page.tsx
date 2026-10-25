@@ -7,7 +7,7 @@ import { can } from "@/server/workspaces";
 import { loadFunnel } from "../funnel";
 import { CreateExperimentForm } from "./experiment-forms";
 
-export const metadata: Metadata = { title: "Tests A/B · Tunnels IA" };
+export const metadata: Metadata = { title: "Tests A/B · Maketia" };
 
 const date = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeZone: "UTC" });
 

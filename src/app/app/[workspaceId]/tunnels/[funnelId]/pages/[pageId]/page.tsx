@@ -16,7 +16,7 @@ import { slugify } from "@/server/funnels";
 import { listPublications } from "@/server/publishing";
 import { siteBaseUrl } from "@/lib/site-url";
 
-export const metadata: Metadata = { title: "Page · Tunnels IA" };
+export const metadata: Metadata = { title: "Page · Maketia" };
 
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" });
 

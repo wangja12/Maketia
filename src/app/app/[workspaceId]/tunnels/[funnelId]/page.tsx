@@ -13,7 +13,7 @@ import { SiteSection } from "./site-section";
 import { listDomains } from "@/server/domains";
 import { listPublications } from "@/server/publishing";
 
-export const metadata: Metadata = { title: "Tunnel · Tunnels IA" };
+export const metadata: Metadata = { title: "Tunnel · Maketia" };
 
 const ACTIVE_WINDOW_MS = 15 * 60 * 1000;
 const dateTime = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" });
@@ -70,7 +70,7 @@ export default async function FunnelPage({ params }: PageProps<"/app/[workspaceI
           </p>
         ) : (
           <p className="text-muted">
-            <span className="font-medium text-fg">Aucun agent IA actif.</span> Tunnels IA n’intègre pas d’IA : connectez la vôtre
+            <span className="font-medium text-fg">Aucun agent IA actif.</span> Maketia n’intègre pas d’IA : connectez la vôtre
             (Claude, ChatGPT…) via MCP pour qu’elle prépare les pages à partir de la fiche. Tout reste faisable à la main.
           </p>
         )}

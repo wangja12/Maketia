@@ -54,7 +54,7 @@ export const SERVER_NAME = "tunnels-ia";
 const DESIGN_REMINDER =
   " Design : lisez d'abord get_design_engineering_skill (wang-design-engineering) et appliquez-la ; passez skill_version.";
 
-export const SERVER_INSTRUCTIONS = `Tunnels IA : constructeur de tunnels de vente. Ce serveur n'exécute aucune IA ; vous travaillez pour l'utilisateur avec ses droits.
+export const SERVER_INSTRUCTIONS = `Maketia : constructeur de tunnels de vente. Ce serveur n'exécute aucune IA ; vous travaillez pour l'utilisateur avec ses droits.
 
 Règles :
 1. Avant toute création ou modification de page, lisez la skill obligatoire ${DESIGN_SKILL_URI} (outil get_design_engineering_skill) et dites dans votre plan que vous l'appliquez. Les outils d'écriture exigent skill_version="${DESIGN_SKILL_VERSION}".

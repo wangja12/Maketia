@@ -1,6 +1,7 @@
 import { and, count, eq, gte, inArray, sql } from "drizzle-orm";
 import type { Db } from "@/db";
 import { domains, events, funnels, mcpAuditLog, plans, productFiles, workspaces, type Plan, type PlanLimits } from "@/db/schema";
+import { money } from "@/lib/format";
 import { NotFoundError, ValidationError } from "../errors";
 import { requireMembership } from "../workspaces";
 
@@ -113,6 +114,11 @@ export async function getUsageAndLimits(db: Db, userId: string, workspaceId: str
     }),
     period: "Mois civil en cours (UTC) pour les quotas mensuels.",
   };
+}
+
+/** Monthly price as shown to people; null means the administrator has not set it yet. */
+export function planPrice(p: { priceMonthly: number | null; currency: string | null }) {
+  return p.priceMonthly === null ? "Tarif à définir" : p.priceMonthly === 0 ? "Gratuit" : `${money(p.priceMonthly, p.currency ?? "XOF")} / mois`;
 }
 
 export async function listActivePlans(db: Db) {

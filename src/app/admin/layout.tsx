@@ -5,7 +5,7 @@ import { buttonClass } from "@/components/ui/button";
 import { loadAdmin } from "./admin";
 import { AdminNav } from "./admin-nav";
 
-export const metadata: Metadata = { title: "Administration · Tunnels IA", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Administration · Maketia", robots: { index: false, follow: false } };
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const user = await loadAdmin();
@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 md:h-14 md:flex-nowrap md:py-0">
-          <Link href="/admin" className="text-sm font-semibold tracking-tight">Tunnels IA · Administration</Link>
+          <Link href="/admin" className="text-sm font-semibold tracking-tight">Maketia · Administration</Link>
           <div className="order-last w-full md:order-none md:w-auto md:min-w-0">
             <AdminNav />
           </div>
