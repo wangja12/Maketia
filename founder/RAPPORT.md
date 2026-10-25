@@ -70,8 +70,8 @@ Après la v3, leurs conditions qui relevaient du code ont été appliquées (v4,
 - Une politique de sauvegarde des fichiers.
 
 **3. Produit, faisable ensuite sans dépendance.**
-- Un seul geste « Confirmer et envoyer », au lieu de Confirmer → Créer les liens → Envoyer.
-- Un compteur visible des commandes qui attendent une confirmation.
+- ~~Un seul geste « Confirmer et envoyer »~~ : fait. Une seule boîte confirme le paiement, prépare les liens et ouvre WhatsApp avec le message prêt. Test de bout en bout ajouté.
+- ~~Un compteur visible des commandes qui attendent une confirmation~~ : fait (« Paiements (N à confirmer) »).
 - Un espace créateur cohérent avec la landing : tutoiement, « page » plutôt que « tunnel », fonctions avancées en retrait.
 - Une boucle de distribution : badge « Créé avec Maketia » désactivable sur les plans payants, parrainage.
 - Des modèles de pages localisés (exemples d'Abidjan et de Dakar) et un kit de partage WhatsApp.

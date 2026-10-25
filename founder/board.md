@@ -28,8 +28,8 @@ Le PASS de la lentille Monopoly redevient FUND IF « le jour où la livraison au
 
 - [ ] Confirmation et livraison automatiques (webhooks SasPay vérifiés). Elles sont bloquées par l'accès à la documentation SasPay.
 - [x] Envoi du lien en un geste : le bouton « Envoyer sur WhatsApp » est livré et testé.
-- [ ] Fusionner « Confirmer » → « Créer les liens » → « Envoyer » en une seule action.
-- [ ] Signaler au créateur qu'une commande attend sa confirmation.
+- [x] Fusionner « Confirmer » → « Créer les liens » → « Envoyer » en une seule action (« Confirmer et envoyer »).
+- [x] Signaler au créateur qu'une commande attend sa confirmation (« Paiements (N à confirmer) » dans la navigation).
 - [x] Dire à l'acheteur ce qui va se passer après le paiement (page `/paiement/retour` réécrite).
 - [x] Retirer de la landing les affirmations non prouvées : « dix minutes », « 4,8 % », « Le plus choisi », « livrer » automatique.
 - [x] Nommer le marché, mettre « 0 % » au premier plan, ajouter un avant/après WhatsApp, une section pour qui / pas encore, et la FAQ des objections d'achat.

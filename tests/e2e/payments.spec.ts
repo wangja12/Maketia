@@ -108,6 +108,7 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
   await page.goto(`${workspaceUrl}/paiements`);
   const order = page.getByRole("listitem").filter({ hasText: "Awa Koné" });
   await expect(order.getByText("Paiement en attente")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Paiements (1 à confirmer)" })).toBeVisible();
 
   // 6. A notification arrives on the seller's URL: stored, not trusted, to reconcile by hand.
   const posted = await page.request.post(webhookUrl, { data: { type: "transaction.success", data: { id: "tx_e2e", status: "SUCCESS", amount: 5000, currency: "XOF" } } });
@@ -156,4 +157,31 @@ test("paste a SasPay link, sell from a published page, reconcile the notificatio
   await dialog.getByRole("button", { name: "Fermer" }).click();
   await page.reload();
   await expect(order.getByText(/Guide Excel.pdf · 1\/5 téléchargements/)).toBeVisible();
+
+  // 8. One gesture for the next buyer: confirm after checking SasPay, and the delivery is ready.
+  const second = await browser.newContext();
+  const buyer = await second.newPage();
+  await buyer.goto(publicUrl);
+  const checkout = buyer.locator("section#checkout");
+  await checkout.getByLabel("Prénom").fill("Moussa");
+  await checkout.getByLabel("Nom", { exact: true }).fill("Diallo");
+  await checkout.getByLabel(/E-mail/).fill("moussa@exemple.test");
+  const sent = buyer.waitForRequest((r) => r.url() === LINK);
+  await checkout.getByRole("button", { name: "Payer maintenant" }).click();
+  await sent;
+  await second.close();
+  await page.reload();
+  const next = page.getByRole("listitem").filter({ hasText: "Moussa Diallo" });
+  await next.getByRole("button", { name: "Confirmer et envoyer" }).click();
+  const confirm = page.getByRole("dialog");
+  await confirm.getByRole("button", { name: "Confirmer et préparer l’envoi" }).click();
+  await expect(confirm.getByText(/Cochez la confirmation/)).toBeVisible();
+  await confirm.getByRole("checkbox").check();
+  await confirm.getByRole("button", { name: "Confirmer et préparer l’envoi" }).click();
+  const share = new URL((await confirm.getByRole("link", { name: "Envoyer sur WhatsApp" }).getAttribute("href"))!);
+  expect(share.origin).toBe("https://wa.me");
+  expect(share.searchParams.get("text")).toMatch(/^Bonjour Moussa,\n[\s\S]*\/api\/telechargement\/[A-Za-z0-9_-]{43}$/);
+  await confirm.getByRole("button", { name: "Fermer" }).click();
+  await expect(next.getByText("Payée (confirmée par vous)")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Paiements", exact: true })).toBeVisible();
 });

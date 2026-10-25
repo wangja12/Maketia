@@ -58,8 +58,24 @@ export async function rotateUrlAction(workspaceId: string, _prev: ActionState) {
   return run(workspaceId, (u) => rotateWebhookUrl(getDb(), u, workspaceId));
 }
 
-export async function confirmPaidAction(workspaceId: string, orderId: string, _prev: ActionState, form: FormData) {
-  return run(workspaceId, (u) => confirmOrderPaidManually(getDb(), u, orderId, { attested: form.get("attested") === "on", note: String(form.get("note") ?? "") }));
+/**
+ * One gesture after checking SasPay: confirm the payment, then prepare the buyer's links in
+ * the same step. No revalidation here: the dialog must keep showing the links (displayed
+ * once); the page refreshes when it closes.
+ */
+export async function confirmAndPrepareAction(workspaceId: string, orderId: string, _prev: LinksState, form: FormData): Promise<LinksState> {
+  const user = await requireUser();
+  try {
+    await confirmOrderPaidManually(getDb(), user.id, orderId, { attested: form.get("attested") === "on", note: String(form.get("note") ?? "") });
+  } catch (e) {
+    return toActionState(e);
+  }
+  try {
+    return { ok: true, ...(await createDownloadLinks(getDb(), user.id, orderId)) };
+  } catch (e) {
+    // The payment is confirmed either way; only the links could not be made (e.g. no file).
+    return { ok: true, notice: toActionState(e).error };
+  }
 }
 
 export async function cancelOrderAction(workspaceId: string, orderId: string, _prev: ActionState) {
@@ -84,7 +100,7 @@ export async function revokeGrantAction(workspaceId: string, grantId: string, _p
   return run(workspaceId, (u) => revokeDownloadGrant(getDb(), u, grantId));
 }
 
-export type LinksState = ActionState & { links?: { title: string; fileName: string; url: string }[]; days?: number; maxDownloads?: number };
+export type LinksState = ActionState & { links?: { title: string; fileName: string; url: string }[]; days?: number; maxDownloads?: number; notice?: string };
 
 /** Returns the links once: only their hashes are stored. */
 export async function createLinksAction(workspaceId: string, orderId: string, _prev: LinksState): Promise<LinksState> {

@@ -1,7 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useActionState, useId, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
+import { deliveryMessage, whatsappShareUrl } from "@/lib/whatsapp";
 import { Dialog } from "@/components/ui/dialog";
 import { FormError } from "@/components/ui/form-error";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -9,7 +11,7 @@ import { TextField } from "@/components/ui/text-field";
 import {
   cancelOrderAction,
   clearSecretAction,
-  confirmPaidAction,
+  confirmAndPrepareAction,
   createProductAction,
   ignoreEventAction,
   reconcileAction,
@@ -18,6 +20,7 @@ import {
   saveLinkAction,
   saveSecretAction,
   toggleProductAction,
+  type LinksState,
 } from "./actions";
 
 const select = "h-10 w-full rounded-control border border-border-strong bg-surface px-3 text-[16px] shadow-raised sm:h-9 sm:text-sm";
@@ -180,31 +183,70 @@ export function RotateUrlButton({ workspaceId }: { workspaceId: string }) {
 
 const ATTESTATION = "J’ai vérifié dans mon tableau de bord SasPay que ce paiement est réussi, du bon montant, et qu’il vient de cet acheteur.";
 
-export function ConfirmPaidButton({ workspaceId, orderId, label }: { workspaceId: string; orderId: string; label: string }) {
+type Buyer = { firstName: string | null; phone: string | null };
+
+/** The buyer's links, shown once: one tap hands them to WhatsApp, or copy them. */
+export function SendLinks({ links, days, maxDownloads, buyer }: { links: { title: string; url: string }[]; days: number; maxDownloads?: number; buyer: Buyer }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <a
+        href={whatsappShareUrl(buyer.phone, deliveryMessage(buyer.firstName, links, days))}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={buttonClass("primary", "h-11 w-full")}
+      >
+        Envoyer sur WhatsApp
+      </a>
+      <p className="text-xs text-muted">
+        WhatsApp s’ouvre avec le message prêt{buyer.phone ? "" : " ; choisissez l’acheteur dans vos contacts"}. Rien n’est envoyé tant que vous n’appuyez pas sur « Envoyer » dans WhatsApp.
+      </p>
+      {links.map((l) => <CopyField key={l.url} label={l.title} value={l.url} />)}
+      <p className="text-xs text-muted">Valables {days} jours{maxDownloads ? `, ${maxDownloads} téléchargements chacun` : ""}. Ils ne s’affichent qu’une fois.</p>
+    </div>
+  );
+}
+
+/** Confirm a payment checked in SasPay, and prepare the buyer's delivery in the same step. */
+export function ConfirmPaidButton({ workspaceId, orderId, label, buyer }: { workspaceId: string; orderId: string; label: string; buyer: Buyer }) {
   const id = useId();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(confirmPaidAction.bind(null, workspaceId, orderId), {});
+  const [state, action] = useActionState<LinksState, FormData>(confirmAndPrepareAction.bind(null, workspaceId, orderId), {});
+  const close = () => {
+    setOpen(false);
+    if (state.ok) router.refresh();
+  };
   return (
     <>
-      <Button variant="secondary" className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>Confirmer le paiement</Button>
-      <Dialog open={open} onClose={() => setOpen(false)} title={`Confirmer le paiement de ${label} ?`}
-        description="La commande passera à « payée (confirmée par vous) ». Cette action est enregistrée à votre nom. Aucun événement n’est envoyé à Meta.">
-        <form action={action} className="flex flex-col gap-4">
-          <label className="flex items-start gap-2 text-sm">
-            <input type="checkbox" name="attested" className="mt-0.5 accent-[var(--accent)]" />
-            <span>{ATTESTATION}</span>
-          </label>
-          <div className="flex flex-col gap-1">
-            <label htmlFor={`${id}-note`} className="text-sm font-medium">Référence SasPay ou note (facultatif)</label>
-            <input id={`${id}-note`} name="note" maxLength={300} className={select} />
+      <Button className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>Confirmer et envoyer</Button>
+      <Dialog open={open} onClose={close} title={state.ok ? "Paiement confirmé" : `Confirmer le paiement de ${label} ?`}
+        description={state.ok ? undefined : "La commande passera à « payée (confirmée par vous) » et le lien de téléchargement de l’acheteur sera préparé. Cette action est enregistrée à votre nom. Aucun événement n’est envoyé à Meta."}>
+        {state.ok ? (
+          <div className="flex flex-col gap-4">
+            {state.links ? (
+              <SendLinks links={state.links} days={state.days ?? 7} maxDownloads={state.maxDownloads} buyer={buyer} />
+            ) : (
+              <p role="status" className="text-sm">Paiement confirmé. {state.notice ?? ""}</p>
+            )}
+            <div className="flex justify-end"><Button variant="secondary" onClick={close}>Fermer</Button></div>
           </div>
-          <FormError message={state.error} />
-          {state.ok && <p role="status" className="text-sm text-success">Paiement confirmé.</p>}
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setOpen(false)}>Fermer</Button>
-            <SubmitButton>Confirmer</SubmitButton>
-          </div>
-        </form>
+        ) : (
+          <form action={action} className="flex flex-col gap-4">
+            <label className="flex items-start gap-2 text-sm">
+              <input type="checkbox" name="attested" className="mt-0.5 accent-[var(--accent)]" />
+              <span>{ATTESTATION}</span>
+            </label>
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${id}-note`} className="text-sm font-medium">Référence SasPay ou note (facultatif)</label>
+              <input id={`${id}-note`} name="note" maxLength={300} className={select} />
+            </div>
+            <FormError message={state.error} />
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={close}>Fermer</Button>
+              <SubmitButton>Confirmer et préparer l’envoi</SubmitButton>
+            </div>
+          </form>
+        )}
       </Dialog>
     </>
   );

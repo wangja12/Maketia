@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, desc, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
 import { funnels, orders, pages, paymentEvents, products, type Order } from "@/db/schema";
@@ -277,6 +277,16 @@ export async function listOrders(db: Db, userId: string, workspaceId: string, li
     .where(and(eq(orders.workspaceId, workspaceId), statuses?.length ? inArray(orders.status, statuses) : undefined))
     .orderBy(desc(orders.createdAt))
     .limit(limit);
+}
+
+/** Orders waiting for the creator to check SasPay and confirm (shown as a badge in the nav). */
+export async function countOrdersToConfirm(db: Db, userId: string, workspaceId: string) {
+  await requireMembership(db, userId, workspaceId, "read");
+  const [row] = await db
+    .select({ n: count() })
+    .from(orders)
+    .where(and(eq(orders.workspaceId, workspaceId), eq(orders.paymentMethod, "saspay_link"), eq(orders.status, "pending")));
+  return row?.n ?? 0;
 }
 
 export async function getOrderForUser(db: Db, userId: string, orderId: string) {

@@ -250,7 +250,7 @@ export default async function PaymentsPage({ params }: PageProps<"/app/[workspac
                   </span>
                   {isAdmin && order.paymentMethod === "saspay_link" && order.status === "pending" && (
                     <>
-                      <ConfirmPaidButton workspaceId={workspace.id} orderId={order.id} label={order.merchantTransactionId} />
+                      <ConfirmPaidButton workspaceId={workspace.id} orderId={order.id} label={order.merchantTransactionId} buyer={{ firstName: order.customerFirstName, phone: order.customerPhone }} />
                       <CancelOrderButton workspaceId={workspace.id} orderId={order.id} />
                     </>
                   )}

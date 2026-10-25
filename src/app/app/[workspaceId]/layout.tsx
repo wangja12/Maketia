@@ -3,13 +3,15 @@ import { signOutAction } from "@/app/(auth)/actions";
 import { buttonClass } from "@/components/ui/button";
 import { getDb } from "@/db";
 import { listAgentRequests } from "@/server/agent-requests";
+import { countOrdersToConfirm } from "@/server/payments/service";
 import { NavLinks } from "./nav-links";
 import { loadWorkspace } from "./workspace";
 
 export default async function WorkspaceLayout({ children, params }: LayoutProps<"/app/[workspaceId]">) {
   const { workspaceId } = await params;
   const { user, workspace } = await loadWorkspace(workspaceId);
-  const pendingRequests = (await listAgentRequests(getDb(), user.id, workspace.id, true)).length;
+  const [requests, ordersToConfirm] = await Promise.all([listAgentRequests(getDb(), user.id, workspace.id, true), countOrdersToConfirm(getDb(), user.id, workspace.id)]);
+  const pendingRequests = requests.length;
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-sm">
@@ -20,7 +22,7 @@ export default async function WorkspaceLayout({ children, params }: LayoutProps<
           <span className="hidden text-border-strong md:inline" aria-hidden="true">/</span>
           <span className="hidden truncate text-sm text-muted md:inline">{workspace.name}</span>
           <div className="order-last w-full md:order-none md:w-auto md:min-w-0">
-            <NavLinks workspaceId={workspace.id} pendingRequests={pendingRequests} />
+            <NavLinks workspaceId={workspace.id} pendingRequests={pendingRequests} ordersToConfirm={ordersToConfirm} />
           </div>
           <div className="ml-auto flex min-w-0 items-center gap-2">
             {user.isPlatformAdmin && (
