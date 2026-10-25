@@ -53,3 +53,61 @@ La page est belle et honnête. À travers le Monopoly lens, elle a deux défauts
 7. **Ajouter une boucle de distribution visible.** Une ligne dans le hero ou la fin de page : « Chaque page publiée porte un petit lien Maketia (désactivable sur les plans payants) ». Puis, quand il existe, un programme de parrainage. Le Monopoly lens veut voir la distribution intégrée au produit, pas seulement le produit.
 8. **Preuve locale, dès qu'elle existe.** Les couvertures sont inventées et honnêtement étiquetées : bien. Prévoir dès maintenant l'emplacement de 2 ou 3 vrais créateurs locaux (nom, pays, produit), à remplir seulement avec de vrais cas. Une seule page réelle d'un créateur d'Abidjan vend plus que cinq couvertures d'exemple.
 9. **Le CTA mobile.** Sur mobile, l'illustration de l'éditeur arrive après un long scroll et montre une interface de bureau. Pour ce public, montrer d'abord **la page de vente vue par l'acheteur sur téléphone** (l'aperçu mobile, avec le prix en FCFA et le bouton SasPay). C'est ce que le créateur veut obtenir, pas l'éditeur.
+
+## Deuxième séance
+
+Score: 3/10 | Vote: PASS (révisable en FUND IF le jour où la livraison automatique fonctionne)
+
+Pourquoi je baisse d'un point et je passe de FUND IF à PASS : lors de la première séance, j'avais écrit que sans livraison automatique, je passe. Elle n'existe toujours pas. Les nouvelles pièces confirment que c'est le point qui décide de tout. Ces outils africains livrent tous automatiquement : Chariow, Maketou, Selar, Taliopay et Novakou. Le panel simulé donne 0 achat sur 30. Dans la liste « ce qui ferait changer d'avis », presque chaque acheteur cite la confirmation et la livraison automatiques. Sur la carte des concurrents, Maketia n'a aujourd'hui aucune rupture « 10x ». Elle n'est pas en avance : elle est **en retard** sur la fonction que le marché tient pour acquise. Le bouton « Envoyer sur WhatsApp » réduit l'effort d'envoi. Il ne supprime ni la confirmation manuelle ni le téléphone à surveiller, ce que les acheteurs reprochent (« babysit my phone », « je confirme chaque paiement à la main »).
+
+Ce qui a changé en bien, et c'est réel : la carte des concurrents montre **un quadrant vide**. Il réunit l'adaptation locale (FCFA, français, téléphone) et l'argent qui va directement au créateur, sans wallet de plateforme. Seuls s'y trouvent des substituts sans page ni livraison : le lien SasPay seul et WhatsApp avec un lien Wave. Les plaintes n°1 contre les concurrents sont les retraits bloqués, retenus ou jamais reçus. Ce sont exactement celles que le modèle Maketia rend impossibles. C'est un vrai début de secret : « dans ce marché, la peur n°1 du créateur n'est pas le prix, c'est que la plateforme garde son argent ». À confirmer avec de vrais créateurs, car les thèmes de plaintes sont marqués « minces » par le scout.
+
+### Conditions de la première séance : remplies ou non
+
+| # | Condition | État | Commentaire |
+| --- | --- | --- | --- |
+| 1 | Livraison automatique de bout en bout | **Non remplie** | Le bouton WhatsApp est un progrès d'ergonomie, pas l'automatisation. Le panel le dit en toutes lettres. C'est toujours la condition bloquante. |
+| 2 | Accord ou canal officiel avec SasPay | **Non remplie, et le risque est confirmé** | Le scout désigne SasPay comme la menace n°1. Ses liens de paiement ont déjà une page hébergée, un montant fixe en XOF, un pixel Facebook et un plugin WooCommerce. Il lui manque une vitrine et la livraison de fichier pour couvrir l'essentiel de Maketia. Question ouverte : la documentation publique docs.saspay.me décrit-elle des webhooks signés ? Si oui, le blocage de la condition 1 est peut-être levable sans partenariat. |
+| 3 | Sous-marché nommé et chiffré | **À moitié** | Il est nommé sur la landing (« Afrique francophone · SasPay en FCFA »). Il n'est pas chiffré : le nombre de créateurs reste inconnu. Il y a aussi une incohérence. Selon le scout, la couverture affichée par SasPay est la Côte d'Ivoire, le Sénégal et le Burkina Faso. Le brief cite aussi le Cameroun, le Bénin et le Togo, non couverts. |
+| 4 | Plan des 100 premiers et boucle de distribution | **Non remplie** | Aucun canal ni coût par créateur. La landing n'annonce ni badge « Créé avec Maketia » ni parrainage. |
+| 5 | Vérification concurrentielle | **Remplie** (avec réserve) | Elle est faite, à partir des extraits de l'index de recherche seulement, à revérifier dans un navigateur. Résultat : les concurrents livrent automatiquement, mais **tous** prennent 5 à 15 % et détiennent l'argent. Ce n'est donc pas le cas « livraison automatique sans commission et sans wallet » qui m'aurait fait passer à PASS à lui seul. C'est l'absence de livraison automatique chez Maketia qui me fait passer. |
+| 6 | Abonnement payable en ligne | **Non remplie** | La landing dit encore que les plans payants sont activés par l'équipe. Il n'y a toujours pas de revenu mesurable. |
+
+Bilan : 1 condition remplie, 1 à moitié, 4 non remplies, dont la condition bloquante.
+
+### Le petit marché à posséder d'abord, vu la carte
+
+Les débutants ne sont pas le bon marché. Sous environ 66 000 à 198 000 FCFA de ventes par mois, une commission de 5 à 15 % coûte moins cher que 9 900 FCFA fixes (calcul du scout). Le panel le confirme : chez les débutants, 0 % d'achat, et c'est le prix qui fait refuser. Maketou à 5 % les gardera.
+
+**Le premier marché à dominer :**
+- les créateurs et formateurs qui **vendent déjà** des produits numériques, au-dessus du seuil de rentabilité (environ 100 000 FCFA par mois et plus) ;
+- **en Côte d'Ivoire et au Sénégal d'abord**, là où SasPay est disponible ;
+- qui veulent **échapper au wallet de plateforme** : par exemple des déçus d'un retrait bloqué ou retardé, ou des vendeurs de formations à prix élevé, pour qui 10 à 15 % représentent une vraie somme.
+
+Pour eux, « l'argent arrive chez toi, 0 % » vaut de l'argent chaque mois, et la confiance compte plus que le prix. Il y a une réserve importante : ces créateurs établis vendent souvent assez pour que la confirmation manuelle soit un vrai fardeau. Le scout cite environ 50 commandes par mois comme seuil de pénibilité, chiffre d'une agence intéressée. Ce marché n'est donc prenable **qu'avec** la livraison automatique. Les deux problèmes n'en font qu'un.
+
+Questions ouvertes pour chiffrer ce marché (à ne pas inventer) :
+- Combien de créateurs, en Côte d'Ivoire et au Sénégal, dépassent 100 000 FCFA de ventes numériques par mois ?
+- Combien sont déjà marchands SasPay ?
+- Combien ont déjà eu un retrait bloqué ou retardé ?
+
+Expansion ensuite : les autres pays couverts par SasPay, puis d'autres moyens de paiement versés directement au créateur (liens Wave ou Orange Money du créateur ?). C'est aussi la seule façon de réduire la dépendance à SasPay. La faisabilité technique reste à vérifier.
+
+### Verdict sur la landing v3
+
+**Nettement meilleure à travers le Monopoly lens : de 4/10 à 7/10 pour la page seule.** Elle a fait ce que je demandais :
+- le marché est nommé dès le badge (« Afrique francophone · SasPay en FCFA ») ;
+- « 0 % de commission » est dans le hero et devient le grand moment typographique des tarifs ;
+- une section « Avant / avec Maketia » attaque le vrai substitut (captures d'écran, PDF qui circule, 200 discussions) ;
+- la promesse de livraison est corrigée (« dès que tu as vu l'argent arriver », « Tu confirmes, il télécharge ») ;
+- les agents IA sont relégués en FAQ ;
+- la section « Ce n'est pas pour toi si… » dit honnêtement que la confirmation est manuelle ;
+- le badge « Le plus choisi » a disparu.
+
+Ce qui manque encore pour qu'elle vende **contre la carte des concurrents** :
+1. **Nommer l'ennemi sans le nommer : le wallet.** L'argument le plus fort que révèle la carte n'est pas « 0 % ». C'est « pas de retrait à attendre, personne ne peut bloquer ton argent ». La carte « Ton argent va chez toi » le dit, en petit. Le mettre au niveau du hero ou de l'« Avant / avec », par exemple « Pas de portefeuille, pas de retrait à demander, pas d'argent bloqué ». Ne citer aucun concurrent nommément et ne reprendre aucune plainte comme un fait tant qu'elle n'est pas vérifiée.
+2. **Être honnête sur le « 0 % ».** Les frais SasPay (dès 1,75 % + 100 FCFA par transaction selon le scout) restent dus. « 0 % de commission Maketia » est vrai. « Que tu vendes 1 ou 1 000 e-books, Maketia ne prend rien dessus » est vrai aussi. Ajouter près du grand « 0 % » une ligne : « Seuls les frais SasPay de ton compte s'appliquent ». Sinon un concurrent ou un acheteur méfiant pourra dire que c'est trompeur.
+3. **Parler au bon segment.** Le hero, le CTA « gratuitement » et l'exemple à 5 000 FCFA visent le débutant, que le calcul donne perdant face à Maketou. Ajouter un bloc pour le vendeur établi, sans chiffre inventé : « Tu vends déjà ? Compare ce que te coûte ta commission actuelle à un forfait fixe », avec un petit calculateur (ventes du mois × taux saisi par le créateur, comparé au forfait). Ce bloc n'a de sens qu'une fois les prix fixés.
+4. **Mettre les pays au bon endroit.** « Afrique francophone » promet plus que SasPay ne couvre, d'après le scout. Écrire « Côte d'Ivoire, Sénégal, Burkina Faso » (après vérification sur saspay.me), ou ajouter une ligne « disponible là où SasPay l'est ». C'est aussi plus fort pour dominer un petit marché.
+5. **Une boucle de distribution, toujours absente.** Annoncer le lien « Créé avec Maketia » sur les pages publiées, et un parrainage dès qu'il existe.
+6. **Ne rien changer à la mention de la confirmation manuelle** tant que l'automatisation n'est pas livrée. Elle protège la confiance, qui est le seul actif de marque aujourd'hui. Le jour où les webhooks fonctionnent, « livré automatiquement, argent direct chez toi, 0 % » devient le hero. Ce sera la seule phrase de la page qu'aucun concurrent de la carte ne peut écrire.

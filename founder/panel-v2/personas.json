@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Mason",
+  "age": 43,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 3000,
+  "behaviour": "Scam-wary",
+  "behaviour_how": "Has been scammed before; checks who is behind a service before trusting it.",
+  "objection": "I don't know SasPay and I don't have an account there",
+  "habit": "you lost a sale last month because you were slow to send the file"
+ },
+ {
+  "id": "P002",
+  "name": "Elle",
+  "age": 43,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 3000,
+  "behaviour": "WhatsApp seller",
+  "behaviour_how": "Takes orders in WhatsApp, checks the mobile-money SMS, sends the PDF by hand.",
+  "objection": "WhatsApp and mobile money already work for me",
+  "habit": "you post your content on TikTok and Facebook every evening"
+ },
+ {
+  "id": "P003",
+  "name": "Dana",
+  "age": 29,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 4000,
+  "behaviour": "Scam-wary",
+  "behaviour_how": "Has been scammed before; checks who is behind a service before trusting it.",
+  "objection": "If I still have to confirm each payment and send the link myself, what do I gain?",
+  "habit": "your internet bundle runs out before the end of the month"
+ },
+ {
+  "id": "P004",
+  "name": "Noah",
+  "age": 41,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 4000,
+  "behaviour": "Phone-only",
+  "behaviour_how": "Has no computer; does everything from an Android phone on mobile data.",
+  "objection": "WhatsApp and mobile money already work for me",
+  "habit": "you follow two or three big creators who sell trainings"
+ },
+ {
+  "id": "P005",
+  "name": "Ana",
+  "age": 26,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 10000,
+  "behaviour": "Careful reader",
+  "behaviour_how": "Reads the whole page, the FAQ and the prices before signing up.",
+  "objection": "WhatsApp and mobile money already work for me",
+  "habit": "you follow two or three big creators who sell trainings"
+ },
+ {
+  "id": "P006",
+  "name": "Nadia",
+  "age": 41,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 3000,
+  "behaviour": "Free-plan hunter",
+  "behaviour_how": "Starts on free plans and only pays once money is coming in.",
+  "objection": "9 900 FCFA a month is a lot while I am not selling yet",
+  "habit": "your internet bundle runs out before the end of the month"
+ },
+ {
+  "id": "P007",
+  "name": "Isla",
+  "age": 40,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 6000,
+  "behaviour": "WhatsApp seller",
+  "behaviour_how": "Takes orders in WhatsApp, checks the mobile-money SMS, sends the PDF by hand.",
+  "objection": "WhatsApp and mobile money already work for me",
+  "habit": "you follow two or three big creators who sell trainings"
+ },
+ {
+  "id": "P008",
+  "name": "Tariq",
+  "age": 28,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 3000,
+  "behaviour": "Already on a platform",
+  "behaviour_how": "Uses Chariow, Selar or Systeme.io today and would only switch for a clear gain.",
+  "objection": "Another new platform: who is behind it, is it a scam?",
+  "habit": "your buyers message you on WhatsApp to ask how to pay"
+ },
+ {
+  "id": "P009",
+  "name": "Caleb",
+  "age": 35,
+  "segment": "Trainer, coach or small agency with regular sales",
+  "income": 35000,
+  "behaviour": "Already on a platform",
+  "behaviour_how": "Uses Chariow, Selar or Systeme.io today and would only switch for a clear gain.",
+  "objection": "Another new platform: who is behind it, is it a scam?",
+  "habit": "you post your content on TikTok and Facebook every evening"
+ },
+ {
+  "id": "P010",
+  "name": "Freya",
+  "age": 22,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 3000,
+  "behaviour": "Trend follower",
+  "behaviour_how": "Tries tools that TikTok and YouTube creators recommend.",
+  "objection": "9 900 FCFA a month is a lot while I am not selling yet",
+  "habit": "you post your content on TikTok and Facebook every evening"
+ },
+ {
+  "id": "P011",
+  "name": "Sara",
+  "age": 45,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 2000,
+  "behaviour": "Already on a platform",
+  "behaviour_how": "Uses Chariow, Selar or Systeme.io today and would only switch for a clear gain.",
+  "objection": "I don't know SasPay and I don't have an account there",
+  "habit": "you post your content on TikTok and Facebook every evening"
+ },
+ {
+  "id": "P012",
+  "name": "Aria",
+  "age": 19,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 10000,
+  "behaviour": "Trend follower",
+  "behaviour_how": "Tries tools that TikTok and YouTube creators recommend.",
+  "objection": "I don't know SasPay and I don't have an account there",
+  "habit": "you lost a sale last month because you were slow to send the file"
+ },
+ {
+  "id": "P013",
+  "name": "Jordan",
+  "age": 28,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 9000,
+  "behaviour": "Free-plan hunter",
+  "behaviour_how": "Starts on free plans and only pays once money is coming in.",
+  "objection": "9 900 FCFA a month is a lot while I am not selling yet",
+  "habit": "your internet bundle runs out before the end of the month"
+ },
+ {
+  "id": "P014",
+  "name": "Rafael",
+  "age": 33,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 11000,
+  "behaviour": "Scam-wary",
+  "behaviour_how": "Has been scammed before; checks who is behind a service before trusting it.",
+  "objection": "Chariow or Selar already do this",
+  "habit": "your buyers message you on WhatsApp to ask how to pay"
+ },
+ {
+  "id": "P015",
+  "name": "Liam",
+  "age": 23,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 11000,
+  "behaviour": "Phone-only",
+  "behaviour_how": "Has no computer; does everything from an Android phone on mobile data.",
+  "objection": "WhatsApp and mobile money already work for me",
+  "habit": "your internet bundle runs out before the end of the month"
+ },
+ {
+  "id": "P016",
+  "name": "Sofia",
+  "age": 38,
+  "segment": "Trainer, coach or small agency with regular sales",
+  "income": 23000,
+  "behaviour": "WhatsApp seller",
+  "behaviour_how": "Takes orders in WhatsApp, checks the mobile-money SMS, sends the PDF by hand.",
+  "objection": "If I still have to confirm each payment and send the link myself, what do I gain?",
+  "habit": "your buyers message you on WhatsApp to ask how to pay"
+ },
+ {
+  "id": "P017",
+  "name": "Poppy",
+  "age": 40,
+  "segment": "Trainer, coach or small agency with regular sales",
+  "income": 33000,
+  "behaviour": "Phone-only",
+  "behaviour_how": "Has no computer; does everything from an Android phone on mobile data.",
+  "objection": "If I still have to confirm each payment and send the link myself, what do I gain?",
+  "habit": "your internet bundle runs out before the end of the month"
+ },
+ {
+  "id": "P018",
+  "name": "Yara",
+  "age": 20,
+  "segment": "Trainer, coach or small agency with regular sales",
+  "income": 20000,
+  "behaviour": "Careful reader",
+  "behaviour_how": "Reads the whole page, the FAQ and the prices before signing up.",
+  "objection": "WhatsApp and mobile money already work for me",
+  "habit": "you post your content on TikTok and Facebook every evening"
+ },
+ {
+  "id": "P019",
+  "name": "Lena",
+  "age": 39,
+  "segment": "Established creator: already sells by hand via WhatsApp + mobile money, 2,000-50,000 followers",
+  "income": 10000,
+  "behaviour": "Free-plan hunter",
+  "behaviour_how": "Starts on free plans and only pays once money is coming in.",
+  "objection": "Chariow or Selar already do this",
+  "habit": "you post your content on TikTok and Facebook every evening"
+ },
+ {
+  "id": "P020",
+  "name": "Pablo",
+  "age": 33,
+  "segment": "Beginner creator: first product, small audience (under 2,000 followers)",
+  "income": 4000,
+  "behaviour": "WhatsApp seller",
+  "behaviour_how": "Takes orders in WhatsApp, checks the mobile-money SMS, sends the PDF by hand.",
+  "objection": "I'm not comfortable with technical tools",
+  "habit": "your buyers message you on WhatsApp to ask how to pay"
+ }
+]

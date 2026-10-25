@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I already sell on WhatsApp with mobile money and it works, so at most I'd open the free plan for one product and see. I won't pay 4 900 a month just to confirm sales by hand, which is what I already do now.",
+  "objection": "Chariow or Selar already do this, and here I still have to check my SasPay and confirm each sale myself, so what am I paying for besides a nicer page?",
+  "would_change_my_mind": "Automatic payment confirmation with the link sent by itself, and proof from the free plan that the page brings me extra sales beyond my WhatsApp buyers.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 4000,
+  "price_too_expensive": 7500
+}

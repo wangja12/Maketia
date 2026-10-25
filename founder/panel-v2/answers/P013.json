@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "I'd open the free plan and put my best e-book on it to see if the page brings me more sales than my WhatsApp status. I'm not paying 4 900 FCFA a month until that page has actually earned it back, and I still confirm every sale by hand like I do now.",
+  "objection": "It's still me checking SasPay and clicking confirm for each sale, so for now it's just a nicer page. 4 900 every month is a lot of data bundle money for something I don't know will sell more.",
+  "would_change_my_mind": "Automatic confirmation of the SasPay payment, so the buyer gets the file even when I'm asleep or out of data, plus proof after a month on the free plan that the page brought me new buyers.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 4000,
+  "price_too_expensive": 7000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "I would open the Gratuit plan, one page for my one e-book is all I have anyway. Pay 4 900 FCFA a month when I have not sold anything yet? No, my data bundle already runs out before the end of the month.",
+  "objection": "I am not selling yet, so any monthly fee is money going out with nothing coming in. And I still have to watch SasPay and confirm each sale by hand myself.",
+  "would_change_my_mind": "Making real sales on the free page first, like 4 or 5 sales a month, so the 4 900 FCFA is paid by my sales and not by my pocket. Or a lower price, around 2 000 FCFA.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3000,
+  "price_too_expensive": 5000
+}

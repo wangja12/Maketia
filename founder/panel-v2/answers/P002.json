@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je vends déjà sur WhatsApp, je vérifie le SMS mobile money et j'envoie le PDF moi-même. Avec Maketia je dois quand même vérifier l'argent et appuyer sur envoyer, donc pour mon seul produit je ne vois pas pourquoi payer 4 900 par mois. Peut-être que j'essaierai la page gratuite, mais je ne paie pas.",
+  "objection": "Ça ne m'enlève pas le vrai travail : je dois toujours surveiller l'argent et confirmer chaque vente à la main. Et SasPay, mes clients ne le connaissent pas forcément, eux ils payent par Orange Money ou Wave.",
+  "would_change_my_mind": "La confirmation automatique du paiement avec envoi du PDF sans moi, surtout la nuit, et la preuve que mes ventes augmentent avec la page.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3000,
+  "price_too_expensive": 5000
+}

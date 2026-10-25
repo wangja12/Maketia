@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je vends déjà mes packs sur WhatsApp et je reçois l'argent par mobile money, ça marche. Maketia me fait toujours confirmer à la main et envoyer sur WhatsApp, donc je paierais 4 900 par mois juste pour une jolie page et un lien de téléchargement.",
+  "objection": "Rien ne change vraiment pour moi : je vérifie encore le paiement moi-même et j'envoie encore le message moi-même. Et je dois mettre mon lien SasPay, alors que mes clients me paient déjà par Orange Money ou Wave.",
+  "would_change_my_mind": "La confirmation automatique du paiement et la livraison sans moi, pour que je vende la nuit pendant que je dors.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3500,
+  "price_too_expensive": 6000
+}

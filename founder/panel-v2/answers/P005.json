@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je vends déjà par WhatsApp et mobile money, et avec Maketia je dois quand même vérifier l'argent et confirmer chaque vente à la main. Au mieux j'essaie le plan Gratuit pour voir, mais je ne paie pas 4 900 FCFA par mois pour un joli lien en plus.",
+  "objection": "La confirmation reste manuelle et il faut passer par SasPay alors que mes clients paient déjà en Orange Money ou Wave; je ne vois pas ce que ça me fait gagner comme temps.",
+  "would_change_my_mind": "La confirmation automatique du paiement avec envoi du lien de téléchargement sans que je touche à mon téléphone, et qui marche avec les moyens de paiement que mes clients utilisent déjà.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3500,
+  "price_too_expensive": 6000
+}

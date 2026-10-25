@@ -50,8 +50,8 @@
     --muted: #a3a09a;
     --border: #2e2d2a;
     --border-strong: #42403c;
-    --accent: #4d7dff;
-    --accent-hover: #6a92ff;
+    --accent: #3b6cf0;
+    --accent-hover: #5580f2;
     --accent-fg: #ffffff;
     --danger: #f0786c;
     --danger-hover: #f49488;
@@ -268,8 +268,8 @@ body {
  * only, ease-out, and nothing at all with reduced motion.
  */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
-  to { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes reveal {
   from { opacity: 0; transform: translateY(14px); }

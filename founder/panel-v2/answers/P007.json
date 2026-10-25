@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "WhatsApp and mobile money already work for me, and with Maketia I still have to watch the SMS and confirm each sale by hand, so the part that eats my nights stays the same. I might try the free page, but I would not pay 4 900 FCFA every month for a nicer page and a download link.",
+  "objection": "If confirmation is still manual, what am I really paying for? My buyers already trust me on WhatsApp, and I do not want them to have to learn a new page.",
+  "would_change_my_mind": "Automatic confirmation: the SasPay payment comes in and the buyer gets the file without me touching anything, even at 2 a.m.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 4000,
+  "price_too_expensive": 7000
+}

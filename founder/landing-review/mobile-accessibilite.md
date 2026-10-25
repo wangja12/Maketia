@@ -137,3 +137,70 @@ Points mineurs, hors top 8 :
 5. Toutes les cibles tactiles à 44 px ou plus : bouton de l'en-tête, boutons des tarifs, « Ouvrir mon espace », logo.
 6. Barre CTA collée en bas sur mobile, affichée après le hero, avec `safe-area-inset-bottom`.
 7. Réponses de la FAQ et descriptions en 15 px, et libellés « Commencer » des tarifs distincts par plan.
+
+## Revue v3
+
+Note: 8/10 | Verdict: VALIDÉ SI
+
+Sources lues : captures `v3/` (mobile complète et haut, ordinateur, sombre), `src/app/page.tsx` (v3), `src/app/globals.css` et `tests/e2e/quality.spec.ts`.
+
+### Corrigé depuis la v2
+
+- **Pouce.** Une barre CTA est collée en bas sur téléphone (`MobileBar`, `fixed bottom-0 … sm:hidden`), avec un bouton de 48 px en pleine largeur et `pb-[max(0.5rem,env(safe-area-inset-bottom))]`. `FinalCall` a un `pb-20` pour que le pied de page ne passe pas sous la barre.
+- **Cibles tactiles.** Logo, « Connexion » et bouton d'en-tête à `h-11`. CTA à `h-12`. « Voir comment ça marche » est passé de lien texte à une cible `h-12`. Résumés de la FAQ à `min-h-14`. Les boutons « Commencer » ambigus des tarifs ont disparu : il n'y a plus de libellés en double vers des plans différents.
+- **Lisibilité.** Le corps de texte est à 15–17 px (hero 17 px, FAQ, fonctionnalités et étapes 15 px). Le texte de soutien est à 13 px minimum. Les métadonnées des couvertures sont à 12 px, sans `opacity`.
+- **Contraste du hero.** Le halo est sorti de la colonne de texte et masqué sous `lg` (`hidden … lg:block`). Le paragraphe est en `text-fg/80` sur `--bg` uni : la capture montre un fond #f7f6f3, pour un contraste supérieur à 9:1.
+- **Bandeau de produits.** `tabIndex={0}`, `aria-label="Exemples de produits, à faire défiler"` et un contour de focus visible. La carte coupée à droite reste l'indice de défilement.
+- **Navigation au clavier.** Un lien d'évitement « Aller au contenu » vers `main#contenu` est visible au focus.
+- **Mouvement.** `rise` et `reveal` sont en CSS seul (`animation-timeline: view()` derrière `@supports`), et entièrement coupés sous `prefers-reduced-motion`. Sans prise en charge du navigateur, le contenu reste visible.
+- **Tests.** `/` est dans `publicScreens` : axe (WCAG 2.1 AA) et le contrôle « pas de débordement à 360 px » passent.
+- **Performance du hero.** Le hero n'a plus de halo flou sur téléphone. Le texte en `text-white/75` et `/70` sur bleu nuit donne 8:1 ou plus.
+
+### Problèmes restants (top 5, le plus grave d'abord)
+
+1. **Coût GPU encore élevé pendant le défilement sur Android d'entrée de gamme.**
+   - Halos encore actifs sur téléphone :
+     - `Journey` : `size-[460px] … blur-[100px]` ;
+     - `Pricing` : `size-[460px] … blur-[100px]` ;
+     - `FinalCall` : `size-[640px] … blur-[110px]`.
+   - Deux `backdrop-blur-md` sur des éléments fixes : l'en-tête `sticky` et `MobileBar`. Les deux sont recalculés à chaque image de défilement. Celui de la barre est en plus inutile, avec un fond `bg-bg/95` presque opaque.
+   - Correctif :
+     - remplacer les 3 halos par `bg-[radial-gradient(closest-side,rgb(29_91_216/0.4),transparent)]`, sans `blur-*` ;
+     - supprimer `backdrop-blur-md` de `MobileBar` ;
+     - sur l'en-tête, passer à `bg-bg/95 md:bg-bg/85 md:backdrop-blur-md`.
+
+2. **L'animation `rise` du hero retarde l'affichage du titre et du premier CTA.**
+   - Élément : `@keyframes rise { from { opacity: 0; …; filter: blur(4px) } }`, appliqué au badge, au `h1`, au paragraphe, aux CTA et à la `figure`, avec des délais jusqu'à 240 ms et une durée de 600 ms.
+   - Problème : le titre principal et le CTA restent invisibles environ 0,8 s après le CSS. C'est plus sur un CPU lent, et cela pénalise le LCP.
+   - Le `filter: blur()` animé sur de grands blocs est la partie la plus coûteuse de l'animation sur les GPU faibles.
+   - Correctif :
+     - retirer `filter` du keyframe ;
+     - ne pas animer l'opacité du `h1` ni des CTA (garder `transform` seul, ou pas d'animation) ;
+     - réserver `rise` au badge et à la maquette.
+
+3. **Barres collées : elles prennent environ 24 % de l'écran dans le navigateur de WhatsApp, et le CTA est en double au chargement.**
+   - Éléments : l'en-tête `sticky` (64 px) et `MobileBar` (≈ 72 px). Ensemble, ils occupent ≈ 136 px sur ≈ 560 px visibles.
+   - La barre est affichée dès le chargement, alors que le CTA du hero est déjà à l'écran : on voit deux « Créer ma page gratuitement » identiques l'un au-dessus de l'autre (`v3-mobile-haut.png`).
+   - Correctif :
+     - rendre l'en-tête non collant sur téléphone (`md:sticky`) ;
+     - n'afficher `MobileBar` qu'après la sortie du CTA du hero, avec un `IntersectionObserver` léger ou une animation `scroll()`/`view()` sur l'opacité et la translation, et la masquer quand le CTA de `FinalCall` est visible.
+   - À vérifier : la capture montre aussi « Créer ma page » dans l'en-tête à 390 px. Or le code le masque sous `sm` (`hidden sm:contents`). Il faut refaire la capture sur le build actuel.
+
+4. **Faux liens dans le bandeau de produits.**
+   - Élément : `Showcase li p > span.text-accent` « Acheter ». Il est bleu comme un lien, sous chaque carte, mais ne réagit pas au toucher. Sur téléphone, c'est un piège à doigt, et cela donne l'impression d'une page cassée.
+   - Correctif : soit le retirer, soit le styler comme une étiquette non interactive (`text-muted`, sans couleur de lien), soit en faire un vrai lien vers `/inscription` de 44 px de haut.
+   - Contraste : le texte blanc de 12 px sur l'extrémité claire des dégradés (#4f8a6b ≈ 4,0:1, #d9467a ≈ 3,8:1) est sous 4,5:1. axe classe les fonds en dégradé « à vérifier », pas en échec. Correctif : assombrir le `to-` de ces deux couvertures (#3f7458, #b8335f), ou poser la métadonnée sur un fond `bg-black/25`.
+
+5. **Finitions accessibilité et poids.**
+   - `<footer>` est encore dans `section` dans `main` : il n'y a pas de repère `contentinfo`. Le déplacer après `main`, comme frère.
+   - L'icône « + » de la FAQ (`transition-transform … group-open:rotate-45`) et le survol du bandeau (`transition-transform`) n'ont pas `motion-reduce:transition-none`.
+   - `Geist_Mono` est encore chargée (`layout.tsx`) pour 4 chiffres d'étapes (`font-mono` dans `Journey`). Passer à `font-sans tabular-nums` et retirer la police si l'app ne s'en sert pas ailleurs.
+   - Il manque `openGraph` et une image `opengraph-image`. Pour un trafic qui vient de WhatsApp et Facebook, l'aperçu du lien conditionne le clic.
+   - Il manque une entrée `budgets` pour `/` dans `quality.spec.ts`, par exemple `maxHtml: 70_000`, `maxJs: 520_000`.
+
+### Conditions pour VALIDÉ (v3)
+
+1. Plus aucun `blur-[…]` ni `backdrop-blur` actif sous `md` (problème 1).
+2. `h1` et CTA du hero visibles dès le premier rendu, sans `filter` animé (problème 2).
+3. En-tête non collant sur téléphone, et `MobileBar` masquée tant que le CTA du hero ou du bloc final est visible (problème 3).
+4. « Acheter » du bandeau rendu non trompeur (problème 4).

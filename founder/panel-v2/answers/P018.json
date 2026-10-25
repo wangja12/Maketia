@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "J'ai lu toute la page : au final c'est moi qui vérifie l'argent sur SasPay et moi qui appuie sur envoyer dans WhatsApp, c'est déjà ce que je fais tous les soirs. Je testerais peut-être la page gratuite, mais payer 4 900 FCFA par mois pour un joli lien en plus, pas pour l'instant.",
+  "objection": "La confirmation n'est pas automatique, donc je reste collée à mon téléphone pour valider chaque vente comme avant ; et mes clients me paient déjà en Mobile Money direct, pas forcément via SasPay.",
+  "would_change_my_mind": "La confirmation automatique du paiement avec envoi du lien sans que je touche à rien, même quand je dors.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 5000,
+  "price_too_expensive": 10000
+}

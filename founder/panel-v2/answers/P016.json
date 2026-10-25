@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "I still have to watch my mobile-money SMS, confirm each payment and press send in WhatsApp myself, which is exactly what I do today. A nicer page and an expiring link are not worth 4 900 FCFA a month when my buyers already find me on WhatsApp; at most I would try the free page with one product.",
+  "objection": "If I still have to confirm each payment and send the link myself, what do I gain? The work that eats my evenings stays the same.",
+  "would_change_my_mind": "Automatic payment confirmation, so the buyer gets the download link by themselves when SasPay receives the money, without me touching anything.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 4000,
+  "price_too_expensive": 7000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Je vends déjà mon premier e-book en envoyant mon lien de paiement et le fichier sur WhatsApp, ça marche. Avec un seul produit et moins de 2 000 abonnés, je ne vois pas pourquoi payer 4 900 FCFA par mois; au mieux je teste la version gratuite.",
+  "objection": "Je dois quand même vérifier l'argent et appuyer moi-même pour envoyer, comme je fais déjà sur WhatsApp. Et une page web en plus, sur mes données mobiles, est-ce que mes clients vont vraiment cliquer dessus ?",
+  "would_change_my_mind": "Que la confirmation soit automatique et que je voie mes ventes monter grâce à la page, au point d'avoir plusieurs produits à vendre.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3000,
+  "price_too_expensive": 5000
+}

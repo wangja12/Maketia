@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I already sell one e-book on WhatsApp and it works: they ask, they pay by mobile money, I send the PDF. I still have to check the SMS and press send myself, so for one product I don't see why I'd pay 4 900 FCFA every month; at most I'd try the free page.",
+  "objection": "I'm not comfortable with technical tools. Building a page, pasting a SasPay link, a domain... I'm scared of getting stuck, and I don't even have a SasPay account, my buyers pay me by Orange Money or Wave.",
+  "would_change_my_mind": "If it worked directly with the mobile money my buyers already use and confirmed the payment automatically, and I had so many orders that doing it by hand was eating my evenings.",
+  "price_too_cheap": 500,
+  "price_cheap": 1000,
+  "price_expensive": 2500,
+  "price_too_expensive": 4000
+}

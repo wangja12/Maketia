@@ -1,5 +1,4 @@
-Maketia — "Ta page de vente, montée en dix minutes." For creators of e-books, courses, templates and packs.
-You build a sales page for your product in a simple section editor (works on phone), paste your own SasPay payment link, and publish.
-The buyer pays on your SasPay account: Maketia takes no commission and never holds your money.
-Today you confirm each payment in your Maketia space; Maketia then creates a private download link (expires, limited downloads) that you send to the buyer. Automatic confirmation is planned, not available yet.
-Prices: Gratuit (0 FCFA: 1 page, 1 product), Créateur 9 900 FCFA/month (10 pages, 25 products, A/B tests), Studio 24 900 FCFA/month (more pages, custom domain). A SasPay account is required to get paid.
+Maketia — "Vends ton e-book ou ta formation, sans y passer tes nuits." For French-speaking African creators paid in FCFA through SasPay.
+You build a sales page for your product from your phone (ready-made templates), paste your own SasPay payment link, and publish. 0% commission: the buyer pays on your SasPay account, no Maketia wallet, nothing to withdraw from Maketia.
+When you see the money arrive, you confirm the sale in one tap; Maketia creates a private download link (expires, limited downloads) and opens WhatsApp with the message to the buyer ready: you press "send". Automatic confirmation is not available yet.
+Prices: Gratuit, no card (1 page, 1 product, 0% commission). Créateur 4 900 FCFA/month (10 pages, 25 products, your own domain). No commission on any plan. You can export your contacts and delete your account at any time.

@@ -57,3 +57,47 @@ Score: 5/10 | Vote: FUND IF
 - **Rendre la confirmation manuelle visible et rassurante, pas cachée en FAQ.** Par exemple : « Aujourd'hui, tu valides chaque paiement en un tap, puis le lien part. Bientôt, ce sera automatique. » Dit franchement, c'est un argument de contrôle. Découvert tard, c'est une déception.
 - **Le chiffre « dix minutes ».** Le garder seulement s'il est mesuré sur de vrais créateurs (condition 4). C'est la meilleure accroche de la page, à condition qu'elle soit vraie.
 - **Une seule voix de la landing à l'app.** Le tutoiement de la landing est chaleureux. L'espace doit le garder, et parler de « ta page », pas de « tunnel ».
+
+## Deuxième séance
+
+Score: 6/10 | Vote: FUND IF
+
+La landing a beaucoup progressé : elle est plus honnête, plus ciblée et plus belle. Le produit, lui, n'a presque pas bougé là où il casse. Le panel (simulé) le dit clairement : 0 achat sur 30 réponses valides. Les 70 autres acheteurs n'ont pas de réponse exploitable. La première raison de refus est la confirmation à la main et l'envoi du lien par le créateur. Le bouton WhatsApp réduit l'effort, mais il ne retire pas l'humain du chemin. Pour la lentille Produit, c'est le même défaut sous une meilleure lumière. D'où +1 point, pas plus.
+
+### Conditions : tenues / pas tenues
+
+| # | Condition (première séance) | État | Constat |
+| --- | --- | --- | --- |
+| 1 | Fermer la boucle de livraison (confirmation et envoi automatiques) | **Pas tenue** (progrès partiel) | Le créateur doit toujours confirmer, ouvrir « Liens de téléchargement », toucher « Créer les liens », puis « Envoyer sur WhatsApp », puis « Envoyer » dans WhatsApp. C'est mieux que copier-coller, mais il faut encore quatre à cinq gestes et un humain éveillé. Côté acheteur, `/paiement/retour` dit toujours « vous pouvez fermer cette page » sans dire *quand* ni *par où* le fichier arrivera. |
+| 2 | Couper ce qui ne sert pas le premier fichier vendu | **Tenue sur la landing, pas dans l'app** | Sur la landing, A/B et MCP sont relégués à une ligne « Pour aller plus loin », et la carte « Agents IA » a disparu. Dans l'espace, la navigation et l'accueil restent organisés autour des « Tunnels ». |
+| 3 | Un seul parcours, un seul vocabulaire, une seule voix | **Pas tenue** | La landing tutoie. L'espace vouvoie toujours (« Créez votre premier tunnel ») et dit toujours « tunnel ». Le message WhatsApp envoyé à l'acheteur vouvoie, ce qui est juste, car il parle au client du créateur. |
+| 4 | Prouver les « dix minutes » ou changer le titre | **Tenue** | Le chiffre a disparu du titre. Le nouveau titre, « Vends ton e-book ou ta formation, sans y passer tes nuits », ne promet pas de durée. Voir toutefois la tension relevée plus bas. |
+| 5 | Fixer les prix avant d'ouvrir la page | **Pas tenue, mais bien gérée** | Les prix ne sont toujours pas fixés. La landing ne montre plus de carte « Tarif à définir » : elle vend « 0 % de commission » et « commence gratuitement ». C'est honnête, mais le visiteur ne sait toujours pas combien coûtera la suite. |
+
+Ce qui est corrigé depuis la première séance : la bulle « Conversion 4,8 % » a disparu, le badge « Le plus choisi » n'existe plus dans le code, et la FAQ s'intitule « Ce que tu te demandes sûrement ». La confirmation manuelle est dite franchement : elle est dans les étapes, dans le bandeau des quatre étapes et dans une question de FAQ dédiée. La landing montre enfin ce que vit l'acheteur, avec la section « Du clic au téléchargement » : page, paiement SasPay, lien sur WhatsApp.
+
+### Les cinq premières minutes d'un visiteur sur la nouvelle landing
+
+Le visiteur type est une créatrice sur téléphone, arrivée depuis un lien WhatsApp.
+
+- *0–10 s.* « Vends ton e-book ou ta formation, *sans y passer tes nuits*. » Elle se reconnaît. Le sous-titre est concret : une page, son lien SasPay, un lien privé « dès que tu as vu l'argent arriver », « 0 % de commission ». Il y a un seul bouton principal, et la barre fixe en bas garde « Créer ma page gratuitement » à portée de pouce. C'est le bon premier écran.
+- *10–60 s.* Les couvertures avec des prix en FCFA (5 000, 15 000, 3 000) parlent son langage. Ensuite, « Vendre sur WhatsApp, tu connais. Voilà la différence. » est la meilleure section de la page. Elle part de sa vie réelle : les « info ? », les captures d'écran parfois fausses, le PDF qui circule. Elle montre le changement ligne par ligne.
+- *1–3 min.* Les quatre étapes, avec l'encadré « Aujourd'hui, c'est toi qui confirmes chaque paiement ». Elle comprend qu'elle devra rester sur son téléphone. La promesse du titre, « sans y passer tes nuits », se fissure ici. Si un client paie à 23 h, c'est elle qui devra confirmer et envoyer, ou bien le client attendra jusqu'au matin. La page ne ment pas, mais le titre promet une liberté que le produit ne donne pas encore.
+- *3–5 min.* « Pour vendre un fichier, rien de plus », puis « Maketia est fait pour toi si… » et un grand « 0 % ». Elle veut savoir combien coûte la suite après le gratuit. La réponse est « affichés à leur ouverture ». La FAQ lui apprend aussi qu'il faut un compte SasPay. Si elle est au Cameroun, au Bénin ou au Togo, rien sur la page ne lui dit si SasPay fonctionne chez elle. La carte des concurrents relève que SasPay n'affiche que la Côte d'Ivoire, le Sénégal et le Burkina Faso. La pastille « créateurs d'Afrique francophone » promet donc plus large que ce qui est vérifié.
+
+**Verdict landing :** belle, honnête, à la bonne personne. Elle ne peut plus être beaucoup améliorée tant que le produit derrière ne change pas. Il reste trois retouches :
+1. Retirer ou nuancer « sans y passer tes nuits » tant que la confirmation est manuelle. Par exemple : « Vends ton e-book ou ta formation, sans courir après tes clients » (c'est déjà le titre de l'onglet, `metadata.title`).
+2. Remplacer « Afrique francophone » par les pays où SasPay est vérifié, ou ajouter une ligne « Disponible là où SasPay l'est : CI, SN, BF… ».
+3. Dans la carte « Paiement confirmé · Lien envoyé sur WhatsApp » de l'illustration du hero, le mot « envoyé » laisse croire à un envoi automatique. Écrire plutôt « Lien prêt à envoyer sur WhatsApp ».
+
+### Quoi couper ou affûter ensuite, dans le produit lui-même
+
+1. **Le moment de vérité, en un seul geste.** Fusionner « Confirmer le paiement », « Créer les liens » et « Envoyer sur WhatsApp » en une seule action : **« Confirmer et envoyer »**. Elle crée les liens et ouvre WhatsApp avec le message prêt. Plus de boîte de dialogue intermédiaire ni de bouton « Créer les liens ». La confirmation reste manuelle, ce qui garde l'honnêteté, mais elle tient en un tap.
+2. **Avertir le créateur qu'un client attend.** C'est le vrai problème de « sans y passer tes nuits ». Une commande en attente doit être visible tout de suite, par exemple avec un compteur en tête de l'espace, en attendant mieux. Sinon, la confirmation manuelle devient de l'oubli.
+3. **Dire à l'acheteur ce qui va se passer.** Sur `/paiement/retour`, remplacer « vous pouvez fermer cette page » par : « [Prénom du créateur] vérifie ton paiement et t'envoie ton lien sur WhatsApp, au numéro que tu as donné. » Ajouter aussi un bouton « Écrire au vendeur sur WhatsApp ». Aujourd'hui, l'acheteur qui vient de payer repart les mains vides, sans savoir quoi attendre. C'est le pire moment pour un silence.
+4. **Continuer à pousser la livraison automatique** (webhooks SasPay ou vérification par référence). C'est la demande n°1 du panel et le seul point où tous les concurrents directs font mieux. Tant qu'elle manque, Maketia reste « WhatsApp avec une plus belle page ».
+5. **Couper « tunnel » dans l'espace.** Le premier écran après inscription doit dire « Ta page » et demander le fichier et le prix, pas un nom de tunnel. Passer l'espace au tutoiement, comme la landing.
+6. **Ne jamais laisser un réglage admin bloquer un créateur.** Le domaine des liens SasPay doit être préconfiguré avant l'ouverture.
+7. **Garder hors de la première expérience** les tests A/B, le MCP et le multi-pages. La landing les a mis à leur place. L'app doit faire de même, avec une zone « avancé ».
+
+**Les conditions pour passer à FUND :** les points 1, 2 et 3 ci-dessus livrés, plus le point 4 ou une date crédible pour lui. Il faut aussi un test réel, et pas un panel simulé, avec au moins cinq créateurs de la cible, dans un pays où SasPay est vérifié, qui vendent un fichier de bout en bout.

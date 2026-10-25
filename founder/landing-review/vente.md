@@ -274,3 +274,87 @@ Ajouter un **bouton fixe en bas d'écran** « Créer ma page gratuitement », qu
 8. **Les sections Avant/Après et Ce que voit ton client sont ajoutées**, et le hero est réécrit autour du résultat (vendre sans courir sur WhatsApp, 0 % de commission, plan gratuit).
 9. **La garantie n'est affichée que si le fondateur peut la tenir** (remboursement 14 jours sur le premier mois payant). Sinon, la page s'en tient à « gratuit, sans carte, sans engagement ».
 10. **Pas de faux témoignages ni de faux compteurs** quand ils seront tentants après le lancement : un avis n'est publié qu'avec le nom et l'accord d'un vrai client.
+
+---
+
+## Revue v3
+Note: 8/10 | Verdict: VALIDÉ SI
+
+Sources : `src/app/page.tsx` (v3), captures `founder/landing-review/v3/*.png` (ordinateur complet et haut, mobile complet et haut, sombre haut). Nouveauté produit prise en compte : le créateur confirme le paiement, puis appuie sur « Envoyer sur WhatsApp ». WhatsApp s'ouvre avec le lien prêt, et rien ne part tout seul.
+
+### Ce qui s'est amélioré
+1. **Le hero vend un résultat** : « Vends ton e-book ou ta formation, *sans y passer tes nuits.* ». Il cite FCFA, SasPay et « 0 % de commission » dès le premier écran. Le badge « Afrique francophone » qualifie bien la cible. Les « dix minutes » ont disparu.
+2. **La promesse de livraison est maintenant honnête** : « dès que tu as vu l'argent arriver », « Tu confirmes, il télécharge », un encadré « Aujourd'hui, c'est toi qui confirmes chaque paiement », et une FAQ « Pourquoi la confirmation n'est-elle pas automatique ? ». La contrainte devient un argument anti-fraude. C'est exactement ce qu'il fallait.
+3. **« Tarif à définir » et le badge « Le plus choisi » ont disparu.** Le bloc « 0 % » est le plus fort de la page. Le filtre `priceMonthly !== null` empêche qu'une carte vide revienne.
+4. **Les sections qui manquaient sont là** : Avant / Avec Maketia (WhatsApp contre Maketia), Ce que vit ton client (3 téléphones), Pour qui / Pas encore si. L'ordre suit celui recommandé.
+5. **Le jargon a quitté la vitrine** : A/B, MCP et IA sont relégués à une ligne et à la dernière question de la FAQ. Les 6 cartes parlent des problèmes du créateur.
+6. **Les CTA sont cohérents** (« Créer ma page gratuitement » partout, avec le micro-texte « sans carte bancaire »). Il y a un CTA après le parcours, une barre fixe sur mobile, et « J'ai déjà un compte » à la place d'un second « Connexion ».
+7. **Visuellement**, la page est plus premium et plus vivante : téléphone sur bloc bleu, couvertures inclinées avec prix en FCFA, grand « 0 % » serif. Le mode sombre est propre. La bulle « Conversion 4,8 % » a été remplacée par un événement réel du produit.
+
+### Ce qui bloque encore (top 5, le plus grave d'abord)
+
+1. **« Lien envoyé sur WhatsApp » laisse croire à un envoi automatique.** La bulle du hero est le premier élément que l'œil lit dans la maquette, sans légende visible (la `figcaption` est `sr-only`). En réalité WhatsApp s'ouvre et c'est le créateur qui appuie sur Envoyer. Même problème, plus léger, dans « Un geste pour l'envoyer sur WhatsApp » et « tu l'envoies sur WhatsApp en un geste » : c'est deux gestes (ouvrir, puis envoyer). Sur la page, c'est le dernier écart de vérité.
+
+2. **Des affirmations sont précises mais pas prouvées dans `idea.md` : il faut les vérifier dans le produit avant de publier.**
+   - « Plan gratuit · sans carte bancaire », « une page et un produit » (FAQ) : les plans sont attribués par l'admin. Il faut vérifier qu'un nouvel inscrit reçoit bien automatiquement un plan gratuit avec ces quotas, sans limite de durée.
+   - « Tu peux exporter tes contacts et supprimer ton compte toi-même, depuis tes réglages » : vérifier que ces deux boutons existent.
+   - Maquette WhatsApp « valable 7 jours » : vérifier que c'est la durée par défaut du lien. Sinon, retirer la durée.
+   - « avec des statistiques simples sur ta page » : OK (les analytics existent).
+
+3. **Toujours aucune preuve vérifiable ni aucun visage.** Pas de vraie page d'exemple, pas de démo vidéo, pas de prénom ni de contact WhatsApp. Pour une cible méfiante, « 0 % de commission, gratuit, sans carte » sans personne derrière peut sonner trop beau. C'est le frein n°1 restant à la conversion. Ce n'est pas un problème de vérité.
+
+4. **L'attente nocturne de l'acheteur n'est pas dite.** « Ta page explique tout, même la nuit » et « Ton prochain client peut acheter *ce soir* » sont vrais, mais un client qui paie à 23 h reçoit son lien quand le créateur se réveille. Il faut le dire au créateur, sinon il le découvrira par un client fâché. Le hero « sans y passer tes nuits » reste juste tant que la page ne promet pas une livraison immédiate.
+
+5. **Petits frottements de conversion** :
+   - Sur mobile, la barre fixe « Créer ma page gratuitement » s'affiche en même temps que le bouton identique du hero : deux CTA collés au premier écran, et le téléphone de la maquette est coupé.
+   - Le bloc Tarifs ne dit pas **ce que contient** le gratuit : le détail (1 page, 1 produit) est caché dans la FAQ.
+   - Il reste du jargon dans la FAQ (« enregistrement DNS », « clé API »).
+   - Il n'y a toujours ni lien d'aide ni contact pour ouvrir un compte SasPay (« Ai-je besoin d'un compte SasPay ? Oui » s'arrête là).
+
+### Corrections restantes exactes (texte prêt à coller)
+
+**1. Bulle du hero (`HeroMock`)**
+```
+Paiement confirmé
+Lien prêt à envoyer sur WhatsApp
+```
+**2. Étape 4 (`STEPS[3].text`)**
+> Tu vois l'argent arriver, tu confirmes la vente, et Maketia crée son lien privé. Tu appuies sur « Envoyer sur WhatsApp » : le message est déjà prêt, tu n'as plus qu'à l'envoyer.
+
+**3. FAQ « Quand mon client reçoit-il son fichier ? »**
+> Dès que tu as confirmé son paiement et envoyé son lien. Tu vois l'argent arriver sur ton compte SasPay, tu confirmes la vente dans ton espace, puis tu appuies sur « Envoyer sur WhatsApp » : WhatsApp s'ouvre avec le message et le lien déjà écrits, tu n'as qu'à appuyer sur Envoyer (tu peux aussi copier le lien pour un SMS ou un e-mail). Rien ne part sans toi, et aucun fichier ne part sur une simple capture d'écran.
+
+**4. Avant / Avec, ligne 1 (côté Maketia)**
+> Tu envoies un seul lien : ta page explique tout, même la nuit. Tu confirmes les paiements à ton rythme.
+
+**5. Ajouter dans l'encadré honnête du parcours (après la phrase en gras)**
+> Si ton client paie pendant que tu dors, il reçoit son lien dès que tu as confirmé. Pense à l'écrire sur ta page (ex. « livraison sous 12 h »).
+
+**6. Bloc Tarifs : sous le paragraphe, avant le CTA**
+> **Plan gratuit :** 1 page de vente, 1 produit, lien de téléchargement privé, 0 % de commission. Sans carte bancaire, sans limite de durée.
+
+(À afficher seulement si c'est le plan par défaut à l'inscription. Sinon, aligner le texte sur la vérité.)
+
+**7. FAQ « Ai-je besoin d'un compte SasPay ? » : compléter**
+> Oui : c'est sur ton compte SasPay que ton client paie. Tu crées ton lien de paiement chez SasPay, puis tu le colles dans Maketia. Tu peux préparer ta page avant d'avoir ton lien et l'ajouter ensuite.
+
+(Vérifier qu'on peut publier ou préparer sans lien SasPay. Sinon, garder seulement la première phrase.)
+
+**8. FAQ domaine, sans jargon**
+> Oui. Tu ajoutes ton nom de domaine (ex. tonnom.com) et on te guide pas à pas pour le relier. Le nombre de domaines dépend de ton plan.
+
+**9. Contact humain : bloc court avant la FAQ, ou ligne sous l'appel final**
+> Une question avant de te lancer ? Écris-moi sur WhatsApp : [prénom], [numéro]. Je réponds moi-même.
+
+**10. Preuve** : quand elle existe, ajouter sous le CTA du hero un lien secondaire « Voir une vraie page publiée avec Maketia ». Il pointe vers une page réelle du fondateur (un guide gratuit suffit). Sinon, ne rien afficher. Ne jamais inventer d'avis, de compteur ou de logo.
+
+**11. Mobile** : n'afficher la `MobileBar` qu'une fois le CTA du hero sorti de l'écran (IntersectionObserver).
+
+### Conditions pour VALIDÉ (v3)
+1. La bulle du hero dit « Lien prêt à envoyer sur WhatsApp ». L'étape 4 et la FAQ décrivent les deux gestes (ouvrir, puis envoyer). **Bloquant.**
+2. Le fondateur confirme dans le produit : plan gratuit attribué automatiquement à l'inscription (1 page, 1 produit, sans carte, sans durée), export des contacts et suppression du compte en libre-service, durée de « 7 jours » du lien. Tout ce qui n'est pas vrai est retiré ou corrigé. **Bloquant.**
+3. Le délai de livraison quand le créateur dort est expliqué (correction 5).
+4. Un contact humain (prénom + WhatsApp ou e-mail) est visible. C'est **fortement recommandé avant le lancement**. La page d'exemple réelle et la démo vidéo restent les deux prochaines preuves à produire.
+5. Les points 6, 7, 8 et 11 améliorent la conversion mais ne bloquent pas la publication.
+
+Une fois les points 1 et 2 réglés, la page est **VALIDÉE** pour un lancement honnête. Avec les points 3 et 4 en plus, je l'estime à 9/10.

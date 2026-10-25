@@ -20,10 +20,10 @@ export default async function PaymentReturn({ searchParams }: PageProps<"/paieme
     body = "Ce lien ne correspond à aucune commande.";
   } else if (["paid", "delivery_queued", "delivered", "delivery_failed"].includes(order.status)) {
     title = "Paiement confirmé";
-    body = `Merci ! Votre paiement de ${money(order.amount, order.currency)} pour « ${order.productName} » est confirmé.`;
+    body = `Merci ! Votre paiement de ${money(order.amount, order.currency)} pour « ${order.productName} » est confirmé. Le vendeur vous envoie votre lien de téléchargement privé aux coordonnées que vous avez données (WhatsApp, SMS ou e-mail).`;
   } else if (order.status === "pending" || order.status === "started" || order.status === "payment_unmatched") {
     title = "Paiement en cours de vérification";
-    body = "Votre commande est enregistrée. Elle sera confirmée dès que le paiement aura été vérifié ; vous pouvez fermer cette page.";
+    body = "Votre commande est enregistrée. Le vendeur vérifie votre paiement, puis vous envoie votre lien de téléchargement privé aux coordonnées que vous avez données (WhatsApp, SMS ou e-mail). Gardez la référence ci-dessous si vous devez le contacter.";
   } else {
     title = "Paiement non abouti";
     body = "Le paiement n’a pas été confirmé. Si un montant a été débité, il sera traité par le prestataire de paiement. Vous pouvez réessayer depuis la page de l’offre.";

@@ -128,3 +128,104 @@ Principe : l'animation sert l'entrée en scène et la compréhension. Rien sur l
 4. **Monotonie.** Au moins un gabarit casse la grille de 6 cartes : bento pour Fonctionnalités, ou frise pour Parcours, idéalement les deux.
 5. **Mode sombre.** Corriger l'artefact « GUIDE » derrière le téléphone, rendre visible le cadre du téléphone, garder un bouton principal saturé avec texte blanc, et faire détacher les bandes nuit du fond.
 6. **Animations.** Entrée du hero et révélations au scroll livrées en `once`, avec fallback `prefers-reduced-motion` et contenu visible sans JS.
+
+## Revue v3
+Note: 7,5/10 | Verdict: VALIDÉ SI
+
+La v3 a franchi le cap principal : le hero séduit maintenant, et plus rien ne sonne faux. La note ne monte pas plus haut pour deux raisons. La page est devenue **longue** : desktop 7 163px contre 5 281px en v2, mobile 20 474px contre 14 894px, soit l'inverse de la condition 3 posée en v2. Et le bleu nuit, répété 4 fois, perd son effet d'événement.
+
+### Ce qui s'est amélioré
+
+- **Hero.**
+  - H1 à 4.6rem, avec la ligne serif « sans y passer tes nuits. » sur toute la largeur : c'est enfin un titre d'éditorial, et le meilleur moment de la page.
+  - Le bloc bleu `rounded-[32px]` décalé derrière le téléphone donne une forme qu'on retient (PlutoPay réussi).
+  - Le téléphone acheteur est lisible : prix, puces, « Acheter ».
+  - « Paiement confirmé · Lien envoyé sur WhatsApp » remplace le faux 4,8 %, et c'est vrai.
+  - Le CTA secondaire passe en lien texte avec ↓, la hiérarchie est plus nette.
+- **0 % de commission.** Le fait vrai le plus vendeur devient le moment typographique. La carte « Tarif à définir » a disparu.
+- **Le parcours.** 4 étapes sur une frise : la ligne horizontale sur desktop et la ligne verticale sur mobile sont bien vues. La note honnête sur la confirmation manuelle, dans un encadré, rassure sans s'excuser.
+- **Showcase.** Les couvertures inclinées avec prix FCFA et « Acheter » en dessous : idée Kit créateur bien exécutée, et le survol qui redresse la couverture est juste.
+- **Avant / avec Maketia.** Le contraste gris enfoncé / nuit est le bon langage pour ce message.
+- **Mot-symbole final.** Le dégradé `from-white/[0.16]` est enfin visible, l'effet GAZU fonctionne.
+- **Mode sombre.** L'artefact « GUIDE » a disparu. Le téléphone blanc sur bloc bleu ressort très bien sur fond `#141412`.
+- **Motion.**
+  - Entrée `rise` du hero en CSS pur, en cascade de 60ms.
+  - Révélations par `animation-timeline: view()` derrière `@supports`, sans JS, contenu visible si non supporté.
+  - Rien ne bouge sous `prefers-reduced-motion`. Conforme.
+
+### Ce qui casse encore l'effet (top 5)
+
+1. **La page est trop longue.** 10 sections en v3 contre 8 en v2. Sur mobile, 20 474px, environ 26 écrans d'iPhone. « Avant/avec », « Fait pour toi si… », « Tout ce qu'il faut » et la FAQ à 9 questions répètent les mêmes arguments : argent sur ton compte, pas de code, fichier protégé. La séduction s'épuise avant le 0 %.
+2. **Le bleu nuit est trop répété.** Avant/avec (moitié droite), Parcours, 0 % et Final : 4 masses nuit. Les deux premières se touchent presque (Avant/avec puis Parcours, sans respiration). Dans les références, GAZU et PlutoPay n'utilisent le noir que 1 ou 2 fois : c'est la rareté qui fait l'événement.
+3. **Sur mobile, le premier écran est toujours sans visuel, et il contient deux CTA identiques.**
+   - Le téléphone n'apparaît qu'à environ 1 450px, coupé par la barre fixe.
+   - La barre fixe « Créer ma page gratuitement » est visible en même temps que le bouton identique du hero.
+   - Le badge passe sur 2 lignes.
+4. **Le mock éditeur du hero est grossier.**
+   - Les lignes `bg-fg/80` de 12px ressemblent à du texte caviardé.
+   - Le téléphone couvre le tiers droit de la fenêtre, qui ne montre presque rien.
+   - En sombre, ces barres deviennent gris clair et attirent l'œil plus que le titre.
+5. **Le bento n'a que du texte, et la section « Ce que vit ton client » est trop petite.**
+   - Le bento varie les largeurs (`col-span-2`) mais les 6 cartes restent icône + titre + paragraphe. La forme change, la monotonie reste.
+   - Les 3 téléphones de « Ce que vit ton client » font 190px dans un conteneur de 1 152px : environ 60 % de vide, et l'écran SasPay n'est qu'un squelette gris.
+
+Défauts techniques à signaler :
+- **Contraste du bouton en mode sombre insuffisant.** `--accent: #4d7dff` avec texte `#ffffff` donne environ **3,7:1**, sous 4,5:1 pour du texte de 15px. Ma valeur v2 (« ≈4,6:1 ») était fausse. Je la corrige ci-dessous.
+- **Le flou est appliqué au mock entier.** `rise` anime `filter: blur(4px)` aussi sur `HeroMock` (560×470px), ce qui coûte cher sur mobile d'entrée de gamme.
+- **Les révélations ne sont pas « une seule fois ».** `.reveal` est liée au scroll avec une timing function `linear`. Elle se rejoue à l'envers quand on remonte, et la sensation est linéaire, pas ease-out.
+- **Le 0 % est écrit deux fois côte à côte.** « 0 % » en 10rem, puis le H2 « 0 % de commission. » juste à droite.
+
+### Corrections restantes (valeurs exactes)
+
+**1. Raccourcir (objectif : desktop ≤ 5 800px, mobile ≤ 13 000px)**
+- Supprimer la section `ForWho`. Déplacer 2 de ses lignes « Pas encore, si » dans la FAQ, sous la question « Pour qui ce n'est pas fait (encore) ? ».
+- FAQ : garder 6 questions. Retirer « Faut-il savoir coder ? » (déjà dit 3 fois) et « Et l'intelligence artificielle ? » (déjà dit sous le bento). Fusionner « Pourquoi la confirmation n'est-elle pas automatique ? » dans « Quand mon client reçoit-il son fichier ? ».
+- Avant/avec : passer à 4 lignes en retirant « Tes ventes se perdent… ». Sur mobile, chaque paire s'affiche sur une ligne (avant barré en `text-muted line-through decoration-fg/20 text-[14px]` au-dessus, après en dessous), au lieu de 2 listes de 5 empilées.
+- Bento : 4 cartes. Retirer « Ton nom de domaine » et « Pensée pour le téléphone », que la section 3 téléphones prouve déjà.
+- Espacements : `py-20 lg:py-28` passe à `py-16 lg:py-24` sur Avant/avec, Bento et FAQ.
+
+**2. Rythme du nuit (2 panneaux + le final, pas plus)**
+- Avant/avec : la colonne « Avec Maketia » passe en `bg-accent/[0.06] ring-1 ring-accent/20` avec texte `text-fg`, au lieu de `bg-night`. Coche `bg-accent text-white`.
+- Ou déplacer Avant/avec **après** « Ce que vit ton client ». Ordre conseillé : Hero, Showcase, Parcours (nuit), Ce que vit ton client, Avant/avec (clair), Bento, 0 % (nuit), FAQ, Final (nuit).
+
+**3. Hero mobile**
+- Sous `sm`, afficher le téléphone avant les CTA : `order-first` sur un bloc mobile dédié, téléphone `w-[200px]` sur bloc bleu `h-[260px] w-[72%] rounded-[28px]`, `mt-2`. Ou réduire le visuel mobile à `h-[320px]` et le placer juste après le paragraphe.
+- Barre mobile : masquée tant que le CTA du hero est visible. En CSS, avec `animation-timeline: scroll()` et `animation-range: 0 600px` sur `opacity`/`translateY(100%)`, sous `@supports` ; sans support, garder la barre. Ou IntersectionObserver sur le CTA du hero, avec `data-show` et `transition: transform 220ms var(--ease-out)`.
+- Badge mobile court : « Créateurs d'Afrique francophone · FCFA » (`sm:hidden`), la version longue en `hidden sm:inline`.
+
+**4. Mock éditeur du hero**
+- Barres titre : `h-2.5 bg-fg/25` au lieu de `h-3 bg-fg/80`. Barres texte : `h-1.5 bg-fg/10`.
+- Ajouter dans la zone visible (`pr-[46%]`) une mini-couverture `w-10` + un bloc prix `h-4 w-16 rounded bg-accent/15`, pour que la fenêtre montre « une page », pas des lignes.
+- Fenêtre `w-[74%]`, téléphone `right-[4%]` : le chevauchement passe d'environ 1/3 à environ 1/5.
+- Mode sombre : barres `dark:bg-white/15` et `dark:bg-white/8`.
+
+**5. « Ce que vit ton client » et bento**
+- Téléphones : `w-[220px] sm:w-[240px]`, `min-h-[260px]`, `gap-10`. Relier les 3 par une flèche fine `→` en `text-muted`, entre chaque, desktop seulement.
+- Écran 2 : remplacer le squelette par un vrai contenu illustratif neutre (« Montant 5 000 FCFA », « Numéro mobile money », bouton). Garder la mention « L'écran de paiement est celui de SasPay et peut différer. »
+- Bento : donner un mini-visuel aux 2 cartes `wide`.
+  - « Une page qui vend » : 3 pilules de sections empilées, décalées de `translate-x-2`.
+  - « Pas payé, pas de fichier » : un lien `…/telechargement/aB3x` avec « expire dans 7 j · 3 téléchargements restants ».
+  - Hauteur minimale de ces cartes `lg:min-h-[240px]`, visuel aligné à droite avec `lg:flex-row`.
+
+**6. 0 %**
+- Garder le « 0 % » géant. Le H2 devient : « Tes ventes restent à toi. » en `text-white`, avec « Aucune commission, jamais. » en serif sky-300. On n'écrit plus « 0 % » deux fois.
+- Ajouter un léger `text-shadow: 0 0 60px rgb(125 211 252 / 0.35)` sur le 0 %. Pas d'animation de compteur.
+
+**7. Mode sombre**
+- `--accent: #3b6cf0`, `--accent-hover: #5580f5`, `--accent-fg: #ffffff`. Contraste du texte blanc sur `#3b6cf0` environ 4,6:1. Pour les liens et le texte accent en sombre, utiliser `text-sky-300` ou un token `--accent-text: #8fb0ff`.
+- Bloc bleu du hero en sombre : `dark:bg-[#2f5fe0]`, pour qu'il reste plus sombre que le blanc du téléphone sans paraître fluo.
+
+**8. Motion**
+- `rise` : retirer `filter: blur()` de la figure du hero. Garder le flou uniquement sur le badge, le H1 et le paragraphe, ou le retirer partout. Mock : `transform: translateY(16px) scale(0.98)` seulement.
+- `.reveal` : ajouter `animation-timing-function: var(--ease-out)` dans la règle `@supports` (la timing function s'applique sur la progression du scroll). Réduire `animation-range: entry 10% entry 60%` pour que l'élément soit pleinement visible avant le milieu de l'écran.
+- Accepter le rejeu à la remontée (inhérent à `view()`) ou passer à IntersectionObserver + `data-inview` pour un vrai « une fois ». Les deux sont acceptables ; ne pas cumuler.
+- Frise du parcours : ajouter le tracé de ligne `scaleX(0→1)`, `transform-origin: left`, `animation-range: entry 20% cover 40%`, désactivé sous reduced motion. C'est la seule animation « signature » qui manque.
+
+### Conditions pour VALIDÉ (v3)
+
+1. Hauteur mobile ≤ 13 000px et desktop ≤ 5 800px : retrait de `ForWho`, FAQ à 6 questions, bento à 4 cartes, Avant/avec à 4 lignes.
+2. Au plus 2 panneaux nuit en plus du final, jamais deux masses nuit consécutives.
+3. Mobile : visuel du téléphone dans le premier écran, ou au plus tard 1,2 écran ; barre fixe masquée tant que le CTA du hero est visible.
+4. Accent sombre `#3b6cf0` (≥ 4,5:1 avec le blanc).
+5. Mock éditeur allégé : barres à 25 % et 10 %, plus de « texte caviardé ».
+6. Plus de `blur` animé sur la figure du hero ; `.reveal` en ease-out.

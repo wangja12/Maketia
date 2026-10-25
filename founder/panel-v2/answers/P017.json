@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "convenience",
+  "reason": "Today I already check my SasPay, then send the link on WhatsApp by hand. With Maketia I still check, still tap confirm, still press send, so for 4 900 FCFA a month I only gain a nicer page. I might try the free page, but I would not pay.",
+  "objection": "If I still have to watch each payment and confirm it myself, the real work is still on me, and my data bundle runs out before the end of the month anyway.",
+  "would_change_my_mind": "Automatic confirmation: the buyer pays on SasPay and gets the download link without me touching my phone.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 3000,
+  "price_too_expensive": 5000
+}

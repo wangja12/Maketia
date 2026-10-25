@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I don't know SasPay and I don't have an account there, and I don't know who is behind Maketia either. I've been scammed before, so I won't open a payment account and send my buyers to a name I've never heard of just to save time on sending files.",
+  "objection": "Two unknown names at once: Maketia and SasPay. If the money doesn't arrive or the account gets blocked, who do I call? I see no company, no address, no creator I know who uses it.",
+  "would_change_my_mind": "Seeing a creator I know in Abidjan or Dakar actually using it and getting paid, plus knowing the real company and people behind Maketia and SasPay. Then I'd try the free plan first.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 4000,
+  "price_too_expensive": 7500
+}

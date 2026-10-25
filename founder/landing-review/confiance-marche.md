@@ -117,3 +117,69 @@ La page est déjà plus honnête que la moyenne. La FAQ dit clairement que le cr
 8. Remplacer « Plan par défaut — Tarif à définir » par une offre claire pendant le lancement, et simplifier les libellés de quotas.
 9. Trancher entre tu et vous, et l'appliquer à la landing et au produit.
 10. Remplacer les exemples de produits par des exemples locaux. Ne publier la landing qu'une fois la production déployée.
+
+## Revue v3
+
+Note: 7/10 | Verdict: VALIDÉ SI
+
+Sources : `src/app/page.tsx` (v3), captures `founder/landing-review/v3/*.png`, `founder/idea.md`. J'ai aussi vérifié dans le code :
+- le bouton WhatsApp : `src/app/app/[workspaceId]/paiements/files.tsx` et `src/lib/whatsapp.ts` ;
+- la durée des liens : `GRANT_DEFAULTS = { days: 7, maxDownloads: 5 }` dans `src/server/files/files.ts` ;
+- le plan par défaut : `drizzle/0005_crm_plans_admin.sql` ;
+- la suppression de compte : `src/server/account-settings.ts`.
+
+Gros progrès. Les promesses fausses de la v2 ont disparu. La page dit maintenant clairement, à trois endroits, que le créateur confirme chaque paiement : l'étape 4, l'encadré « Aujourd'hui, c'est toi qui confirmes chaque paiement » et la FAQ. Le bloc « Pas encore, si… » est un vrai argument de confiance. Il reste deux affirmations à corriger dans le code, quelques précisions à apporter, et surtout le bloc « qui est derrière » et les pages légales, qui dépendent du fondateur.
+
+### Affirmations maintenant OK
+
+| Texte exact | Pourquoi c'est OK |
+|---|---|
+| « Tu confirmes, il télécharge — Tu vois l'argent arriver, tu confirmes la vente, et Maketia crée son lien privé. Un geste pour l'envoyer sur WhatsApp. » | Conforme. Le bouton « Envoyer sur WhatsApp » existe. Il ouvre WhatsApp avec le message prêt (lien `wa.me`), et rien n'est envoyé sans l'appui du créateur. |
+| « Aujourd'hui, c'est toi qui confirmes chaque paiement. C'est voulu : aucun fichier ne part sur une simple capture d'écran… » | Honnête et conforme (pas de webhook SasPay). |
+| « Pas payé, pas de fichier — Ton fichier n'est remis qu'après ta confirmation. Le lien expire et se télécharge un nombre limité de fois » | Conforme (7 jours et 5 téléchargements par défaut). |
+| « Voici votre lien de téléchargement (valable 7 jours) » (maquette WhatsApp) | Conforme à `GRANT_DEFAULTS.days = 7`. |
+| « Ton fichier (PDF, vidéo, pack, jusqu'à 50 Mo) » | La limite de 50 Mo est enfin affichée. |
+| « 0 % de commission » / « Pas de portefeuille Maketia, pas de retrait à nous demander, aucune commission » / « ne te demande jamais ta clé API SasPay » | Conforme à idea.md. |
+| « Paiement via SasPay » / « Paiement par SasPay » / « L'écran de paiement est celui de SasPay et peut différer. » | « Sécurisé » a été retiré, et la nuance est juste. |
+| « Puis-je arrêter quand je veux ? … exporter tes contacts et supprimer ton compte toi-même » | Conforme. L'export CSV des contacts existe. La suppression efface les espaces et les fichiers stockés. |
+| « Et l'intelligence artificielle ? Maketia n'intègre aucune IA… rien n'est publié sans ton accord. » | Conforme. MCP et A/B sont bien relégués à une ligne « Pour aller plus loin ». |
+| « Ce que tu te demandes sûrement. » | Remplace correctement « qu'on nous pose vraiment ». |
+| « Pas encore, si… la confirmation est manuelle pour l'instant » / « Tu dois encaisser hors SasPay » | C'est excellent pour la confiance. |
+| Bloc tarifs : la carte « Tarif à définir » est masquée, et « Les prix des plans payants seront affichés ici à leur ouverture » s'affiche à la place | Honnête. Il n'y a plus de « Le plus choisi ». |
+| « Exemples : titres et prix inventés. » / « Illustrations… » | Correctement étiqueté. |
+| Aucune mention d'Orange Money, Wave, MTN ou Moov | C'est correct tant que SasPay ne l'a pas confirmé par écrit. |
+
+### Encore à corriger (texte exact)
+
+| Texte exact | Problème | Correction |
+|---|---|---|
+| FAQ « Combien ça coûte ? » : « Tu peux commencer gratuitement, sans carte bancaire : **une page et un produit**. » | **Faux en l'état de la base.** Le seul plan créé par la migration est « Plan par défaut » : prix non défini, limites `null`, donc illimitées. Rien n'impose « une page et un produit ». C'est une hypothèse de idea.md, pas une décision. | Retirer « une page et un produit » tant que l'admin n'a pas créé le plan Gratuit avec ces limites. Écrire plutôt : « Tu peux commencer gratuitement, sans carte bancaire. » |
+| Carte de la maquette du héros : « Paiement confirmé — **Lien envoyé sur WhatsApp** » | Ce texte ressemble à une notification système automatique, alors que le créateur doit appuyer sur « Envoyer » dans WhatsApp. La mention d'illustration n'existe qu'en `sr-only`, donc elle est invisible. | « Paiement confirmé — Lien prêt à envoyer sur WhatsApp ». Rendre la légende « Illustration » visible. |
+| FAQ : « tu l'envoies sur WhatsApp en un geste (ou par SMS, ou par e-mail) » | Le « geste unique » ne vaut que pour WhatsApp. L'app précise aussi que le lien « ne s'affiche qu'une fois » : il faut le dire avant que le créateur le perde. Le numéro du client n'est prérempli que s'il est au format international (+225…). | « …en un geste sur WhatsApp, ou en le copiant pour un SMS ou un e-mail. Le lien ne s'affiche qu'une fois : envoie-le tout de suite. » |
+| Showcase : « Formation — Excel pour ton commerce, en 7 jours — 12 vidéos — 15 000 FCFA » | Douze vidéos tiennent rarement dans un fichier de 50 Mo. Cet exemple contredit l'étape 1. | Le remplacer par un produit qui tient en 50 Mo (PDF + audio, ou « formation : 1 vidéo de 20 min + fiche PDF »). Ou ajouter « (lien vers tes vidéos hébergées ailleurs) » si c'est l'usage prévu. |
+| Badge du héros : « Pour les créateurs d'Afrique francophone · paiement SasPay en **FCFA** » | Personne n'a vérifié si SasPay couvre les deux zones, XOF (UEMOA) et XAF (Cameroun). La page vise explicitement toute l'Afrique francophone. | Garder « FCFA » seulement si SasPay confirme les deux zones. Sinon, nommer les pays couverts. |
+| FAQ « Ai-je besoin d'un compte SasPay ? » | La réponse dit « oui », mais n'explique toujours pas ce qu'est SasPay, où ouvrir un compte, ni le délai et les frais. C'est le premier point de blocage. | Ajouter une phrase sur SasPay et un lien officiel vers l'ouverture de compte. Préciser que les frais de SasPay sont ceux de SasPay, pas de Maketia. |
+| « Ton prochain client peut acheter **ce soir**. » | C'est vrai seulement si le compte SasPay existe déjà et que la production est en ligne. L'ouverture d'un compte SasPay peut prendre plus d'une soirée. | C'est acceptable. Plus sûr : « Ton prochain client peut acheter dès que ta page est publiée. » |
+| Registre : la landing tutoie, l'app vouvoie (« envoyez-le sur WhatsApp », « choisissez l'acheteur », « Changez de plan ») | Le visiteur passe du « tu » au « vous » dès son inscription. | Choisir un seul registre pour la landing et l'app. Le message WhatsApp envoyé au client peut rester au « vous ». |
+| Exemples « Excel pour ton commerce », « Méditations du matin » | Toujours génériques. Seul le prénom « Awa » est local. | Prendre des exemples locaux (concours, WhatsApp Business, recettes, modèles de CV ou de business plan, couture), avec des prix de 2 000 à 15 000 FCFA. |
+
+### Conditions restantes pour VALIDÉ
+
+**Ce que le code peut corriger maintenant (sans le fondateur) :**
+1. Retirer « une page et un produit » de la FAQ « Combien ça coûte ? », ou le conditionner aux limites réelles du plan par défaut lues en base.
+2. Remplacer « Lien envoyé sur WhatsApp » par « Lien prêt à envoyer sur WhatsApp ». Rendre la légende « Illustration » visible.
+3. Compléter la FAQ sur la livraison : un seul geste sur WhatsApp seulement, copie pour SMS ou e-mail, lien affiché une seule fois.
+4. Remplacer l'exemple « Formation · 12 vidéos » par un produit compatible avec 50 Mo. Localiser les exemples de produits.
+5. Unifier tu / vous entre la landing et l'app.
+6. Préparer le pied de page et les routes `/mentions-legales`, `/cgu`, `/confidentialite`, avec la structure et les liens. Ne les publier qu'une fois remplies avec les vraies informations, jamais avec un texte inventé.
+7. Prévoir l'emplacement d'un bloc « Qui est derrière Maketia » et d'un bouton WhatsApp de support. Ils ne doivent rester visibles qu'une fois renseignés.
+
+**Ce que seul le fondateur peut fournir :**
+1. Son identité : nom, photo, ville et pays. La structure juridique : RCCM, ou « en cours d'immatriculation » dit honnêtement.
+2. Un e-mail de contact et un **numéro WhatsApp de support** réellement suivi, avec des horaires.
+3. Le contenu des mentions légales (éditeur, hébergeur et pays d'hébergement des fichiers), des CGU et de la politique de confidentialité, relu pour le droit local (ARTCI, CDP…).
+4. Une confirmation écrite de SasPay sur les pays et devises couverts (XOF et XAF) et sur les moyens de paiement (Orange Money, Wave, MTN, Moov, carte). Un lien officiel vers l'ouverture de compte SasPay, avec le délai et les frais.
+5. La décision sur le plan Gratuit (limites réelles) et sur les prix, à créer dans l'admin.
+6. Une politique de sauvegarde des fichiers (aujourd'hui sur disque local), avant d'écrire quoi que ce soit sur la conservation.
+7. Deux ou trois vrais créateurs bêta, avec leur accord écrit, pour remplacer les exemples inventés par une preuve réelle.
+8. La mise en production : la landing ne doit être publiée qu'avec l'app en service.
