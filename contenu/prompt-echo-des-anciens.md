@@ -1,9 +1,18 @@
 # Prompt : « L'Écho des Anciens », jeu complet selon la bible (filmé)
 
-À coller dans Claude Code, lancé **depuis le dossier du jeu « Les 7 sauts du Dahomey »**, avec `BIBLE.md` dans ce dossier.
+À coller dans Claude Code dans ton terminal. Il trouve lui-même le jeu et la bible.
 
 ```text
-Mission : construire le jeu COMPLET « L'Écho des Anciens » décrit dans BIBLE.md, à partir d'une COPIE de ce jeu. Tu suis la bible entièrement : univers, 7 régions, personnages, 7 Courants et leurs compétences, combat, boss, progression, équipement, forge, 5 saisons et 50 épisodes, quêtes, bestiaire, HUD, commandes tactiles, menus, accessibilité, audio, coopération, sauvegarde.
+Mission : construire le jeu COMPLET « L'Écho des Anciens » décrit dans la bible, à partir d'une COPIE de mon jeu « Les 7 sauts du Dahomey ». Je ne fais rien : tu fais tout toi-même.
+
+## Préparation (fais-la toi-même, sans me demander)
+1. Trouve le dossier de mon jeu « Les 7 sauts du Dahomey » sur cet ordinateur : le dossier courant, ou cherche un dossier dont le nom contient « 7 » et « saut » / « dahomey » dans mon dossier personnel (Bureau, Documents, projets). Si tu en trouves plusieurs, prends le plus récent et dis-moi lequel.
+2. Trouve la bible dans mon dossier Téléchargements : un fichier dont le nom commence par « Bible_Jeu_Echo_des_Anciens » (.md). Si plusieurs versions existent, prends la plus récente.
+3. Crée le dossier `echo-des-anciens` à côté du dossier des 7 sauts. Copie tout le jeu dedans, sauf `node_modules`, `.git`, `dist` et les caches.
+4. Copie la bible dans `echo-des-anciens/BIBLE.md`.
+5. Va dans `echo-des-anciens` : c'est là que tu fais TOUT le travail. Puis enchaîne directement avec la suite, sans attendre.
+
+Tu suis la bible entièrement (BIBLE.md). Tu suis la bible entièrement : univers, 7 régions, personnages, 7 Courants et leurs compétences, combat, boss, progression, équipement, forge, 5 saisons et 50 épisodes, quêtes, bestiaire, HUD, commandes tactiles, menus, accessibilité, audio, coopération, sauvegarde.
 Tu filmes aussi ton travail pour des vidéos TikTok/Facebook.
 
 ## 0. Règles
@@ -17,7 +26,7 @@ Tu filmes aussi ton travail pour des vidéos TikTok/Facebook.
 - Plateformes : navigateur PC et mobile (Android/iOS via le navigateur, puis empaquetage si possible). Garde la base technique du jeu d'origine (Three.js, etc.), sauf si un changement est indispensable : explique-le avant.
 
 ## 1. Copie et organisation
-1. Copie le projet dans un dossier frère `echo-des-anciens/`, sans `node_modules`, `.git`, `dist` ni les caches. Lance `git init` et réinstalle les dépendances.
+1. Dans `echo-des-anciens/`, lance `git init`, réinstalle les dépendances et vérifie que la copie se lance.
 2. Crée `PROGRESS.md` : la liste de TOUT ce que la bible demande (les 20 systèmes de la section 17.1, les 7 régions, les 50 épisodes, les personnages, les boss, l'UI, l'audio, la coopération), avec une case à cocher pour chaque élément.
 3. À chaque élément terminé et testé : coche-le dans PROGRESS.md et fais un commit git.
 4. Si la session s'arrête (limite, coupure), au prochain lancement relis PROGRESS.md et reprends exactement là où tu t'étais arrêté. Ne recommence jamais de zéro.
