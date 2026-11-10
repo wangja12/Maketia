@@ -12,7 +12,7 @@ Mission : construire le jeu COMPLET « L'Écho des Anciens » décrit dans la bi
 4. Copie la bible dans `echo-des-anciens/BIBLE.md`.
 5. Va dans `echo-des-anciens` : c'est là que tu fais TOUT le travail. Puis enchaîne directement avec la suite, sans attendre.
 
-Tu suis la bible entièrement (BIBLE.md). Tu suis la bible entièrement : univers, 7 régions, personnages, 7 Courants et leurs compétences, combat, boss, progression, équipement, forge, 5 saisons et 50 épisodes, quêtes, bestiaire, HUD, commandes tactiles, menus, accessibilité, audio, coopération, sauvegarde.
+Tu suis la bible (BIBLE.md) entièrement : univers, 7 régions, personnages, 7 Courants et leurs compétences, combat, boss, progression, équipement, forge, 5 saisons et 50 épisodes, quêtes, bestiaire, HUD, commandes tactiles, menus, accessibilité, audio, coopération, sauvegarde.
 Tu filmes aussi ton travail pour des vidéos TikTok/Facebook.
 
 ## 0. Règles
