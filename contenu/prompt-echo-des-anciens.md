@@ -1,67 +1,63 @@
-# Prompt : transformer une copie des 7 sauts en « L'Écho des Anciens » (filmé)
+# Prompt : « L'Écho des Anciens », jeu complet selon la bible (filmé)
 
-À coller dans Claude Code, lancé **depuis le dossier du jeu « Les 7 sauts du Dahomey »**.
-Avant de lancer, mets le fichier `BIBLE.md` (la bible du jeu) dans ce dossier.
+À coller dans Claude Code, lancé **depuis le dossier du jeu « Les 7 sauts du Dahomey »**, avec `BIBLE.md` dans ce dossier.
 
 ```text
-Mission : créer un nouveau jeu, « L'Écho des Anciens », à partir d'une COPIE de ce jeu, et filmer ton travail pour une vidéo TikTok/Facebook.
+Mission : construire le jeu COMPLET « L'Écho des Anciens » décrit dans BIBLE.md, à partir d'une COPIE de ce jeu. Tu suis la bible entièrement : univers, 7 régions, personnages, 7 Courants et leurs compétences, combat, boss, progression, équipement, forge, 5 saisons et 50 épisodes, quêtes, bestiaire, HUD, commandes tactiles, menus, accessibilité, audio, coopération, sauvegarde.
+Tu filmes aussi ton travail pour des vidéos TikTok/Facebook.
 
 ## 0. Règles
 - Ne modifie JAMAIS le jeu d'origine. Tu travailles uniquement sur la copie.
-- Lis entièrement BIBLE.md avant de coder. C'est la référence pour l'histoire, les noms, les couleurs, l'interface et les interdits :
+- Lis BIBLE.md en entier avant de coder. Respecte sa direction :
   - 95 % de lumière, 5 % de tension ;
-  - le thème rejeté par la note de direction de la bible n'apparaît NULLE PART ;
+  - le thème rejeté par la note de direction n'apparaît nulle part ;
   - aucune figure sacrée réelle ;
-  - une mythologie entièrement fictive.
-- Note l'heure exacte de début et de fin : la vidéo affichera la durée réelle.
+  - une mythologie fictive ;
+  - aucune vente de puissance.
+- Plateformes : navigateur PC et mobile (Android/iOS via le navigateur, puis empaquetage si possible). Garde la base technique du jeu d'origine (Three.js, etc.), sauf si un changement est indispensable : explique-le avant.
 
-## 1. Copie
-1. Copie tout le projet dans un dossier frère `echo-des-anciens/`, sans `node_modules`, `.git`, `dist` ni les caches. Réinstalle ensuite les dépendances dans la copie.
-2. Vérifie que la copie se lance à l'identique avant de la modifier.
+## 1. Copie et organisation
+1. Copie le projet dans un dossier frère `echo-des-anciens/`, sans `node_modules`, `.git`, `dist` ni les caches. Lance `git init` et réinstalle les dépendances.
+2. Crée `PROGRESS.md` : la liste de TOUT ce que la bible demande (les 20 systèmes de la section 17.1, les 7 régions, les 50 épisodes, les personnages, les boss, l'UI, l'audio, la coopération), avec une case à cocher pour chaque élément.
+3. À chaque élément terminé et testé : coche-le dans PROGRESS.md et fais un commit git.
+4. Si la session s'arrête (limite, coupure), au prochain lancement relis PROGRESS.md et reprends exactement là où tu t'étais arrêté. Ne recommence jamais de zéro.
+5. Si tu disposes de sous-agents, utilise-les pour travailler en parallèle sur des systèmes indépendants (UI, audio, contenus de quêtes, bestiaire).
 
-## 2. Enregistrement (pendant tout le travail)
-- Lance en arrière-plan un enregistrement de tout l'écran avec ffmpeg (30 i/s, H.264) dans `echo-des-anciens/videos-demo/rec-travail.mkv`.
+## 2. Ordre de construction (section 17.3 de la bible, jusqu'au bout)
+1. Socle : contrôleur joueur, caméra hybride, combat (attaque rapide et lourde, esquive, parade, verrouillage), HUD, commandes tactiles, sauvegarde.
+2. Les 7 Courants avec toutes leurs compétences, les synergies, les 4 archétypes, les arbres de progression.
+3. Inventaire, équipement, familles d'armes, rareté, forge (Déhou).
+4. Quêtes, dialogues, états narratifs et conséquences, les 3 fins.
+5. Les 7 régions, une par une, chacune avec sa palette, son donjon, son boss et ses activités. Les 50 épisodes des 5 saisons, chacun jouable avec un objectif et une conclusion.
+6. Bestiaire complet, IA ennemie, boss à phases avec attaques télégraphiées.
+7. Menus (inventaire, carte, quêtes, bestiaire, codex, fabrication, paramètres), accessibilité complète.
+8. Audio : sons d'armes, retours d'action, ambiances régionales (sons générés ou libres de droits, jamais de musique sacrée).
+9. Coopération jusqu'à 4 joueurs (WebRTC ou serveur WebSocket léger), mise à l'échelle des ennemis.
+10. Optimisation mobile : tester en 390x844 et viser 30 i/s minimum sur un téléphone moyen.
+Pour les visuels : formes et matériaux procéduraux en Three.js, textures générées. Tout asset externe doit avoir une licence libre, notée dans `CREDITS.md`.
+
+## 3. Tests à chaque étape
+- Teste toi-même avec Playwright, sur ordinateur et en vue mobile. Zéro erreur dans la console.
+- Joue chaque épisode terminé du début à la fin avant de le cocher.
+
+## 4. Enregistrement et vidéos
+- Pendant le travail, enregistre l'écran en arrière-plan avec ffmpeg (30 i/s, H.264), un fichier par grande étape, dans `videos-demo/`.
   Windows : -f gdigrab -i desktop. Mac : -f avfoundation -i "1:none" (vérifie le numéro d'écran, et demande-moi d'autoriser l'enregistrement si besoin).
-- Ton terminal reste en plein écran, avec une grosse police : on doit voir ta réflexion et le code s'écrire.
+- Note l'heure de début et de fin de chaque étape.
+- À chaque grande étape (socle, chaque région, chaque saison, jeu final), monte une vidéo verticale 1080x1920 de 45 à 60 s :
+  - 0–3 s : le plus beau plan du jeu + texte d'accroche ;
+  - le travail dans le terminal, recadré et accéléré (x4 à x8) ;
+  - carton « Quelques minutes plus tard… » ou « Quelques heures plus tard… », selon la durée RÉELLE ;
+  - 20 à 30 s de gameplay enregistré avec Playwright (si ta partie a l'air robotique, demande-moi de jouer) ;
+  - fin : « L'Écho des Anciens — créé avec l'IA » + « Commente JEU pour recevoir 5 jeux à tester gratuitement » ;
+  - texte avec contour noir, hors des 250 px du bas et du bord droit, pas de musique.
+- Exporte en H.264/AAC, 30 i/s, moins de 200 Mo, avec une miniature PNG et une entrée dans `videos-demo/legendes.md` (légende TikTok de 150 caractères maximum, légende Facebook de 3 à 5 lignes, 5 hashtags).
+- Si le MCP Zernio est connecté : crée des BROUILLONS TikTok (@wangjagueli) et Facebook (WANG). Ne publie jamais directement.
 
-## 3. Transformation : périmètre = PROLOGUE jouable (pas le RPG complet)
-Garde le moteur, la caméra et les sauts du jeu d'origine. Remplace l'identité et ajoute le minimum pour un vrai prologue :
-1. Titre et écran d'accueil : « L'Écho des Anciens — Prologue : Terre des Brumes ».
-2. Personnage : Aklé, éclaireur de Kétou-Nova (silhouette athlétique, équipement pratique, détails textiles et métalliques). Remplace le modèle et les couleurs du héros. Utilise des formes simples en Three.js si tu n'as pas de modèle 3D.
-3. Décor : Terre des Brumes. Collines vertes, rizières, cascades, routes de terre rouge, ciel lumineux. Palette : vert émeraude, ocre, turquoise, or doux. Aucun filtre gris, aucun ciel noir.
-4. Objectif : les 7 sauts deviennent 7 « Ancrages » lumineux à réactiver, de plateforme en plateforme. Compteur « Ancrage 1/7 … 7/7 ».
-5. Témi : courtes bulles de dialogue au début, au 4e Ancrage et à la fin (ton vif et drôle, voir la bible).
-6. Un pouvoir : Sogbé (Foudre), « Pas d'orage », un dash court avec un effet d'éclair. Touche dédiée, plus un bouton tactile.
-7. Ennemis légers : 2 ou 3 soldats de la Ligue du Trône qui patrouillent. Attaque rapide pour les repousser. Aucune violence graphique.
-8. Fin : un court face-à-face avec le Héraut d'Azur (silhouette aérienne bleue), puis l'écran « À suivre… Saison 1 : Les Routes de la Dérive ».
-9. HUD (style de la bible : ivoire, bleu nuit, accents or et turquoise) : vie, jauge de Courant, compteur d'Ancrages.
-10. Mobile : joystick virtuel à gauche, boutons saut, attaque et dash à droite. Ça doit se jouer sur téléphone.
-11. Remplace tous les textes, titres, crédits et métadonnées du jeu d'origine (titre de l'onglet, favicon, README).
-
-## 4. Tester
-- Lance le jeu et teste-le toi-même avec Playwright, sur ordinateur et en vue mobile (390x844). Corrige les erreurs de la console.
-- Vérifie qu'on peut finir le prologue du début à la fin.
-
-## 5. Vidéo (après le travail)
-1. Arrête l'enregistrement de l'écran.
-2. Enregistre 60 à 90 s de gameplay avec Playwright (recordVideo 1920x1080) : Aklé, les Ancrages, le dash éclair, un soldat repoussé, les dialogues de Témi. Si ta partie a l'air robotique, enregistre l'écran et demande-moi de jouer 60 s.
-3. Montage ffmpeg, vertical 1080x1920, 45 à 60 s :
-   - 0–3 s : le plus beau plan du gameplay + texte « J'ai transformé mon jeu vidéo en un tout nouveau jeu avec l'IA 🇧🇯 » ;
-   - le travail dans le terminal : recadré et lisible, accéléré x4 à x8, étiquettes des étapes (« Nouveau héros », « Nouveau monde »…) ;
-   - carton de 1,5 s avec la durée réelle : « Quelques minutes plus tard… » ou « Quelques heures plus tard… » ;
-   - gameplay de 20 à 30 s ;
-   - fin de 3 s : « L'Écho des Anciens — créé avec l'IA en [durée réelle] », puis « Commente JEU pour recevoir 5 jeux à tester gratuitement » ;
-   - texte avec contour noir, hors des 250 px du bas et du bord droit, pas de musique.
-4. Exporte `videos-demo/echo-des-anciens.mp4` (H.264/AAC, 30 i/s, moins de 200 Mo) et une miniature PNG.
-5. Extrais une image toutes les 3 s, regarde-les et corrige ce qui ne va pas.
-
-## 6. Livraison
-- Écris `videos-demo/legendes.md` avec une légende TikTok (150 caractères maximum), une légende Facebook (3 à 5 lignes) et 5 hashtags.
-- Si le MCP Zernio est connecté : envoie la vidéo et crée un BROUILLON TikTok (@wangjagueli) et un BROUILLON Facebook (WANG). Ne publie rien.
-- Résume-moi :
-  - ce qui a été fait ;
-  - la durée réelle ;
-  - ce qui manque par rapport à la bible (pour les prochains épisodes) ;
-  - où sont les fichiers ;
-  - la commande pour lancer le jeu.
+## 5. Compte rendu
+À la fin de chaque session, donne-moi :
+- ce qui est fini (avec le % de PROGRESS.md coché) ;
+- ce qui reste ;
+- les vidéos produites ;
+- la commande pour lancer le jeu.
 ```
